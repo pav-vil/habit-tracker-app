@@ -1,6 +1,19 @@
 from flask import Flask, render_template_string
+from flask_sqlalchemy import SQLAlchemy
+import os
 
 app = Flask(__name__)
+
+# Secret key for sessions (change this in production!)
+app.config['SECRET_KEY'] = 'dev-secret-key-change-in-production'
+
+# Database configuration
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///habits.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Initialize SQLAlchemy with the app
+from models import db
+db.init_app(app)
 
 # HTML template with Bootstrap 5
 HOME_TEMPLATE = '''
@@ -170,6 +183,5 @@ def home():
 if __name__ == '__main__':
     # Run the app - accessible on all network interfaces
     app.run(host='0.0.0.0', port=5000, debug=True)
-
-    #codigo fuente de claude 12/12/2025
+    
     

@@ -6,12 +6,13 @@ Models: User, Habit
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import UserMixin
 
 # SQLAlchemy instance (initialized in app.py)
 db = SQLAlchemy()
 
 
-class User(db.Model):
+class User(UserMixin, db.Model):
     """User model representing registered users of the habit tracker app."""
     
     __tablename__ = "user"

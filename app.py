@@ -1,6 +1,7 @@
 from flask import Flask, render_template_string
 from flask_sqlalchemy import SQLAlchemy
 import os
+from flask_login import LoginManager
 
 app = Flask(__name__)
 
@@ -14,6 +15,21 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # Initialize SQLAlchemy with the app
 from models import db
 db.init_app(app)
+
+# Flask-Login Setup
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'auth.login'
+
+@login_manager.user_loader
+def load_user(user_id):
+    """Load user by ID for session management."""
+    from models import User
+    return User.query.get(int(user_id))
+
+# Register Blueprints
+from auth import auth_bp
+app.register_blueprint(auth_bp, url_prefix='/auth')
 
 # HTML template with Bootstrap 5
 HOME_TEMPLATE = '''
@@ -124,7 +140,7 @@ HOME_TEMPLATE = '''
                         <a class="nav-link" href="#about">About</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link btn btn-outline-primary ms-2 px-4" href="/login">Login</a>
+                        <a class="nav-link btn btn-outline-primary ms-2 px-4" href="/auth/login">Login</a>
                     </li>
                 </ul>
             </div>
@@ -136,7 +152,7 @@ HOME_TEMPLATE = '''
         <div class="container">
             <h1 class="hero-title">🎯 Build Better Habits</h1>
             <p class="hero-subtitle">Track your progress, build streaks, and achieve your goals</p>
-            <button class="btn btn-light btn-lg cta-button">Get Started Free</button>
+            <a href="/auth/register" class="btn btn-light btn-lg cta-button">Get Started Free</a>
         </div>
     </div>
 
@@ -183,5 +199,3 @@ def home():
 if __name__ == '__main__':
     # Run the app - accessible on all network interfaces
     app.run(host='0.0.0.0', port=5000, debug=True)
-    
-    

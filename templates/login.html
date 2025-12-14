@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Login - HabitFlow{% endblock %}
+
+{% block content %}
+<div class="auth-card">
+    <h2 class="text-center mb-4">Welcome Back!</h2>
+    <p class="text-center text-muted mb-4">Login to continue tracking your habits</p>
+    
+    <form method="POST" action="{{ url_for('auth.login') }}">
+        {{ form.hidden_tag() }}
+        
+        <!-- Email Field -->
+        <div class="mb-3">
+            {{ form.email.label(class="form-label") }}
+            {{ form.email }}
+            {% if form.email.errors %}
+                <div class="text-danger small mt-1">
+                    {% for error in form.email.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Password Field -->
+        <div class="mb-3">
+            {{ form.password.label(class="form-label") }}
+            {{ form.password }}
+            {% if form.password.errors %}
+                <div class="text-danger small mt-1">
+                    {% for error in form.password.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Remember Me Checkbox -->
+        <div class="mb-4 form-check">
+            {{ form.remember_me }}
+            {{ form.remember_me.label(class="form-check-label") }}
+        </div>
+        
+        <!-- Submit Button -->
+        <div class="mb-3">
+            {{ form.submit }}
+        </div>
+    </form>
+    
+    <!-- Register Link -->
+    <div class="text-center mt-4">
+        <p class="text-muted">Don't have an account? 
+            <a href="{{ url_for('auth.register') }}" class="text-decoration-none fw-bold">Sign up here</a>
+        </p>
+    </div>
+    
+    <!-- Test Credentials Info -->
+    <div class="mt-4 p-3 bg-light rounded">
+        <small class="text-muted">
+            <strong>🧪 Test Account:</strong><br>
+            Email: test@habitflow.com<br>
+            Password: password123
+        </small>
+    </div>
+</div>
+{% endblock %}

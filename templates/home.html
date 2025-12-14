@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}HabitFlow - Track Your Success{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-section {
+        padding: 100px 0 80px;
+        color: white;
+        text-align: center;
+    }
+    
+    .hero-title {
+        font-size: 3.5rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    .hero-subtitle {
+        font-size: 1.3rem;
+        opacity: 0.95;
+        margin-bottom: 40px;
+    }
+    
+    .cta-button {
+        padding: 15px 40px;
+        font-size: 1.2rem;
+        border-radius: 50px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    
+    .cta-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    }
+    
+    .feature-card {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        margin: 20px 0;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 35px rgba(0,0,0,0.15);
+    }
+    
+    .feature-icon {
+        font-size: 3rem;
+        margin-bottom: 20px;
+    }
+    
+    .features-section {
+        padding: 60px 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section">
+    <div class="container">
+        <h1 class="hero-title">🎯 Build Better Habits</h1>
+        <p class="hero-subtitle">Track your progress, build streaks, and achieve your goals</p>
+        {% if current_user.is_authenticated %}
+            <a href="#" class="btn btn-light btn-lg cta-button">Go to Dashboard</a>
+        {% else %}
+            <a href="{{ url_for('auth.register') }}" class="btn btn-light btn-lg cta-button">Get Started Free</a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="features-section" id="features">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Track Your Streaks</h3>
+                    <p>Build momentum with daily habit tracking and visualize your progress with beautiful charts.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">🔥</div>
+                    <h3>Stay Motivated</h3>
+                    <p>Get insights into your habits and stay motivated with streak counters and achievement badges.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <h3>Works Everywhere</h3>
+                    <p>Access your habits on any device. Works offline and syncs when you're back online.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

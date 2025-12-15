@@ -33,6 +33,10 @@ app.register_blueprint(auth_bp, url_prefix='/auth')
 from habits import habits_bp  
 app.register_blueprint(habits_bp, url_prefix='/habits')  
 
+# Import and register stats blueprint
+from stats import stats_bp
+app.register_blueprint(stats_bp)
+
 @app.route('/')
 def home():
     """Home page"""

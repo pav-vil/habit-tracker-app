@@ -8,6 +8,7 @@ from flask_login import login_required, current_user
 from models import db, Habit
 from forms import HabitForm
 from datetime import date
+from models import Habit, CompletionLog
 
 # Create habits blueprint
 habits_bp = Blueprint('habits', __name__)
@@ -135,29 +136,39 @@ def delete_habit(habit_id):
 @habits_bp.route('/<int:habit_id>/complete', methods=['POST'])
 @login_required
 def complete_habit(habit_id):
-    """
-    Mark habit as completed for today.
-    Updates streak count based on last completion date.
-    """
+    """Mark a habit as complete for today and log it."""
+    from models import db, CompletionLog
+    
     habit = Habit.query.get_or_404(habit_id)
     
-    # Security check: Make sure this habit belongs to current user
+    # Security: ensure user owns this habit
     if habit.user_id != current_user.id:
-        flash('You do not have permission to complete this habit.', 'danger')
+        flash('Access denied.', 'danger')
         return redirect(url_for('habits.dashboard'))
     
-    # Use the complete() method from models.py
-    # This handles all the streak logic
-    success = habit.complete()
+    today = date.today()
     
-    if success:
-        db.session.commit()
-        
-        if habit.streak_count == 1:
-            flash(f'Great! You started "{habit.name}" - Streak: {habit.streak_count} day!', 'success')
-        else:
-            flash(f'Awesome! "{habit.name}" completed - Streak: {habit.streak_count} days! 🔥', 'success')
+    # Check if already completed today
+    if habit.last_completed == today:
+        flash(f'"{habit.name}" already completed today!', 'info')
+        return redirect(url_for('habits.dashboard'))
+    
+    # Update streak logic
+    if habit.last_completed == today - timedelta(days=1):
+        # Completed yesterday - streak continues
+        habit.streak_count += 1
     else:
-        flash(f'You already completed "{habit.name}" today! Come back tomorrow.', 'warning')
+        # Streak broken or first completion - reset to 1
+        habit.streak_count = 1
     
+    # Update last completed date
+    habit.last_completed = today
+    
+    # Log this completion for history tracking
+    completion = CompletionLog(habit_id=habit.id, completed_at=today)
+    db.session.add(completion)
+    
+    db.session.commit()
+    
+    flash(f'🎉 "{habit.name}" completed! Streak: {habit.streak_count} days', 'success')
     return redirect(url_for('habits.dashboard'))

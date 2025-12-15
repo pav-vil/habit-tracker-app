@@ -79,6 +79,19 @@ class Habit(db.Model):
         nullable=False,
         index=True
     )
+
+class CompletionLog(db.Model):
+    """Tracks every habit completion for historical analysis."""
+    
+    id = db.Column(db.Integer, primary_key=True)
+    habit_id = db.Column(db.Integer, db.ForeignKey('habit.id'), nullable=False)
+    completed_at = db.Column(db.Date, nullable=False)  # Date of completion
+    
+    # Relationship back to habit
+    habit = db.relationship('Habit', backref=db.backref('completions', lazy='dynamic', cascade='all, delete-orphan'))
+    
+    def __repr__(self):
+        return f'<CompletionLog {self.habit_id} on {self.completed_at}>'
     
     # Name/title of the habit (e.g., "Morning Workout")
     name = db.Column(db.String(100), nullable=False)

@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block title %}Statistics - HabitFlow{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1>📊 Your Statistics</h1>
+            <p class="text-muted">Track your progress and identify patterns</p>
+        </div>
+    </div>
+    
+    <!-- Overview Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <h3 class="text-primary">{{ total_habits }}</h3>
+                    <p class="text-muted mb-0">Total Habits</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <h3 class="text-success">{{ active_streaks }}</h3>
+                    <p class="text-muted mb-0">Active Streaks</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <h3 class="text-warning">🔥 {{ longest_streak }}</h3>
+                    <p class="text-muted mb-0">Longest Streak</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <!-- 14-Day Trend Line Chart -->
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">📈 Completions - Last 14 Days</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="trendChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Streak Bar Chart -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">🔥 Current Streaks by Habit</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="streakChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Day of Week Chart -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">📅 Best Days for Habits</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="dayChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+<script>
+// Fetch chart data from API and render charts
+fetch('/stats/api/chart-data')
+    .then(response => response.json())
+    .then(data => {
+        
+        // 14-Day Trend Line Chart
+        const trendCtx = document.getElementById('trendChart').getContext('2d');
+        new Chart(trendCtx, {
+            type: 'line',
+            data: {
+                labels: data.trendLabels,
+                datasets: [{
+                    label: 'Habits Completed',
+                    data: data.trendData,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    fill: true,
+                    tension: 0.3,
+                    pointBackgroundColor: 'rgba(75, 192, 192, 1)',
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: data.totalHabits > 0 ? data.totalHabits + 1 : 5,
+                        ticks: { stepSize: 1 }
+                    }
+                }
+            }
+        });
+        
+        // Streak Bar Chart
+        const streakCtx = document.getElementById('streakChart').getContext('2d');
+        new Chart(streakCtx, {
+            type: 'bar',
+            data: {
+                labels: data.habitNames,
+                datasets: [{
+                    label: 'Current Streak (days)',
+                    data: data.streakCounts,
+                    backgroundColor: 'rgba(255, 159, 64, 0.7)',
+                    borderColor: 'rgba(255, 159, 64, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1 }
+                    }
+                }
+            }
+        });
+        
+        // Day of Week Chart
+        const dayCtx = document.getElementById('dayChart').getContext('2d');
+        new Chart(dayCtx, {
+            type: 'bar',
+            data: {
+                labels: data.dayLabels,
+                datasets: [{
+                    label: 'Total Completions',
+                    data: data.completionsByDay,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.7)',
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(255, 206, 86, 0.7)',
+                        'rgba(75, 192, 192, 0.7)',
+                        'rgba(153, 102, 255, 0.7)',
+                        'rgba(255, 159, 64, 0.7)',
+                        'rgba(199, 199, 199, 0.7)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1 }
+                    }
+                }
+            }
+        });
+    })
+    .catch(error => console.error('Error loading chart data:', error));
+</script>
+

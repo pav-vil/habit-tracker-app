@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - HabitFlow{% endblock %}
+
+{% block content %}
+<div class="auth-card">
+    <h2 class="text-center mb-4">{{ title }}</h2>
+    
+    <form method="POST" action="">
+        {{ form.hidden_tag() }}
+        
+        <!-- Habit Name Field -->
+        <div class="mb-3">
+            {{ form.name.label(class="form-label") }}
+            {{ form.name }}
+            {% if form.name.errors %}
+                <div class="text-danger small mt-1">
+                    {% for error in form.name.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <div class="form-text">Give your habit a clear, specific name</div>
+        </div>
+        
+        <!-- Description Field -->
+        <div class="mb-4">
+            {{ form.description.label(class="form-label") }}
+            {{ form.description }}
+            {% if form.description.errors %}
+                <div class="text-danger small mt-1">
+                    {% for error in form.description.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <div class="form-text">Add any details or motivation (optional)</div>
+        </div>
+        
+        <!-- Submit Button -->
+        <div class="mb-3">
+            {{ form.submit }}
+        </div>
+    </form>
+    
+    <!-- Back Link -->
+    <div class="text-center mt-4">
+        <a href="{{ url_for('habits.dashboard') }}" class="text-decoration-none">
+            ← Back to Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}

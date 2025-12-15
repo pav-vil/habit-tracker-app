@@ -68,3 +68,25 @@ class LoginForm(FlaskForm):
     )
     
     submit = SubmitField('Login', render_kw={"class": "btn btn-primary w-100"})
+
+class HabitForm(FlaskForm):
+    """Form for creating/editing habits"""
+    
+    name = StringField(
+        'Habit Name',
+        validators=[
+            DataRequired(message='Habit name is required'),
+            Length(min=2, max=100, message='Name must be between 2 and 100 characters')
+        ],
+        render_kw={"placeholder": "e.g., Morning Workout", "class": "form-control"}
+    )
+    
+    description = StringField(
+        'Description (optional)',
+        validators=[
+            Length(max=500, message='Description must be less than 500 characters')
+        ],
+        render_kw={"placeholder": "Add details about your habit", "class": "form-control"}
+    )
+    
+    submit = SubmitField('Save Habit', render_kw={"class": "btn btn-primary"})

@@ -30,6 +30,8 @@ def load_user(user_id):
 # Register Blueprints
 from auth import auth_bp
 app.register_blueprint(auth_bp, url_prefix='/auth')
+from habits import habits_bp  
+app.register_blueprint(habits_bp, url_prefix='/habits')  
 
 @app.route('/')
 def home():

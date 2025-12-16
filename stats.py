@@ -3,9 +3,8 @@
 
 from flask import Blueprint, render_template, jsonify
 from flask_login import login_required, current_user
-from models import Habit
+from models import Habit, CompletionLog, db
 from datetime import datetime, timedelta
-from sqlalchemy import func
 
 # Create blueprint for stats routes
 stats_bp = Blueprint('stats', __name__, url_prefix='/stats')
@@ -24,9 +23,6 @@ def stats_dashboard():
     active_streaks = sum(1 for h in habits if h.streak_count > 0)
     longest_streak = max((h.streak_count for h in habits), default=0)
     
-    # Get completion data for the last 30 days
-    thirty_days_ago = datetime.now().date() - timedelta(days=30)
-    
     # Build streak history data for line chart
     streak_data = []
     for habit in habits:
@@ -37,18 +33,18 @@ def stats_dashboard():
         })
     
     return render_template('stats.html',
-                       habits=habits,
-                       total_habits=total_habits,
-                       active_streaks=active_streaks,
-                       longest_streak=longest_streak,
-                       streak_data=streak_data,
-                       now=datetime.now())
+                           habits=habits,
+                           total_habits=total_habits,
+                           active_streaks=active_streaks,
+                           longest_streak=longest_streak,
+                           streak_data=streak_data,
+                           now=datetime.now())
+
 
 @stats_bp.route('/api/chart-data')
 @login_required
 def chart_data():
     """API endpoint returning JSON data for charts."""
-    from models import CompletionLog
     
     habits = Habit.query.filter_by(user_id=current_user.id).all()
     
@@ -65,7 +61,7 @@ def chart_data():
     if habit_ids:
         logs = CompletionLog.query.filter(CompletionLog.habit_id.in_(habit_ids)).all()
         for log in logs:
-            day_index = log.completed_at.weekday()  # 0=Monday, 6=Sunday
+            day_index = log.completed_at.weekday()
             completions_by_day[day_index] += 1
     
     # Last 14 days trend data for line chart
@@ -73,11 +69,10 @@ def chart_data():
     trend_labels = []
     trend_data = []
     
-    for i in range(13, -1, -1):  # 14 days, oldest first
+    for i in range(13, -1, -1):
         day = today - timedelta(days=i)
         trend_labels.append(day.strftime('%b %d'))
         
-        # Count completions on this day
         if habit_ids:
             count = CompletionLog.query.filter(
                 CompletionLog.habit_id.in_(habit_ids),
@@ -87,6 +82,24 @@ def chart_data():
             count = 0
         trend_data.append(count)
     
+    # Heatmap data: last 12 weeks (84 days)
+    heatmap_data = []
+    for i in range(83, -1, -1):
+        day = today - timedelta(days=i)
+        if habit_ids:
+            count = CompletionLog.query.filter(
+                CompletionLog.habit_id.in_(habit_ids),
+                CompletionLog.completed_at == day
+            ).count()
+        else:
+            count = 0
+        heatmap_data.append({
+            'date': day.isoformat(),
+            'count': count,
+            'weekday': day.weekday(),
+            'display': day.strftime('%b %d')
+        })
+    
     return jsonify({
         'habitNames': habit_names,
         'streakCounts': streak_counts,
@@ -94,6 +107,9 @@ def chart_data():
         'completionsByDay': completions_by_day,
         'trendLabels': trend_labels,
         'trendData': trend_data,
-        'totalHabits': len(habits)
+        'totalHabits': len(habits),
+        'heatmapData': heatmap_data
     })
+
+
 

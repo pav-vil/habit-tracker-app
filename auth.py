@@ -35,7 +35,10 @@ def register():
             return redirect(url_for('auth.register'))
         
         # Create new user
-        new_user = User(email=form.email.data)
+        new_user = User(
+            email=form.email.data,
+            timezone=form.timezone.data
+        )
         new_user.set_password(form.password.data)  # Hash the password
         
         # Save to database

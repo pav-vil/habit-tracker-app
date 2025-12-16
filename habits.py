@@ -5,10 +5,9 @@ Handles all CRUD operations for habits: Create, Read, Update, Delete, Complete
 
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
-from models import db, Habit
+from models import db, Habit, CompletionLog
 from forms import HabitForm
 from datetime import date, timedelta
-from models import Habit, CompletionLog
 
 # Create habits blueprint
 habits_bp = Blueprint('habits', __name__)
@@ -21,27 +20,41 @@ def dashboard():
     Main dashboard showing all user's habits.
     Protected route - must be logged in to access.
     """
-    # Get all habits for the current logged-in user
-    user_habits = Habit.query.filter_by(user_id=current_user.id).order_by(Habit.created_at.desc()).all()
-    
-    # Calculate statistics
-    total_habits = len(user_habits)
-    active_streaks = sum(1 for habit in user_habits if habit.streak_count > 0)
-    longest_streak = max([habit.streak_count for habit in user_habits], default=0)
-    
+    # Get page number from query parameters (default to 1)
+    page = request.args.get('page', 1, type=int)
+    per_page = 10  # Number of habits per page
+
+    # Get paginated non-archived habits for the current logged-in user
+    pagination = Habit.query.filter_by(
+        user_id=current_user.id,
+        archived=False
+    ).order_by(Habit.created_at.desc()).paginate(
+        page=page,
+        per_page=per_page,
+        error_out=False
+    )
+
+    user_habits = pagination.items
+
+    # Calculate statistics (based on all habits, not just current page)
+    all_habits = Habit.query.filter_by(user_id=current_user.id, archived=False).all()
+    total_habits = len(all_habits)
+    active_streaks = sum(1 for habit in all_habits if habit.streak_count > 0)
+    longest_streak = max([habit.streak_count for habit in all_habits], default=0)
+
     # Calculate completion rate (habits completed today)
-    today = date.today()
-    completed_today = sum(1 for habit in user_habits if habit.last_completed == today)
+    today = current_user.get_user_date()
+    completed_today = sum(1 for habit in all_habits if habit.last_completed == today)
     completion_rate = int((completed_today / total_habits * 100)) if total_habits > 0 else 0
-    
+
     stats = {
         'total_habits': total_habits,
         'active_streaks': active_streaks,
         'longest_streak': longest_streak,
         'completion_rate': completion_rate
     }
-    
-    return render_template('dashboard.html', habits=user_habits, stats=stats)
+
+    return render_template('dashboard.html', habits=user_habits, stats=stats, pagination=pagination)
 
 
 @habits_bp.route('/add', methods=['GET', 'POST'])
@@ -138,15 +151,15 @@ def delete_habit(habit_id):
 def complete_habit(habit_id):
     """Mark a habit as complete for today and log it."""
     from models import db, CompletionLog
-    
+
     habit = Habit.query.get_or_404(habit_id)
-    
+
     # Security: ensure user owns this habit
     if habit.user_id != current_user.id:
         flash('Access denied.', 'danger')
         return redirect(url_for('habits.dashboard'))
-    
-    today = date.today()
+
+    today = current_user.get_user_date()
     
     # Check if already completed today
     if habit.last_completed == today:
@@ -172,3 +185,114 @@ def complete_habit(habit_id):
     
     flash(f'🎉 "{habit.name}" completed! Streak: {habit.streak_count} days', 'success')
     return redirect(url_for('habits.dashboard'))
+
+
+@habits_bp.route('/<int:habit_id>/undo', methods=['POST'])
+@login_required
+def undo_completion(habit_id):
+    """Undo today's completion for a habit."""
+    habit = Habit.query.get_or_404(habit_id)
+
+    # Security: ensure user owns this habit
+    if habit.user_id != current_user.id:
+        flash('Access denied.', 'danger')
+        return redirect(url_for('habits.dashboard'))
+
+    today = current_user.get_user_date()
+
+    # Check if completed today
+    if habit.last_completed != today:
+        flash(f'"{habit.name}" was not completed today!', 'warning')
+        return redirect(url_for('habits.dashboard'))
+
+    # Find and delete today's completion log
+    completion = CompletionLog.query.filter_by(
+        habit_id=habit.id,
+        completed_at=today
+    ).first()
+
+    if completion:
+        db.session.delete(completion)
+
+    # Recalculate streak - find previous completion
+    previous_completion = CompletionLog.query.filter(
+        CompletionLog.habit_id == habit.id,
+        CompletionLog.completed_at < today
+    ).order_by(CompletionLog.completed_at.desc()).first()
+
+    if previous_completion:
+        # Check if previous was yesterday
+        yesterday = today - timedelta(days=1)
+        if previous_completion.completed_at == yesterday:
+            # Decrement streak
+            habit.streak_count = max(0, habit.streak_count - 1)
+        else:
+            # Was not consecutive, reset to 0
+            habit.streak_count = 0
+        habit.last_completed = previous_completion.completed_at
+    else:
+        # No previous completions
+        habit.streak_count = 0
+        habit.last_completed = None
+
+    db.session.commit()
+
+    flash(f'Undid completion for "{habit.name}"', 'info')
+    return redirect(url_for('habits.dashboard'))
+
+
+@habits_bp.route('/<int:habit_id>/archive', methods=['POST'])
+@login_required
+def archive_habit(habit_id):
+    """Archive a habit (soft delete)."""
+    habit = Habit.query.get_or_404(habit_id)
+
+    # Security: ensure user owns this habit
+    if habit.user_id != current_user.id:
+        flash('Access denied.', 'danger')
+        return redirect(url_for('habits.dashboard'))
+
+    habit.archived = True
+    db.session.commit()
+
+    flash(f'"{habit.name}" has been archived.', 'info')
+    return redirect(url_for('habits.dashboard'))
+
+
+@habits_bp.route('/<int:habit_id>/unarchive', methods=['POST'])
+@login_required
+def unarchive_habit(habit_id):
+    """Unarchive a habit (restore)."""
+    habit = Habit.query.get_or_404(habit_id)
+
+    # Security: ensure user owns this habit
+    if habit.user_id != current_user.id:
+        flash('Access denied.', 'danger')
+        return redirect(url_for('habits.archived'))
+
+    habit.archived = False
+    db.session.commit()
+
+    flash(f'"{habit.name}" has been restored.', 'success')
+    return redirect(url_for('habits.dashboard'))
+
+
+@habits_bp.route('/archived')
+@login_required
+def archived():
+    """View all archived habits."""
+    # Get page number from query parameters (default to 1)
+    page = request.args.get('page', 1, type=int)
+    per_page = 10  # Number of habits per page
+
+    # Get paginated archived habits
+    pagination = Habit.query.filter_by(
+        user_id=current_user.id,
+        archived=True
+    ).order_by(Habit.created_at.desc()).paginate(
+        page=page,
+        per_page=per_page,
+        error_out=False
+    )
+
+    return render_template('archived.html', habits=pagination.items, pagination=pagination)

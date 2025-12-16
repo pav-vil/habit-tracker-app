@@ -4,7 +4,7 @@ Handles validation for registration and login forms
 """
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField
 from wtforms.validators import DataRequired, Email, Length, EqualTo, ValidationError
 import re
 
@@ -60,7 +60,40 @@ class RegistrationForm(FlaskForm):
         ],
         render_kw={"placeholder": "Re-enter your password", "class": "form-control"}
     )
-    
+
+    timezone = SelectField(
+        'Timezone',
+        choices=[
+            ('UTC', 'UTC (Coordinated Universal Time)'),
+            ('America/New_York', 'America/New York (EST/EDT)'),
+            ('America/Chicago', 'America/Chicago (CST/CDT)'),
+            ('America/Denver', 'America/Denver (MST/MDT)'),
+            ('America/Los_Angeles', 'America/Los Angeles (PST/PDT)'),
+            ('America/Phoenix', 'America/Phoenix (MST - No DST)'),
+            ('America/Anchorage', 'America/Anchorage (AKST/AKDT)'),
+            ('Pacific/Honolulu', 'Pacific/Honolulu (HST)'),
+            ('Europe/London', 'Europe/London (GMT/BST)'),
+            ('Europe/Paris', 'Europe/Paris (CET/CEST)'),
+            ('Europe/Berlin', 'Europe/Berlin (CET/CEST)'),
+            ('Europe/Rome', 'Europe/Rome (CET/CEST)'),
+            ('Europe/Madrid', 'Europe/Madrid (CET/CEST)'),
+            ('Europe/Moscow', 'Europe/Moscow (MSK)'),
+            ('Asia/Dubai', 'Asia/Dubai (GST)'),
+            ('Asia/Kolkata', 'Asia/Kolkata (IST)'),
+            ('Asia/Shanghai', 'Asia/Shanghai (CST)'),
+            ('Asia/Tokyo', 'Asia/Tokyo (JST)'),
+            ('Asia/Seoul', 'Asia/Seoul (KST)'),
+            ('Asia/Singapore', 'Asia/Singapore (SGT)'),
+            ('Asia/Hong_Kong', 'Asia/Hong Kong (HKT)'),
+            ('Australia/Sydney', 'Australia/Sydney (AEDT/AEST)'),
+            ('Australia/Melbourne', 'Australia/Melbourne (AEDT/AEST)'),
+            ('Australia/Perth', 'Australia/Perth (AWST)'),
+            ('Pacific/Auckland', 'Pacific/Auckland (NZDT/NZST)'),
+        ],
+        validators=[DataRequired(message='Please select your timezone')],
+        render_kw={"class": "form-select"}
+    )
+
     submit = SubmitField('Register', render_kw={"class": "btn btn-primary w-100"})
 
 

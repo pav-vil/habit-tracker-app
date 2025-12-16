@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+
+{% block title %}Archived Habits - HabitFlow{% endblock %}
+
+{% block extra_css %}
+<style>
+    .habit-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        opacity: 0.8;
+    }
+
+    .habit-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+        opacity: 1;
+    }
+
+    .habit-name {
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 10px;
+    }
+
+    .habit-description {
+        color: #666;
+        margin-bottom: 15px;
+    }
+
+    .streak-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 8px 20px;
+        border-radius: 25px;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    .habit-actions {
+        margin-top: 15px;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #666;
+    }
+
+    .empty-state-icon {
+        font-size: 5rem;
+        margin-bottom: 20px;
+        opacity: 0.3;
+    }
+
+    .archived-badge {
+        display: inline-block;
+        background: #6c757d;
+        color: white;
+        padding: 5px 15px;
+        border-radius: 15px;
+        font-size: 0.85rem;
+        margin-left: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h1>📦 Archived Habits</h1>
+            <p class="text-muted">View and restore your archived habits</p>
+        </div>
+    </div>
+
+    <!-- Back to Dashboard Button -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <a href="{{ url_for('habits.dashboard') }}" class="btn btn-primary">
+                ← Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Archived Habits List -->
+    {% if habits %}
+        <div class="row">
+            <div class="col-md-12">
+                <h3 class="mb-3">Archived Habits ({{ habits|length }})</h3>
+            </div>
+        </div>
+
+        <div class="row">
+            {% for habit in habits %}
+            <div class="col-md-6">
+                <div class="habit-card">
+                    <div class="habit-name">
+                        {{ habit.name }}
+                        <span class="archived-badge">ARCHIVED</span>
+                    </div>
+
+                    {% if habit.description %}
+                    <div class="habit-description">{{ habit.description }}</div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <span class="streak-badge">
+                            🔥 {{ habit.streak_count }} day{% if habit.streak_count != 1 %}s{% endif %} streak
+                        </span>
+                    </div>
+
+                    {% if habit.last_completed %}
+                    <div class="text-muted small mb-2">
+                        Last completed: {{ habit.last_completed.strftime('%B %d, %Y') }}
+                    </div>
+                    {% endif %}
+
+                    <div class="text-muted small mb-3">
+                        Created: {{ habit.created_at.strftime('%B %d, %Y') }}
+                    </div>
+
+                    <div class="habit-actions">
+                        <form action="{{ url_for('habits.unarchive_habit', habit_id=habit.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Restore &quot;{{ habit.name }}&quot; to your active habits?');">
+                            <button type="submit" class="btn btn-success">
+                                ↶ Restore
+                            </button>
+                        </form>
+
+                        <form action="{{ url_for('habits.delete_habit', habit_id=habit.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('⚠️ WARNING: This will permanently delete &quot;{{ habit.name }}&quot; and all its history. This action cannot be undone! Are you absolutely sure?');">
+                            <button type="submit" class="btn btn-outline-danger">
+                                🗑️ Delete Permanently
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination Controls -->
+        {% if pagination.pages > 1 %}
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <nav aria-label="Archived habits pagination">
+                    <ul class="pagination justify-content-center">
+                        <!-- Previous Button -->
+                        <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                            <a class="page-link" href="{{ url_for('habits.archived', page=pagination.prev_num) if pagination.has_prev else '#' }}">
+                                Previous
+                            </a>
+                        </li>
+
+                        <!-- Page Numbers -->
+                        {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                            {% if page_num %}
+                                <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+                                    <a class="page-link" href="{{ url_for('habits.archived', page=page_num) }}">
+                                        {{ page_num }}
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        <!-- Next Button -->
+                        <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                            <a class="page-link" href="{{ url_for('habits.archived', page=pagination.next_num) if pagination.has_next else '#' }}">
+                                Next
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+                <p class="text-center text-muted small">
+                    Showing {{ pagination.per_page * (pagination.page - 1) + 1 }} -
+                    {{ [pagination.per_page * pagination.page, pagination.total]|min }} of
+                    {{ pagination.total }} archived habits
+                </p>
+            </div>
+        </div>
+        {% endif %}
+    {% else %}
+        <!-- Empty State -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="empty-state">
+                    <div class="empty-state-icon">📦</div>
+                    <h3>No archived habits</h3>
+                    <p>Habits you archive will appear here. You can restore them anytime.</p>
+                    <a href="{{ url_for('habits.dashboard') }}" class="btn btn-primary btn-lg mt-3">
+                        ← Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

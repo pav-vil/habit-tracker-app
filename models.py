@@ -46,13 +46,14 @@ class User(UserMixin, db.Model):
 
 class Habit(db.Model):
     __tablename__ = "habit"
-    
+
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(500), nullable=True)
     streak_count = db.Column(db.Integer, default=0, nullable=False)
     last_completed = db.Column(db.Date, nullable=True)
+    archived = db.Column(db.Boolean, default=False, nullable=False, index=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     
     def complete(self):

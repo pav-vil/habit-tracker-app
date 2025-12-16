@@ -1,70 +1,30 @@
 """
-Database initialization script for HabitFlow
-Creates database tables and adds sample data for testing
+Initialize Database
+
+Creates all database tables with correct schema.
+Run this ONCE before first use: python init_db.py
 """
 
-from app import app, db
-from models import User, Habit
-from datetime import datetime, timedelta
-
+from app import app
+from models import db
 
 def init_database():
-    """Initialize database with tables and sample data."""
-    
+    """Create all database tables."""
     with app.app_context():
-        print("🗑️  Dropping existing tables...")
-        db.drop_all()
-        
-        print("📊 Creating new tables...")
+        print("=" * 60)
+        print("Initializing Database")
+        print("=" * 60)
+        print("\n[*] Creating database tables...")
+
         db.create_all()
-        
-        print("👤 Creating test user...")
-        # Create a test user
-        test_user = User(email="test@habitflow.com")
-        test_user.set_password("password123")
-        db.session.add(test_user)
-        db.session.commit()
-        
-        print("✅ Creating sample habits...")
-        # Create 3 sample habits
-        habits = [
-            Habit(
-                user_id=test_user.id,
-                name="Morning Workout",
-                description="30 minutes of exercise every morning",
-                streak_count=5,
-                last_completed=datetime.now().date()
-            ),
-            Habit(
-                user_id=test_user.id,
-                name="Read for 20 Minutes",
-                description="Read books or articles daily",
-                streak_count=3,
-                last_completed=(datetime.now() - timedelta(days=1)).date()
-            ),
-            Habit(
-                user_id=test_user.id,
-                name="Drink 8 Glasses of Water",
-                description="Stay hydrated throughout the day",
-                streak_count=0,
-                last_completed=None
-            )
-        ]
-        
-        db.session.add_all(habits)
-        db.session.commit()
-        
-        print("\n✅ Database initialized successfully!")
-        print(f"📧 Test user email: test@habitflow.com")
-        print(f"🔑 Test user password: password123")
-        print(f"🎯 Sample habits created: {len(habits)}")
-        print("\n🧪 Test it with:")
-        print("   flask shell")
-        print("   >>> from models import User, Habit")
-        print("   >>> User.query.all()")
-        print("   >>> Habit.query.all()")
 
+        print("[SUCCESS] Database initialized successfully!")
+        print("\nTables created:")
+        print("  - user (email, password_hash, timezone)")
+        print("  - habit (name, description, streak_count, archived)")
+        print("  - completion_log (habit tracking history)")
+        print("\nYou can now run: python app.py")
+        print("=" * 60)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     init_database()
-    

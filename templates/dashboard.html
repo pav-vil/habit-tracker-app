@@ -173,12 +173,14 @@
                     <div class="habit-actions">
                         {% if habit.last_completed == current_user.get_user_date() %}
                             <form action="{{ url_for('habits.undo_completion', habit_id=habit.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Undo today\\'s completion for &quot;{{ habit.name }}&quot;? This will decrease your streak.');">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                 <button type="submit" class="btn btn-warning">
                                     ↶ Undo
                                 </button>
                             </form>
                         {% else %}
                             <form action="{{ url_for('habits.complete_habit', habit_id=habit.id) }}" method="POST" style="display: inline;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                 <button type="submit" class="btn btn-complete">
                                     ✓ Complete Today
                                 </button>
@@ -190,6 +192,7 @@
                         </a>
 
                         <form action="{{ url_for('habits.archive_habit', habit_id=habit.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to archive &quot;{{ habit.name }}&quot;? You can restore it later from the archived habits page.');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                             <button type="submit" class="btn btn-outline-warning">
                                 📦 Archive
                             </button>

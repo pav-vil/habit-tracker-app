@@ -127,14 +127,16 @@
 
                     <div class="habit-actions">
                         <form action="{{ url_for('habits.unarchive_habit', habit_id=habit.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Restore &quot;{{ habit.name }}&quot; to your active habits?');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                             <button type="submit" class="btn btn-success">
                                 ↶ Restore
                             </button>
                         </form>
 
-                        <form action="{{ url_for('habits.delete_habit', habit_id=habit.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('⚠️ WARNING: This will permanently delete &quot;{{ habit.name }}&quot; and all its history. This action cannot be undone! Are you absolutely sure?');">
+                        <form action="{{ url_for('habits.delete_habit', habit_id=habit.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('WARNING: This will permanently delete &quot;{{ habit.name }}&quot; and all its history. This action cannot be undone! Are you absolutely sure?');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                             <button type="submit" class="btn btn-outline-danger">
-                                🗑️ Delete Permanently
+                                Delete Permanently
                             </button>
                         </form>
                     </div>

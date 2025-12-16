@@ -5,10 +5,9 @@ Handles all CRUD operations for habits: Create, Read, Update, Delete, Complete
 
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
-from models import db, Habit
+from models import db, Habit, CompletionLog
 from forms import HabitForm
 from datetime import date, timedelta
-from models import Habit, CompletionLog
 
 # Create habits blueprint
 habits_bp = Blueprint('habits', __name__)
@@ -30,7 +29,7 @@ def dashboard():
     longest_streak = max([habit.streak_count for habit in user_habits], default=0)
     
     # Calculate completion rate (habits completed today)
-    today = date.today()
+    today = current_user.get_user_date()
     completed_today = sum(1 for habit in user_habits if habit.last_completed == today)
     completion_rate = int((completed_today / total_habits * 100)) if total_habits > 0 else 0
     
@@ -138,15 +137,15 @@ def delete_habit(habit_id):
 def complete_habit(habit_id):
     """Mark a habit as complete for today and log it."""
     from models import db, CompletionLog
-    
+
     habit = Habit.query.get_or_404(habit_id)
-    
+
     # Security: ensure user owns this habit
     if habit.user_id != current_user.id:
         flash('Access denied.', 'danger')
         return redirect(url_for('habits.dashboard'))
-    
-    today = date.today()
+
+    today = current_user.get_user_date()
     
     # Check if already completed today
     if habit.last_completed == today:

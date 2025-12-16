@@ -38,7 +38,7 @@
         </div>
         
         <!-- Confirm Password Field -->
-        <div class="mb-4">
+        <div class="mb-3">
             {{ form.confirm_password.label(class="form-label") }}
             {{ form.confirm_password }}
             {% if form.confirm_password.errors %}
@@ -49,7 +49,21 @@
                 </div>
             {% endif %}
         </div>
-        
+
+        <!-- Timezone Field -->
+        <div class="mb-4">
+            {{ form.timezone.label(class="form-label") }}
+            {{ form.timezone }}
+            {% if form.timezone.errors %}
+                <div class="text-danger small mt-1">
+                    {% for error in form.timezone.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <div class="form-text">Select your timezone for accurate habit tracking</div>
+        </div>
+
         <!-- Submit Button -->
         <div class="mb-3">
             {{ form.submit }}

@@ -13,10 +13,11 @@ db = SQLAlchemy()
 
 class User(UserMixin, db.Model):
     __tablename__ = "user"
-    
+
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     email = db.Column(db.String(120), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(150), nullable=False)
+    timezone = db.Column(db.String(50), default='UTC', nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     
     habits = db.relationship(
@@ -31,7 +32,14 @@ class User(UserMixin, db.Model):
     
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
-    
+
+    def get_user_date(self):
+        """Get current date in user's timezone."""
+        from zoneinfo import ZoneInfo
+        from datetime import datetime
+        user_tz = ZoneInfo(self.timezone)
+        return datetime.now(user_tz).date()
+
     def __repr__(self):
         return f"<User id={self.id} email={self.email}>"
 
@@ -68,10 +76,10 @@ class Habit(db.Model):
 
 class CompletionLog(db.Model):
     __tablename__ = "completion_log"
-    
+
     id = db.Column(db.Integer, primary_key=True)
-    habit_id = db.Column(db.Integer, db.ForeignKey('habit.id'), nullable=False)
-    completed_at = db.Column(db.Date, nullable=False)
+    habit_id = db.Column(db.Integer, db.ForeignKey('habit.id'), nullable=False, index=True)
+    completed_at = db.Column(db.Date, nullable=False, index=True)
     
     habit = db.relationship(
         'Habit',

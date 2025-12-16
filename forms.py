@@ -5,7 +5,28 @@ Handles validation for registration and login forms
 
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
-from wtforms.validators import DataRequired, Email, Length, EqualTo
+from wtforms.validators import DataRequired, Email, Length, EqualTo, ValidationError
+import re
+
+
+def password_strength(form, field):
+    """
+    Custom validator for password strength.
+    Requires:
+    - Minimum 8 characters
+    - At least 1 uppercase letter
+    - At least 1 number
+    """
+    password = field.data
+
+    if len(password) < 8:
+        raise ValidationError('Password must be at least 8 characters long.')
+
+    if not re.search(r'[A-Z]', password):
+        raise ValidationError('Password must contain at least 1 uppercase letter.')
+
+    if not re.search(r'\d', password):
+        raise ValidationError('Password must contain at least 1 number.')
 
 
 class RegistrationForm(FlaskForm):
@@ -25,7 +46,8 @@ class RegistrationForm(FlaskForm):
         'Password',
         validators=[
             DataRequired(message='Password is required'),
-            Length(min=6, max=50, message='Password must be between 6 and 50 characters')
+            Length(min=8, max=50, message='Password must be between 8 and 50 characters'),
+            password_strength
         ],
         render_kw={"placeholder": "Enter a secure password", "class": "form-control"}
     )

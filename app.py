@@ -2,8 +2,6 @@ from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 import os
 from flask_login import LoginManager
-from datetime import timedelta
-from flask import jsonify
 
 app = Flask(__name__)
 
@@ -29,6 +27,17 @@ def load_user(user_id):
     from models import User
     return User.query.get(int(user_id))
 
+# CSRF Protection Setup
+csrf = CSRFProtect(app)
+
+# Rate Limiting Setup
+limiter = Limiter(
+    app=app,
+    key_func=get_remote_address,
+    default_limits=["200 per day", "50 per hour"],
+    storage_uri="memory://"
+)
+
 # Register Blueprints
 from auth import auth_bp
 app.register_blueprint(auth_bp, url_prefix='/auth')
@@ -43,6 +52,9 @@ app.register_blueprint(stats_bp)
 def home():
     """Home page"""
     return render_template('home.html')
+
+# Apply rate limiting to login endpoint (5 attempts per minute)
+app.view_functions['auth.login'] = limiter.limit("5 per minute")(app.view_functions['auth.login'])
 
 if __name__ == '__main__':
     # Run the app - accessible on all network interfaces

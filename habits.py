@@ -7,7 +7,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from models import db, Habit
 from forms import HabitForm
-from datetime import date
+from datetime import date, timedelta
 from models import Habit, CompletionLog
 
 # Create habits blueprint

@@ -52,22 +52,45 @@ class Habit(db.Model):
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(500), nullable=True)
     streak_count = db.Column(db.Integer, default=0, nullable=False)
+    longest_streak = db.Column(db.Integer, default=0, nullable=False)  # Track all-time best streak
     last_completed = db.Column(db.Date, nullable=True)
     archived = db.Column(db.Boolean, default=False, nullable=False, index=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     
-    def complete(self):
-        today = date.today()
+    def complete(self, today=None):
+        """
+        Mark habit as completed for today.
+        Updates current streak and longest streak if a new record is set.
+        Returns True if completed successfully, False if already completed today.
+
+        Args:
+            today: Optional date to use (for testing or timezone support).
+                   If None, uses date.today()
+        """
+        if today is None:
+            today = date.today()
+
+        # Check if already completed today
         if self.last_completed == today:
             return False
+
+        # Calculate current streak
         if self.last_completed:
             yesterday = today - timedelta(days=1)
             if self.last_completed == yesterday:
+                # Continue the streak
                 self.streak_count += 1
             else:
+                # Streak broken, restart at 1
                 self.streak_count = 1
         else:
+            # First completion ever
             self.streak_count = 1
+
+        # Update longest streak if current streak is a new record
+        if self.streak_count > self.longest_streak:
+            self.longest_streak = self.streak_count
+
         self.last_completed = today
         return True
     

@@ -167,29 +167,18 @@ def complete_habit(habit_id):
         return redirect(url_for('habits.dashboard'))
 
     today = current_user.get_user_date()
-    
-    # Check if already completed today
-    if habit.last_completed == today:
+
+    # Use the model's complete() method to update streak and longest_streak
+    if not habit.complete(today):
         flash(f'"{habit.name}" already completed today!', 'info')
         return redirect(url_for('habits.dashboard'))
-    
-    # Update streak logic
-    if habit.last_completed == today - timedelta(days=1):
-        # Completed yesterday - streak continues
-        habit.streak_count += 1
-    else:
-        # Streak broken or first completion - reset to 1
-        habit.streak_count = 1
-    
-    # Update last completed date
-    habit.last_completed = today
-    
+
     # Log this completion for history tracking
     completion = CompletionLog(habit_id=habit.id, completed_at=today)
     db.session.add(completion)
-    
+
     db.session.commit()
-    
+
     flash(f'🎉 "{habit.name}" completed! Streak: {habit.streak_count} days', 'success')
     return redirect(url_for('habits.dashboard'))
 

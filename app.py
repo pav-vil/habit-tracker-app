@@ -20,6 +20,10 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 from models import db
 db.init_app(app)
 
+# Auto-migrate database on startup (adds missing columns safely)
+from auto_migrate import auto_migrate_database
+auto_migrate_database(app, db)
+
 # Flask-Login Setup
 login_manager = LoginManager()
 login_manager.init_app(app)

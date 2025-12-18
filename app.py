@@ -71,24 +71,61 @@ def chart_data():
     from models import Habit
     habits = Habit.query.filter_by(user_id=current_user.id).all()
     user_date = current_user.get_user_date()
-    
+
     # Last 7 days labels
     dates = [(user_date - timedelta(days=i)).strftime('%m/%d') for i in range(6, -1, -1)]
-    
+
     # Count completions per day
     completions_per_day = []
     for i in range(6, -1, -1):
         check_date = user_date - timedelta(days=i)
         count = sum(1 for h in habits if h.last_completed == check_date)
         completions_per_day.append(count)
-    
+
     # Active vs inactive habits
     active_count = sum(1 for h in habits if h.streak_count > 0)
     inactive_count = len(habits) - active_count
-    
+
     return jsonify({
         'dates': dates,
         'completions': completions_per_day,
         'active': active_count,
         'inactive': inactive_count
+    })
+
+@app.route('/api/30-day-completions')
+@login_required
+def thirty_day_completions():
+    """
+    API endpoint for 30-day completion trend data.
+    Returns total habits completed per day for the last 30 days.
+    """
+    from models import Habit, CompletionLog
+    from datetime import datetime, timedelta
+
+    user_date = current_user.get_user_date()
+
+    # Generate labels for last 30 days (oldest to newest)
+    labels = []
+    completions = []
+
+    for i in range(29, -1, -1):  # 29 days ago to today
+        check_date = user_date - timedelta(days=i)
+
+        # Format label - show month/day for readability
+        label = check_date.strftime('%m/%d')
+        labels.append(label)
+
+        # Count how many habits were completed on this day
+        # Query CompletionLog for this user's habits on this date
+        count = CompletionLog.query.join(Habit).filter(
+            Habit.user_id == current_user.id,
+            CompletionLog.completed_at == check_date
+        ).count()
+
+        completions.append(count)
+
+    return jsonify({
+        'labels': labels,
+        'completions': completions
     })

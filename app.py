@@ -6,15 +6,13 @@ from datetime import timedelta
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_wtf.csrf import CSRFProtect
+from config import config
 
 app = Flask(__name__)
 
-# Secret key for sessions (change this in production!)
-app.config['SECRET_KEY'] = 'dev-secret-key-change-in-production'
-
-# Database configuration
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///habits.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# Load configuration from config.py based on FLASK_ENV
+env = os.environ.get('FLASK_ENV', 'development')
+app.config.from_object(config[env])
 
 # Initialize SQLAlchemy with the app
 from models import db
@@ -23,6 +21,10 @@ db.init_app(app)
 # Auto-migrate database on startup (adds missing columns safely)
 from auto_migrate import auto_migrate_database
 auto_migrate_database(app, db)
+
+# Create database tables if they don't exist
+with app.app_context():
+    db.create_all()
 
 # Flask-Login Setup
 login_manager = LoginManager()
@@ -43,7 +45,7 @@ limiter = Limiter(
     app=app,
     key_func=get_remote_address,
     default_limits=["200 per day", "50 per hour"],
-    storage_uri="memory://"
+    storage_uri=app.config.get('RATELIMIT_STORAGE_URL', 'memory://')
 )
 
 # Register Blueprints

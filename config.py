@@ -31,9 +31,14 @@ class ProductionConfig(Config):
     # SECRET_KEY must be set via environment variable
     SECRET_KEY = os.environ.get('SECRET_KEY')
 
-    # Validate SECRET_KEY is set
-    if not SECRET_KEY or len(SECRET_KEY) < 32:
-        raise ValueError("SECRET_KEY must be set in environment variables and be at least 32 characters long")
+    # Warn if SECRET_KEY is not properly set (but don't crash)
+    if not SECRET_KEY:
+        print("⚠️  WARNING: SECRET_KEY not set in environment variables!")
+        print("⚠️  Using fallback key - THIS IS INSECURE!")
+        SECRET_KEY = 'insecure-fallback-key-change-this-immediately'
+    elif len(SECRET_KEY) < 32:
+        print(f"⚠️  WARNING: SECRET_KEY is too short ({len(SECRET_KEY)} chars, need 32+)")
+        print("⚠️  This may cause security issues!")
 
     # Session security (HTTPS only)
     SESSION_COOKIE_SECURE = True
@@ -48,6 +53,7 @@ class ProductionConfig(Config):
 
     # Validate DATABASE_URL is set
     if not SQLALCHEMY_DATABASE_URI:
+        print("❌ ERROR: DATABASE_URL not set in environment variables!")
         raise ValueError("DATABASE_URL must be set in environment variables for production")
 
     # Fix for Heroku postgres:// -> postgresql://

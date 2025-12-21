@@ -13,25 +13,46 @@ app = Flask(__name__)
 
 # Load configuration from config.py based on FLASK_ENV
 env = os.environ.get('FLASK_ENV', 'development')
-app.config.from_object(config[env])
+print(f"[INIT] Loading configuration for environment: {env}")
+
+try:
+    app.config.from_object(config[env])
+    print(f"[INIT] ✓ Configuration loaded successfully")
+    print(f"[INIT] DEBUG mode: {app.config.get('DEBUG')}")
+    print(f"[INIT] SECRET_KEY length: {len(app.config.get('SECRET_KEY', ''))}")
+except Exception as e:
+    print(f"[INIT] ERROR loading configuration: {e}")
+    raise
 
 # Handle proxy headers for HTTPS on Render/Heroku
 # This allows SESSION_COOKIE_SECURE to work properly
 if env == 'production':
     app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+    print("[INIT] ✓ ProxyFix middleware enabled for production")
 
 # Initialize SQLAlchemy with the app
 from models import db
 db.init_app(app)
 
 # Create database tables if they don't exist (MUST run first!)
-with app.app_context():
-    db.create_all()
+try:
+    with app.app_context():
+        print(f"[INIT] Connecting to database: {app.config['SQLALCHEMY_DATABASE_URI'][:30]}...")
+        db.create_all()
+        print("[INIT] ✓ Database tables created/verified successfully")
+except Exception as e:
+    print(f"[INIT] ERROR creating database tables: {e}")
+    if env == 'production':
+        raise  # Fail fast in production
 
 # Auto-migrate database on startup (adds missing columns safely)
 # This runs AFTER tables are created
 from auto_migrate import auto_migrate_database
-auto_migrate_database(app, db)
+try:
+    auto_migrate_database(app, db)
+except Exception as e:
+    print(f"[INIT] WARNING: Auto-migration failed: {e}")
+    # Don't crash the app if migration fails
 
 # Flask-Login Setup
 login_manager = LoginManager()

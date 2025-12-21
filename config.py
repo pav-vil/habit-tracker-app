@@ -31,6 +31,10 @@ class ProductionConfig(Config):
     # SECRET_KEY must be set via environment variable
     SECRET_KEY = os.environ.get('SECRET_KEY')
 
+    # Validate SECRET_KEY is set
+    if not SECRET_KEY or len(SECRET_KEY) < 32:
+        raise ValueError("SECRET_KEY must be set in environment variables and be at least 32 characters long")
+
     # Session security (HTTPS only)
     SESSION_COOKIE_SECURE = True
     SESSION_COOKIE_HTTPONLY = True
@@ -42,8 +46,12 @@ class ProductionConfig(Config):
     # PostgreSQL for production
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
 
+    # Validate DATABASE_URL is set
+    if not SQLALCHEMY_DATABASE_URI:
+        raise ValueError("DATABASE_URL must be set in environment variables for production")
+
     # Fix for Heroku postgres:// -> postgresql://
-    if SQLALCHEMY_DATABASE_URI and SQLALCHEMY_DATABASE_URI.startswith('postgres://'):
+    if SQLALCHEMY_DATABASE_URI.startswith('postgres://'):
         SQLALCHEMY_DATABASE_URI = SQLALCHEMY_DATABASE_URI.replace('postgres://', 'postgresql://', 1)
 
 

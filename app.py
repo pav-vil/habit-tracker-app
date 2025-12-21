@@ -18,13 +18,14 @@ app.config.from_object(config[env])
 from models import db
 db.init_app(app)
 
-# Auto-migrate database on startup (adds missing columns safely)
-from auto_migrate import auto_migrate_database
-auto_migrate_database(app, db)
-
-# Create database tables if they don't exist
+# Create database tables if they don't exist (MUST run first!)
 with app.app_context():
     db.create_all()
+
+# Auto-migrate database on startup (adds missing columns safely)
+# This runs AFTER tables are created
+from auto_migrate import auto_migrate_database
+auto_migrate_database(app, db)
 
 # Flask-Login Setup
 login_manager = LoginManager()

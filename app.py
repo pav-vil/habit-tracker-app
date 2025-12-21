@@ -7,12 +7,18 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_wtf.csrf import CSRFProtect
 from config import config
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 app = Flask(__name__)
 
 # Load configuration from config.py based on FLASK_ENV
 env = os.environ.get('FLASK_ENV', 'development')
 app.config.from_object(config[env])
+
+# Handle proxy headers for HTTPS on Render/Heroku
+# This allows SESSION_COOKIE_SECURE to work properly
+if env == 'production':
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 # Initialize SQLAlchemy with the app
 from models import db

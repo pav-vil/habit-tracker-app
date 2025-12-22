@@ -108,14 +108,157 @@
     
     .empty-state {
         text-align: center;
-        padding: 60px 20px;
+        padding: 40px 20px;
         color: #666;
     }
-    
+
     .empty-state-icon {
         font-size: 5rem;
         margin-bottom: 20px;
         opacity: 0.3;
+    }
+
+    .empty-state-card {
+        background: white;
+        border-radius: 20px;
+        padding: 50px 30px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .empty-state-illustration {
+        font-size: 8rem;
+        margin-bottom: 30px;
+        animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
+
+    .empty-state-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 15px;
+    }
+
+    .empty-state-subtitle {
+        font-size: 1.1rem;
+        color: #666;
+        margin-bottom: 40px;
+    }
+
+    .tips-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin: 40px 0;
+        text-align: left;
+    }
+
+    .tip-card {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 20px;
+        border-radius: 12px;
+        border-left: 4px solid #7c3aed;
+    }
+
+    .tip-icon {
+        font-size: 2rem;
+        margin-bottom: 10px;
+        display: block;
+    }
+
+    .tip-title {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 8px;
+    }
+
+    .tip-text {
+        font-size: 0.9rem;
+        color: #666;
+        margin: 0;
+    }
+
+    /* Welcome Modal Styles */
+    .modal-content {
+        border-radius: 20px;
+        border: none;
+    }
+
+    .modal-header {
+        background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+        color: white;
+        border-radius: 20px 20px 0 0;
+        padding: 30px;
+        border: none;
+    }
+
+    .modal-header h4 {
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+
+    .modal-body {
+        padding: 30px;
+    }
+
+    .welcome-step {
+        display: flex;
+        align-items: start;
+        margin-bottom: 25px;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 12px;
+    }
+
+    .step-number {
+        background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+        margin-right: 15px;
+    }
+
+    .step-content h5 {
+        margin-bottom: 8px;
+        color: #333;
+        font-weight: 600;
+    }
+
+    .step-content p {
+        margin: 0;
+        color: #666;
+        font-size: 0.95rem;
+    }
+
+    @media (max-width: 768px) {
+        .empty-state-card {
+            padding: 30px 20px;
+        }
+
+        .empty-state-illustration {
+            font-size: 5rem;
+        }
+
+        .empty-state-title {
+            font-size: 1.5rem;
+        }
+
+        .tips-grid {
+            grid-template-columns: 1fr;
+        }
     }
 
     .chart-card {
@@ -374,25 +517,140 @@
         </div>
         {% endif %}
     {% else %}
-        <!-- Empty State -->
+        <!-- Enhanced Empty State -->
         <div class="row">
             <div class="col-md-12">
                 <div class="empty-state">
-                    <div class="empty-state-icon">🎯</div>
-                    <h3>No habits yet!</h3>
-                    <p>Start building better habits by creating your first one.</p>
-                    <a href="{{ url_for('habits.add_habit') }}" class="btn btn-primary btn-lg mt-3">
-                        ➕ Create Your First Habit
-                    </a>
+                    <div class="empty-state-card">
+                        <div class="empty-state-illustration">🎯</div>
+                        <h2 class="empty-state-title">Let's Build Your First Habit!</h2>
+                        <p class="empty-state-subtitle">Start your journey to better habits today. It only takes a minute to get started.</p>
+
+                        <!-- Quick Tips Grid -->
+                        <div class="tips-grid">
+                            <div class="tip-card">
+                                <span class="tip-icon">💪</span>
+                                <div class="tip-title">Start Small</div>
+                                <p class="tip-text">Begin with simple habits like drinking water or a 5-minute walk</p>
+                            </div>
+
+                            <div class="tip-card">
+                                <span class="tip-icon">🔥</span>
+                                <div class="tip-title">Build Streaks</div>
+                                <p class="tip-text">Complete habits daily to build momentum and track your progress</p>
+                            </div>
+
+                            <div class="tip-card">
+                                <span class="tip-icon">📊</span>
+                                <div class="tip-title">Track Progress</div>
+                                <p class="tip-text">View your stats and charts to see how far you've come</p>
+                            </div>
+
+                            <div class="tip-card">
+                                <span class="tip-icon">🏆</span>
+                                <div class="tip-title">Stay Consistent</div>
+                                <p class="tip-text">Consistency is key! Even small daily actions lead to big results</p>
+                            </div>
+                        </div>
+
+                        <!-- Call to Action -->
+                        <a href="{{ url_for('habits.add_habit') }}" class="btn btn-primary btn-lg mt-3" style="padding: 15px 40px; font-size: 1.1rem;">
+                            ➕ Create Your First Habit
+                        </a>
+                        <p class="text-muted mt-3 mb-0">
+                            <small>✨ Need ideas? Try: Exercise, Read, Meditate, Drink Water, or Journal</small>
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
     {% endif %}
+
+    <!-- Welcome Modal for New Users -->
+    <div class="modal fade" id="welcomeModal" tabindex="-1" aria-labelledby="welcomeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <h4 class="modal-title" id="welcomeModalLabel">🎉 Welcome to HabitFlow!</h4>
+                        <p class="mb-0" style="font-size: 0.95rem; opacity: 0.95;">Your journey to better habits starts here</p>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h5 class="mb-4" style="color: #7c3aed; font-weight: 600;">Quick Start Guide</h5>
+
+                    <div class="welcome-step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h5>Create Your First Habit</h5>
+                            <p>Click the "Add New Habit" button to create habits you want to track. Start with 1-3 simple habits.</p>
+                        </div>
+                    </div>
+
+                    <div class="welcome-step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h5>Complete Daily</h5>
+                            <p>Mark habits as complete each day by clicking the "✓ Complete Today" button. Build your streak!</p>
+                        </div>
+                    </div>
+
+                    <div class="welcome-step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h5>Track Your Progress</h5>
+                            <p>View charts and statistics to see your progress over time. Watch your streaks grow!</p>
+                        </div>
+                    </div>
+
+                    <div class="welcome-step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h5>Stay Consistent</h5>
+                            <p>The key to building habits is consistency. Come back daily to maintain your streaks.</p>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info mt-4" style="background: linear-gradient(135deg, #e0e7ff 0%, #ddd6fe 100%); border: none; border-radius: 12px;">
+                        <h6 style="color: #6d28d9; font-weight: 600; margin-bottom: 10px;">💡 Pro Tip</h6>
+                        <p class="mb-0" style="color: #6d28d9; font-size: 0.95rem;">
+                            Start with habits that take less than 5 minutes. Small wins build momentum!
+                        </p>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border: none; padding: 20px 30px;">
+                    <button type="button" class="btn btn-primary btn-lg w-100" data-bs-dismiss="modal" style="padding: 12px;">
+                        Let's Get Started! 🚀
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
+// Show welcome modal for new users (no habits)
+{% if not habits %}
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if user has seen welcome modal before (using sessionStorage)
+    const hasSeenWelcome = sessionStorage.getItem('hasSeenWelcome');
+
+    if (!hasSeenWelcome) {
+        // Show modal after a short delay for better UX
+        setTimeout(function() {
+            const welcomeModal = new bootstrap.Modal(document.getElementById('welcomeModal'));
+            welcomeModal.show();
+
+            // Mark as seen in session
+            sessionStorage.setItem('hasSeenWelcome', 'true');
+        }, 800);
+    }
+});
+{% endif %}
+
 // Fetch 30-day completion data and render chart
 fetch('/api/30-day-completions')
     .then(response => response.json())

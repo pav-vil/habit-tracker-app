@@ -6,24 +6,100 @@
 <style>
     .stats-card {
         background: white;
-        border-radius: 10px;
-        padding: 20px;
+        border-radius: 15px;
+        padding: 25px 20px;
         text-align: center;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
         margin-bottom: 20px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(124, 58, 237, 0.1);
     }
-    
-    .stats-number {
+
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(124, 58, 237, 0.15);
+        border-color: rgba(124, 58, 237, 0.3);
+    }
+
+    .stats-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+    }
+
+    .stats-icon {
         font-size: 2.5rem;
-        font-weight: 700;
-        color: #667eea;
+        margin-bottom: 12px;
+        display: block;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
     }
-    
+
+    .stats-number {
+        font-size: 2.8rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 8px;
+        display: block;
+    }
+
     .stats-label {
         color: #666;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 1.2px;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .stats-sublabel {
+        color: #999;
+        font-size: 0.75rem;
+        margin-top: 5px;
+        font-weight: 400;
+    }
+
+    /* Individual card accent colors */
+    .stats-card-habits::before {
+        background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+    }
+
+    .stats-card-streaks::before {
+        background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+    }
+
+    .stats-card-longest::before {
+        background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+    }
+
+    .stats-card-progress::before {
+        background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+    }
+
+    @media (max-width: 767px) {
+        .stats-card {
+            padding: 20px 15px;
+        }
+
+        .stats-number {
+            font-size: 2.2rem;
+        }
+
+        .stats-icon {
+            font-size: 2rem;
+        }
+
+        .stats-label {
+            font-size: 0.8rem;
+        }
     }
     
     .habit-card {
@@ -343,30 +419,84 @@
         </div>
     </div>
     
-    <!-- Statistics Cards -->
+    <!-- Enhanced Statistics Cards -->
     <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="stats-card">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stats-card stats-card-habits">
+                <span class="stats-icon">🎯</span>
                 <div class="stats-number">{{ stats.total_habits }}</div>
                 <div class="stats-label">Total Habits</div>
+                <div class="stats-sublabel">
+                    {% if stats.total_habits == 0 %}
+                        Get started!
+                    {% elif stats.total_habits == 1 %}
+                        Great start!
+                    {% else %}
+                        Building momentum
+                    {% endif %}
+                </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="stats-card">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stats-card stats-card-streaks">
+                <span class="stats-icon">🔥</span>
                 <div class="stats-number">{{ stats.active_streaks }}</div>
                 <div class="stats-label">Active Streaks</div>
+                <div class="stats-sublabel">
+                    {% if stats.active_streaks == 0 %}
+                        Start one today
+                    {% elif stats.active_streaks == stats.total_habits %}
+                        All on fire!
+                    {% else %}
+                        Keep it going
+                    {% endif %}
+                </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="stats-card">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stats-card stats-card-longest">
+                <span class="stats-icon">🏆</span>
                 <div class="stats-number">{{ stats.longest_streak }}</div>
                 <div class="stats-label">Longest Streak</div>
+                <div class="stats-sublabel">
+                    {% if stats.longest_streak == 0 %}
+                        Your record awaits
+                    {% elif stats.longest_streak < 7 %}
+                        Building up
+                    {% elif stats.longest_streak < 30 %}
+                        Impressive!
+                    {% else %}
+                        Legendary!
+                    {% endif %}
+                </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="stats-card">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stats-card stats-card-progress">
+                <span class="stats-icon">
+                    {% if stats.completion_rate == 100 %}
+                        ✅
+                    {% elif stats.completion_rate >= 50 %}
+                        📊
+                    {% else %}
+                        ⏳
+                    {% endif %}
+                </span>
                 <div class="stats-number">{{ stats.completion_rate }}%</div>
                 <div class="stats-label">Today's Progress</div>
+                <div class="stats-sublabel">
+                    {% if stats.completion_rate == 100 %}
+                        Perfect day!
+                    {% elif stats.completion_rate >= 75 %}
+                        Almost there
+                    {% elif stats.completion_rate >= 50 %}
+                        Halfway done
+                    {% elif stats.completion_rate > 0 %}
+                        Keep going
+                    {% else %}
+                        Let's start
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>

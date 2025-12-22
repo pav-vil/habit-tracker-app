@@ -19,7 +19,23 @@ def auto_migrate_database(app, db):
                 print("[AUTO-MIGRATE] ✓ Fresh database - no migrations needed")
                 return
 
-            # Check if longest_streak column exists in habit table
+            # Migration 1: Increase password_hash column length in user table
+            user_columns = inspector.get_columns('user')
+            password_hash_col = next((col for col in user_columns if col['name'] == 'password_hash'), None)
+
+            if password_hash_col and password_hash_col.get('type').length and password_hash_col['type'].length < 255:
+                print(f"[AUTO-MIGRATE] Increasing password_hash column from {password_hash_col['type'].length} to 255 characters...")
+                try:
+                    with db.engine.connect() as conn:
+                        conn.execute(text(
+                            'ALTER TABLE "user" ALTER COLUMN password_hash TYPE VARCHAR(255)'
+                        ))
+                        conn.commit()
+                    print("[AUTO-MIGRATE] ✓ Successfully increased password_hash column length")
+                except Exception as e:
+                    print(f"[AUTO-MIGRATE] Error altering password_hash column: {e}")
+
+            # Migration 2: Check if longest_streak column exists in habit table
             habit_columns = [col['name'] for col in inspector.get_columns('habit')]
 
             if 'longest_streak' not in habit_columns:
@@ -40,9 +56,9 @@ def auto_migrate_database(app, db):
 
                     print("[AUTO-MIGRATE] ✓ Successfully added longest_streak column")
                 except Exception as e:
-                    print(f"[AUTO-MIGRATE] Error adding column: {e}")
-            else:
-                print("[AUTO-MIGRATE] ✓ Database schema is up to date")
+                    print(f"[AUTO-MIGRATE] Error adding longest_streak column: {e}")
+
+            print("[AUTO-MIGRATE] ✓ All migrations completed successfully")
         except Exception as e:
             print(f"[AUTO-MIGRATE] Error during migration check: {e}")
             # Don't crash the app if migration fails

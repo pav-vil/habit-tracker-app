@@ -16,7 +16,7 @@ class User(UserMixin, db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     email = db.Column(db.String(120), unique=True, nullable=False, index=True)
-    password_hash = db.Column(db.String(150), nullable=False)
+    password_hash = db.Column(db.String(255), nullable=False)  # Increased from 150 to 255 for scrypt hashes
     timezone = db.Column(db.String(50), default='UTC', nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     

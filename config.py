@@ -28,18 +28,6 @@ class ProductionConfig(Config):
     DEBUG = False
     TESTING = False
 
-    # SECRET_KEY must be set via environment variable
-    SECRET_KEY = os.environ.get('SECRET_KEY')
-
-    # Warn if SECRET_KEY is not properly set (but don't crash)
-    if not SECRET_KEY:
-        print("⚠️  WARNING: SECRET_KEY not set in environment variables!")
-        print("⚠️  Using fallback key - THIS IS INSECURE!")
-        SECRET_KEY = 'insecure-fallback-key-change-this-immediately'
-    elif len(SECRET_KEY) < 32:
-        print(f"⚠️  WARNING: SECRET_KEY is too short ({len(SECRET_KEY)} chars, need 32+)")
-        print("⚠️  This may cause security issues!")
-
     # Session security (HTTPS only)
     SESSION_COOKIE_SECURE = True
     SESSION_COOKIE_HTTPONLY = True
@@ -48,17 +36,36 @@ class ProductionConfig(Config):
     # Session timeout (1 hour for production)
     PERMANENT_SESSION_LIFETIME = timedelta(hours=1)
 
-    # PostgreSQL for production
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
+    def __init__(self):
+        """Initialize production config and validate environment variables"""
+        # SECRET_KEY must be set via environment variable
+        secret_key = os.environ.get('SECRET_KEY')
 
-    # Validate DATABASE_URL is set
-    if not SQLALCHEMY_DATABASE_URI:
-        print("❌ ERROR: DATABASE_URL not set in environment variables!")
-        raise ValueError("DATABASE_URL must be set in environment variables for production")
+        # Warn if SECRET_KEY is not properly set (but don't crash)
+        if not secret_key:
+            print("⚠️  WARNING: SECRET_KEY not set in environment variables!")
+            print("⚠️  Using fallback key - THIS IS INSECURE!")
+            self.SECRET_KEY = 'insecure-fallback-key-change-this-immediately'
+        elif len(secret_key) < 32:
+            print(f"⚠️  WARNING: SECRET_KEY is too short ({len(secret_key)} chars, need 32+)")
+            print("⚠️  This may cause security issues!")
+            self.SECRET_KEY = secret_key
+        else:
+            self.SECRET_KEY = secret_key
 
-    # Fix for Heroku postgres:// -> postgresql://
-    if SQLALCHEMY_DATABASE_URI.startswith('postgres://'):
-        SQLALCHEMY_DATABASE_URI = SQLALCHEMY_DATABASE_URI.replace('postgres://', 'postgresql://', 1)
+        # PostgreSQL for production
+        database_url = os.environ.get('DATABASE_URL')
+
+        # Validate DATABASE_URL is set
+        if not database_url:
+            print("❌ ERROR: DATABASE_URL not set in environment variables!")
+            raise ValueError("DATABASE_URL must be set in environment variables for production")
+
+        # Fix for Heroku postgres:// -> postgresql://
+        if database_url.startswith('postgres://'):
+            database_url = database_url.replace('postgres://', 'postgresql://', 1)
+
+        self.SQLALCHEMY_DATABASE_URI = database_url
 
 
 class TestingConfig(Config):

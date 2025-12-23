@@ -7,9 +7,20 @@
     
     <!-- Page Header -->
     <div class="row mb-4">
-        <div class="col-12">
+        <div class="col-md-8">
             <h1>📊 Your Statistics</h1>
             <p class="text-muted">Track your progress and identify patterns</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <!-- Export Buttons -->
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-outline-primary" id="exportPdfBtn" title="Download as PDF">
+                    📄 Export PDF
+                </button>
+                <button type="button" class="btn btn-outline-primary" id="exportImageBtn" title="Download as Image">
+                    🖼️ Export Image
+                </button>
+            </div>
         </div>
     </div>
     
@@ -196,6 +207,12 @@
 </div>
 
 <!-- Chart.js is loaded globally in base.html - no need to load it again here -->
+
+<!-- Export Libraries -->
+<!-- html2canvas: Captures HTML elements as images -->
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<!-- jsPDF: Generates PDF documents -->
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
 <script>
 // Fetch chart data from API and render charts
@@ -506,5 +523,276 @@ fetch('/stats/api/chart-data')
             }
         });
     });
+
+// ============================================================================
+// EXPORT FUNCTIONALITY - Export statistics as Image or PDF
+// ============================================================================
+
+/**
+ * Export the statistics page as a PNG image
+ * Uses html2canvas to capture the entire page content
+ */
+async function exportAsImage() {
+    const exportBtn = document.getElementById('exportImageBtn');
+
+    try {
+        // Show loading state on button
+        setButtonLoading(exportBtn, true);
+
+        // Get the main container element (all stats content)
+        const container = document.querySelector('.container.py-4');
+
+        if (!container) {
+            throw new Error('Container not found');
+        }
+
+        // Temporarily hide export buttons so they don't appear in the image
+        const exportButtons = document.querySelector('.btn-group');
+        const originalDisplay = exportButtons.style.display;
+        exportButtons.style.display = 'none';
+
+        // Capture the container as a canvas using html2canvas
+        const canvas = await html2canvas(container, {
+            backgroundColor: '#ffffff',        // White background
+            scale: 2,                          // Higher resolution (2x)
+            logging: false,                    // Disable console logs
+            useCORS: true,                     // Allow cross-origin images
+            allowTaint: false,                 // Prevent tainted canvas
+            windowWidth: container.scrollWidth,
+            windowHeight: container.scrollHeight
+        });
+
+        // Restore export buttons
+        exportButtons.style.display = originalDisplay;
+
+        // Convert canvas to blob and trigger download
+        canvas.toBlob(blob => {
+            // Create download link
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+
+            // Generate filename with current date
+            const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+            link.download = `habitflow-stats-${today}.png`;
+            link.href = url;
+
+            // Trigger download
+            link.click();
+
+            // Clean up
+            URL.revokeObjectURL(url);
+
+            // Show success message
+            showExportSuccess('Image downloaded successfully!');
+
+        }, 'image/png');
+
+    } catch (error) {
+        console.error('Error exporting image:', error);
+
+        // Show error message to user
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+        alertDiv.style.position = 'fixed';
+        alertDiv.style.top = '90px';
+        alertDiv.style.right = '20px';
+        alertDiv.style.zIndex = '9999';
+        alertDiv.style.maxWidth = '400px';
+        alertDiv.innerHTML = `
+            <strong>❌ Export Failed</strong><br>
+            Unable to export as image. Please try again.
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.body.appendChild(alertDiv);
+
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+        }, 5000);
+
+    } finally {
+        // Remove loading state from button
+        setButtonLoading(exportBtn, false);
+    }
+}
+
+/**
+ * Export the statistics page as a PDF document
+ * Uses html2canvas to capture the page, then jsPDF to create PDF
+ */
+async function exportAsPDF() {
+    const exportBtn = document.getElementById('exportPdfBtn');
+
+    try {
+        // Show loading state on button
+        setButtonLoading(exportBtn, true);
+
+        // Get the main container element (all stats content)
+        const container = document.querySelector('.container.py-4');
+
+        if (!container) {
+            throw new Error('Container not found');
+        }
+
+        // Temporarily hide export buttons so they don't appear in the PDF
+        const exportButtons = document.querySelector('.btn-group');
+        const originalDisplay = exportButtons.style.display;
+        exportButtons.style.display = 'none';
+
+        // Capture the container as a canvas using html2canvas
+        const canvas = await html2canvas(container, {
+            backgroundColor: '#ffffff',        // White background
+            scale: 2,                          // Higher resolution (2x)
+            logging: false,                    // Disable console logs
+            useCORS: true,                     // Allow cross-origin images
+            allowTaint: false,                 // Prevent tainted canvas
+            windowWidth: container.scrollWidth,
+            windowHeight: container.scrollHeight
+        });
+
+        // Restore export buttons
+        exportButtons.style.display = originalDisplay;
+
+        // Get canvas dimensions
+        const imgWidth = canvas.width;
+        const imgHeight = canvas.height;
+
+        // Calculate PDF dimensions (A4 size with margins)
+        // A4 size: 210mm x 297mm (595pt x 842pt at 72 DPI)
+        const pdfWidth = 595;
+        const pdfHeight = 842;
+        const margin = 40; // 40pt margins on all sides
+        const contentWidth = pdfWidth - (margin * 2);
+
+        // Calculate scaling to fit content width
+        const ratio = contentWidth / imgWidth;
+        const scaledHeight = imgHeight * ratio;
+
+        // Initialize jsPDF
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({
+            orientation: scaledHeight > pdfHeight ? 'portrait' : 'portrait',
+            unit: 'pt',
+            format: 'a4'
+        });
+
+        // Convert canvas to image data URL
+        const imgData = canvas.toDataURL('image/png');
+
+        // Add image to PDF
+        // If content is taller than one page, it will overflow (user can scroll in PDF viewer)
+        pdf.addImage(imgData, 'PNG', margin, margin, contentWidth, scaledHeight);
+
+        // Add page numbers if content spans multiple pages
+        const totalPages = Math.ceil(scaledHeight / (pdfHeight - margin * 2));
+        if (totalPages > 1) {
+            for (let i = 1; i <= totalPages; i++) {
+                if (i > 1) {
+                    pdf.addPage();
+                    const yOffset = -(pdfHeight - margin * 2) * (i - 1);
+                    pdf.addImage(imgData, 'PNG', margin, margin + yOffset, contentWidth, scaledHeight);
+                }
+
+                // Add page number at bottom
+                pdf.setFontSize(10);
+                pdf.setTextColor(150);
+                pdf.text(
+                    `Page ${i} of ${totalPages}`,
+                    pdfWidth / 2,
+                    pdfHeight - 20,
+                    { align: 'center' }
+                );
+            }
+        }
+
+        // Generate filename with current date
+        const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+        const filename = `habitflow-stats-${today}.pdf`;
+
+        // Download the PDF
+        pdf.save(filename);
+
+        // Show success message
+        showExportSuccess('PDF downloaded successfully!');
+
+    } catch (error) {
+        console.error('Error exporting PDF:', error);
+
+        // Show error message to user
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+        alertDiv.style.position = 'fixed';
+        alertDiv.style.top = '90px';
+        alertDiv.style.right = '20px';
+        alertDiv.style.zIndex = '9999';
+        alertDiv.style.maxWidth = '400px';
+        alertDiv.innerHTML = `
+            <strong>❌ Export Failed</strong><br>
+            Unable to export as PDF. Please try again.
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.body.appendChild(alertDiv);
+
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+        }, 5000);
+
+    } finally {
+        // Remove loading state from button
+        setButtonLoading(exportBtn, false);
+    }
+}
+
+/**
+ * Show success notification after export completes
+ * @param {string} message - Success message to display
+ */
+function showExportSuccess(message) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = 'alert alert-success alert-dismissible fade show';
+    alertDiv.style.position = 'fixed';
+    alertDiv.style.top = '90px';
+    alertDiv.style.right = '20px';
+    alertDiv.style.zIndex = '9999';
+    alertDiv.style.maxWidth = '400px';
+    alertDiv.innerHTML = `
+        <strong>✅ Success!</strong><br>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(alertDiv);
+
+    // Auto-remove after 4 seconds
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.classList.remove('show');
+            setTimeout(() => alertDiv.remove(), 150);
+        }
+    }, 4000);
+}
+
+// ============================================================================
+// EVENT LISTENERS - Attach export functions to buttons
+// ============================================================================
+
+// Wait for DOM to be fully loaded before attaching event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Export as Image button
+    const exportImageBtn = document.getElementById('exportImageBtn');
+    if (exportImageBtn) {
+        exportImageBtn.addEventListener('click', exportAsImage);
+    }
+
+    // Export as PDF button
+    const exportPdfBtn = document.getElementById('exportPdfBtn');
+    if (exportPdfBtn) {
+        exportPdfBtn.addEventListener('click', exportAsPDF);
+    }
+});
 </script>
 {% endblock %}

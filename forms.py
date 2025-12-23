@@ -4,7 +4,7 @@ Handles validation for registration and login forms
 """
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, TextAreaField
 from wtforms.validators import DataRequired, Email, Length, EqualTo, ValidationError
 import re
 
@@ -126,7 +126,7 @@ class LoginForm(FlaskForm):
 
 class HabitForm(FlaskForm):
     """Form for creating/editing habits"""
-    
+
     name = StringField(
         'Habit Name',
         validators=[
@@ -135,7 +135,7 @@ class HabitForm(FlaskForm):
         ],
         render_kw={"placeholder": "e.g., Morning Workout", "class": "form-control"}
     )
-    
+
     description = StringField(
         'Description (optional)',
         validators=[
@@ -143,5 +143,17 @@ class HabitForm(FlaskForm):
         ],
         render_kw={"placeholder": "Add details about your habit", "class": "form-control"}
     )
-    
+
+    why = TextAreaField(
+        'Why track this habit? (optional)',
+        validators=[
+            Length(max=1000, message='Why section must be less than 1000 characters')
+        ],
+        render_kw={
+            "placeholder": "e.g., I want to track this habit because it helps me stay healthy and energized throughout the day. It's important for my long-term fitness goals.",
+            "class": "form-control",
+            "rows": "4"
+        }
+    )
+
     submit = SubmitField('Save Habit', render_kw={"class": "btn btn-primary"})

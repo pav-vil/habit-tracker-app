@@ -34,9 +34,26 @@
                     {% endfor %}
                 </div>
             {% endif %}
-            <div class="form-text">Add any details or motivation (optional)</div>
+            <div class="form-text">Add any details about your habit (optional)</div>
         </div>
-        
+
+        <!-- Why Field (Motivation) -->
+        <div class="mb-4">
+            {{ form.why.label(class="form-label") }}
+            {{ form.why }}
+            {% if form.why.errors %}
+                <div class="text-danger small mt-1">
+                    {% for error in form.why.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <div class="form-text">
+                <strong>💡 Pro tip:</strong> Knowing your "why" keeps you motivated when things get tough.
+                This will be displayed on your dashboard as a reminder.
+            </div>
+        </div>
+
         <!-- Submit Button -->
         <div class="mb-3">
             {{ form.submit }}

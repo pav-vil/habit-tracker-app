@@ -52,6 +52,7 @@ class Habit(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(500), nullable=True)
+    why = db.Column(db.Text, nullable=True)  # Why the user wants to track this habit (motivation)
     streak_count = db.Column(db.Integer, default=0, nullable=False)
     longest_streak = db.Column(db.Integer, default=0, nullable=False)  # Track all-time best streak
     last_completed = db.Column(db.Date, nullable=True)

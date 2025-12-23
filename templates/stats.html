@@ -65,14 +65,14 @@
                             <div id="heatmap" style="display: flex; gap: 3px;"></div>
                         </div>
                     </div>
-                    <!-- Legend -->
+                    <!-- Legend with Purple Theme -->
                     <div class="mt-3 d-flex align-items-center justify-content-end">
                         <span class="text-muted small me-2">Less</span>
                         <div style="width: 12px; height: 12px; background: #ebedf0; border-radius: 2px;"></div>
-                        <div style="width: 12px; height: 12px; background: #9be9a8; border-radius: 2px; margin-left: 3px;"></div>
-                        <div style="width: 12px; height: 12px; background: #40c463; border-radius: 2px; margin-left: 3px;"></div>
-                        <div style="width: 12px; height: 12px; background: #30a14e; border-radius: 2px; margin-left: 3px;"></div>
-                        <div style="width: 12px; height: 12px; background: #216e39; border-radius: 2px; margin-left: 3px;"></div>
+                        <div style="width: 12px; height: 12px; background: #ddd6fe; border-radius: 2px; margin-left: 3px;"></div>
+                        <div style="width: 12px; height: 12px; background: #c4b5fd; border-radius: 2px; margin-left: 3px;"></div>
+                        <div style="width: 12px; height: 12px; background: #a78bfa; border-radius: 2px; margin-left: 3px;"></div>
+                        <div style="width: 12px; height: 12px; background: #7c3aed; border-radius: 2px; margin-left: 3px;"></div>
                         <span class="text-muted small ms-2">More</span>
                     </div>
                 </div>
@@ -176,11 +176,10 @@
             </div>
         </div>
     </div>
-    
+
 </div>
 
-<!-- Chart.js CDN -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<!-- Chart.js is loaded globally in base.html - no need to load it again here -->
 
 <script>
 // Fetch chart data from API and render charts
@@ -188,8 +187,14 @@ fetch('/stats/api/chart-data')
     .then(response => response.json())
     .then(data => {
         
-        // 14-Day Trend Line Chart
+        // 14-Day Trend Line Chart with Purple Gradient Theme
         const trendCtx = document.getElementById('trendChart').getContext('2d');
+
+        // Create gradient for the line chart
+        const trendGradient = trendCtx.createLinearGradient(0, 0, 0, 300);
+        trendGradient.addColorStop(0, 'rgba(124, 58, 237, 0.3)');    // #7c3aed with transparency
+        trendGradient.addColorStop(1, 'rgba(124, 58, 237, 0.05)');   // Fade to almost transparent
+
         new Chart(trendCtx, {
             type: 'line',
             data: {
@@ -197,32 +202,80 @@ fetch('/stats/api/chart-data')
                 datasets: [{
                     label: 'Habits Completed',
                     data: data.trendData,
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: '#7c3aed',                    // Purple primary color
+                    backgroundColor: trendGradient,            // Purple gradient fill
+                    borderWidth: 3,
                     fill: true,
-                    tension: 0.3,
-                    pointBackgroundColor: 'rgba(75, 192, 192, 1)',
+                    tension: 0.4,                              // Smooth curves
+                    pointBackgroundColor: '#a78bfa',           // Light purple points
+                    pointBorderColor: '#7c3aed',               // Purple border on points
+                    pointBorderWidth: 2,
                     pointRadius: 5,
-                    pointHoverRadius: 7
+                    pointHoverRadius: 8,
+                    pointHoverBackgroundColor: '#a78bfa',
+                    pointHoverBorderColor: '#6d28d9'           // Dark purple on hover
                 }]
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: true,
                 plugins: {
-                    legend: { display: false }
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(124, 58, 237, 0.9)',
+                        titleColor: '#ffffff',
+                        bodyColor: '#ffffff',
+                        borderColor: '#a78bfa',
+                        borderWidth: 1,
+                        padding: 12,
+                        displayColors: false,
+                        callbacks: {
+                            label: function(context) {
+                                return context.parsed.y + ' habit' + (context.parsed.y !== 1 ? 's' : '') + ' completed';
+                            }
+                        }
+                    }
                 },
                 scales: {
+                    x: {
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: '#666',
+                            font: { size: 11 }
+                        }
+                    },
                     y: {
                         beginAtZero: true,
                         max: data.totalHabits > 0 ? data.totalHabits + 1 : 5,
-                        ticks: { stepSize: 1 }
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            stepSize: 1,
+                            color: '#666',
+                            font: { size: 12 }
+                        }
                     }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
                 }
             }
         });
         
-        // Streak Bar Chart
+        // Streak Bar Chart with Purple Theme
         const streakCtx = document.getElementById('streakChart').getContext('2d');
+
+        // Create gradient bars for each habit (purple shades)
+        const streakGradient = streakCtx.createLinearGradient(0, 0, 0, 400);
+        streakGradient.addColorStop(0, 'rgba(167, 139, 250, 0.9)');  // Light purple top
+        streakGradient.addColorStop(1, 'rgba(124, 58, 237, 0.9)');   // Dark purple bottom
+
         new Chart(streakCtx, {
             type: 'bar',
             data: {
@@ -230,27 +283,74 @@ fetch('/stats/api/chart-data')
                 datasets: [{
                     label: 'Current Streak (days)',
                     data: data.streakCounts,
-                    backgroundColor: 'rgba(255, 159, 64, 0.7)',
-                    borderColor: 'rgba(255, 159, 64, 1)',
-                    borderWidth: 1
+                    backgroundColor: streakGradient,           // Purple gradient
+                    borderColor: '#7c3aed',                    // Purple border
+                    borderWidth: 2,
+                    borderRadius: 6,                           // Rounded corners
+                    hoverBackgroundColor: '#a78bfa',           // Light purple on hover
+                    hoverBorderColor: '#6d28d9'                // Dark purple border on hover
                 }]
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: true,
                 plugins: {
-                    legend: { display: false }
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(124, 58, 237, 0.9)',
+                        titleColor: '#ffffff',
+                        bodyColor: '#ffffff',
+                        borderColor: '#a78bfa',
+                        borderWidth: 1,
+                        padding: 12,
+                        displayColors: false,
+                        callbacks: {
+                            label: function(context) {
+                                return context.parsed.y + ' day' + (context.parsed.y !== 1 ? 's' : '') + ' streak';
+                            }
+                        }
+                    }
                 },
                 scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: '#666',
+                            font: { size: 11 }
+                        }
+                    },
                     y: {
                         beginAtZero: true,
-                        ticks: { stepSize: 1 }
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            stepSize: 1,
+                            color: '#666',
+                            font: { size: 12 }
+                        }
                     }
                 }
             }
         });
         
-        // Day of Week Chart
+        // Day of Week Chart with Purple Gradient
         const dayCtx = document.getElementById('dayChart').getContext('2d');
+
+        // Create purple gradient shades for each day of the week
+        const purpleShades = [
+            'rgba(167, 139, 250, 0.85)',   // Light purple - Monday
+            'rgba(147, 119, 240, 0.85)',   //
+            'rgba(134, 99, 237, 0.85)',    //
+            'rgba(124, 58, 237, 0.85)',    // Primary purple - Thursday (middle)
+            'rgba(109, 40, 217, 0.85)',    //
+            'rgba(99, 30, 207, 0.85)',     //
+            'rgba(88, 28, 185, 0.85)'      // Dark purple - Sunday
+        ];
+
         new Chart(dayCtx, {
             type: 'bar',
             data: {
@@ -258,72 +358,100 @@ fetch('/stats/api/chart-data')
                 datasets: [{
                     label: 'Total Completions',
                     data: data.completionsByDay,
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.7)',
-                        'rgba(54, 162, 235, 0.7)',
-                        'rgba(255, 206, 86, 0.7)',
-                        'rgba(75, 192, 192, 0.7)',
-                        'rgba(153, 102, 255, 0.7)',
-                        'rgba(255, 159, 64, 0.7)',
-                        'rgba(199, 199, 199, 0.7)'
-                    ],
-                    borderWidth: 1
+                    backgroundColor: purpleShades,
+                    borderColor: '#7c3aed',
+                    borderWidth: 2,
+                    borderRadius: 6,                           // Rounded corners
+                    hoverBackgroundColor: '#a78bfa',           // Light purple on hover
+                    hoverBorderColor: '#6d28d9'                // Dark purple border on hover
                 }]
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: true,
                 plugins: {
-                    legend: { display: false }
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(124, 58, 237, 0.9)',
+                        titleColor: '#ffffff',
+                        bodyColor: '#ffffff',
+                        borderColor: '#a78bfa',
+                        borderWidth: 1,
+                        padding: 12,
+                        displayColors: false,
+                        callbacks: {
+                            label: function(context) {
+                                return context.parsed.y + ' completion' + (context.parsed.y !== 1 ? 's' : '');
+                            }
+                        }
+                    }
                 },
                 scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: '#666',
+                            font: { size: 11 }
+                        }
+                    },
                     y: {
                         beginAtZero: true,
-                        ticks: { stepSize: 1 }
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            stepSize: 1,
+                            color: '#666',
+                            font: { size: 12 }
+                        }
                     }
                 }
             }
         });
         
-        // Heatmap Calendar
+        // Heatmap Calendar with Purple Color Scheme
         const heatmapContainer = document.getElementById('heatmap');
         const totalHabits = data.totalHabits || 1;
-        
+
         // Group by week (7 days per column)
         let currentWeek = [];
         data.heatmapData.forEach((day, index) => {
             currentWeek.push(day);
-            
+
             // Every 7 days, render a column
             if (currentWeek.length === 7) {
                 const weekDiv = document.createElement('div');
                 weekDiv.style.display = 'flex';
                 weekDiv.style.flexDirection = 'column';
                 weekDiv.style.gap = '3px';
-                
+
                 currentWeek.forEach(d => {
                     const cell = document.createElement('div');
                     cell.style.width = '12px';
                     cell.style.height = '12px';
                     cell.style.borderRadius = '2px';
                     cell.title = `${d.display}: ${d.count} completion${d.count !== 1 ? 's' : ''}`;
-                    
-                    // Color based on completion ratio
+
+                    // Color based on completion ratio - Purple gradient theme
                     const ratio = d.count / totalHabits;
                     if (d.count === 0) {
-                        cell.style.background = '#ebedf0';
+                        cell.style.background = '#ebedf0';        // Light gray (no completions)
                     } else if (ratio <= 0.25) {
-                        cell.style.background = '#9be9a8';
+                        cell.style.background = '#ddd6fe';        // Very light purple (25%)
                     } else if (ratio <= 0.5) {
-                        cell.style.background = '#40c463';
+                        cell.style.background = '#c4b5fd';        // Light purple (50%)
                     } else if (ratio <= 0.75) {
-                        cell.style.background = '#30a14e';
+                        cell.style.background = '#a78bfa';        // Medium purple (75%)
                     } else {
-                        cell.style.background = '#216e39';
+                        cell.style.background = '#7c3aed';        // Primary purple (100%)
                     }
-                    
+
                     weekDiv.appendChild(cell);
                 });
-                
+
                 heatmapContainer.appendChild(weekDiv);
                 currentWeek = [];
             }

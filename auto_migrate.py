@@ -72,6 +72,22 @@ def auto_migrate_database(app, db):
                 except Exception as e:
                     print(f"[AUTO-MIGRATE] Error adding longest_streak column: {e}")
 
+            # Migration 3: Add 'why' column to habit table for motivation/reason tracking
+            habit_columns = [col['name'] for col in inspector.get_columns('habit')]
+
+            if 'why' not in habit_columns:
+                print("[AUTO-MIGRATE] Adding 'why' column to habit table...")
+                try:
+                    with db.engine.connect() as conn:
+                        conn.execute(text(
+                            'ALTER TABLE habit ADD COLUMN why TEXT'
+                        ))
+                        conn.commit()
+
+                    print("[AUTO-MIGRATE] ✓ Successfully added 'why' column")
+                except Exception as e:
+                    print(f"[AUTO-MIGRATE] Error adding 'why' column: {e}")
+
             print("[AUTO-MIGRATE] ✓ All migrations completed successfully")
         except Exception as e:
             print(f"[AUTO-MIGRATE] Error during migration check: {e}")

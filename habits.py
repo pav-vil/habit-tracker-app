@@ -106,18 +106,19 @@ def add_habit():
     form = HabitForm()
     
     if form.validate_on_submit():
-        # Create new habit
+        # Create new habit with all fields from form
         new_habit = Habit(
             user_id=current_user.id,
             name=form.name.data,
             description=form.description.data,
+            why=form.why.data,  # Add the "why" motivation field
             streak_count=0
         )
-        
+
         # Save to database
         db.session.add(new_habit)
         db.session.commit()
-        
+
         flash(f'Habit "{new_habit.name}" created successfully!', 'success')
         return redirect(url_for('habits.dashboard'))
     
@@ -143,19 +144,21 @@ def edit_habit(habit_id):
     form = HabitForm()
     
     if form.validate_on_submit():
-        # Update habit
+        # Update habit with all fields from form
         habit.name = form.name.data
         habit.description = form.description.data
-        
+        habit.why = form.why.data  # Update the "why" motivation field
+
         db.session.commit()
-        
+
         flash(f'Habit "{habit.name}" updated successfully!', 'success')
         return redirect(url_for('habits.dashboard'))
-    
+
     # Pre-fill form with current data (GET request)
     elif request.method == 'GET':
         form.name.data = habit.name
         form.description.data = habit.description
+        form.why.data = habit.why  # Pre-fill the "why" field
     
     return render_template('habit_form.html', form=form, title='Edit Habit', habit=habit)
 

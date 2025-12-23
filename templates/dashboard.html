@@ -503,6 +503,70 @@
             font-size: 1.3rem;
         }
     }
+
+    /* Why Section Styles */
+    .why-section {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-left: 4px solid #7c3aed;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 15px;
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .why-section:hover {
+        box-shadow: 0 2px 8px rgba(124, 58, 237, 0.15);
+    }
+
+    .why-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        color: #7c3aed;
+        margin-bottom: 10px;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .why-icon {
+        font-size: 1.2rem;
+    }
+
+    .why-toggle {
+        margin-left: auto;
+        font-size: 0.9rem;
+        transition: transform 0.3s ease;
+    }
+
+    .why-toggle.collapsed {
+        transform: rotate(-90deg);
+    }
+
+    .why-content {
+        color: #333;
+        line-height: 1.6;
+        font-size: 0.95rem;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+
+    .why-empty {
+        color: #999;
+        font-style: italic;
+        font-size: 0.9rem;
+    }
+
+    @media (max-width: 575px) {
+        .why-section {
+            padding: 12px;
+        }
+
+        .why-content {
+            font-size: 0.9rem;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -662,7 +726,21 @@
                     {% if habit.description %}
                     <div class="habit-description">{{ habit.description }}</div>
                     {% endif %}
-                    
+
+                    <!-- Why Section (Motivation) -->
+                    {% if habit.why %}
+                    <div class="why-section">
+                        <div class="why-header" onclick="toggleWhy(this)">
+                            <span class="why-icon">💡</span>
+                            <span>Why track this habit?</span>
+                            <span class="why-toggle">▼</span>
+                        </div>
+                        <div class="why-content">
+                            {{ habit.why }}
+                        </div>
+                    </div>
+                    {% endif %}
+
                     <div class="mb-3">
                         <span class="streak-badge" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Current streak: Complete this habit daily to keep your streak growing. Miss a day and it resets to 0!">
                             🔥 {{ habit.streak_count }} day{% if habit.streak_count != 1 %}s{% endif %} streak
@@ -1087,5 +1165,23 @@ fetch('/api/30-day-completions')
         const loadingEl = document.getElementById('chartLoading');
         loadingEl.innerHTML = '<p class="text-center text-muted">Unable to load chart data. Please refresh the page.</p>';
     });
+
+// Toggle "Why" section visibility (collapse/expand)
+function toggleWhy(header) {
+    // Get the content div (next sibling of header)
+    const content = header.nextElementSibling;
+    const toggle = header.querySelector('.why-toggle');
+
+    // Toggle visibility
+    if (content.style.display === 'none') {
+        content.style.display = 'block';
+        toggle.classList.remove('collapsed');
+        toggle.textContent = '▼';
+    } else {
+        content.style.display = 'none';
+        toggle.classList.add('collapsed');
+        toggle.textContent = '▶';
+    }
+}
 </script>
 {% endblock %}

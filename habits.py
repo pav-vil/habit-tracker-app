@@ -361,3 +361,12 @@ def newsletter_subscribe():
         print(f"[NEWSLETTER] Error updating subscription: {e}")
         db.session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@habits_bp.route('/about')
+def about():
+    """
+    About page - App philosophy, features, and mission.
+    Public route - no login required.
+    """
+    return render_template('about.html')

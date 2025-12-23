@@ -101,6 +101,61 @@
         .btn {
             transition: all 0.3s ease;
         }
+
+        /* Page transition styles */
+        body {
+            transition: opacity 0.3s ease-out;
+        }
+
+        body.page-transitioning {
+            opacity: 0;
+        }
+
+        /* Fade in content on page load */
+        .content-container {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Smooth scroll behavior */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Navigation link transitions */
+        .nav-link {
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .nav-link:hover::after {
+            width: 80%;
+        }
+
+        .nav-link.active {
+            color: #7c3aed !important;
+            font-weight: 600;
+        }
     </style>
     
     {% block extra_css %}{% endblock %}
@@ -129,6 +184,9 @@
                             <a class="nav-link" href="{{ url_for('habits.add_habit') }}">Add Habit</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('habits.about') }}">About</a>
+                        </li>
+                        <li class="nav-item">
                             <span class="nav-link">👤 {{ current_user.email }}</span>
                         </li>
                         <li class="nav-item">
@@ -137,10 +195,10 @@
                     {% else %}
                         <!-- Guest Menu -->
                         <li class="nav-item">
-                            <a class="nav-link" href="#features">Features</a>
+                            <a class="nav-link" href="{{ url_for('habits.about') }}">About</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#about">About</a>
+                            <a class="nav-link" href="#features">Features</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link btn btn-outline-primary ms-2 px-4" href="{{ url_for('auth.login') }}">Login</a>
@@ -307,6 +365,45 @@
                     }
                 }
             });
+
+            // Highlight active navigation link
+            const currentPath = window.location.pathname;
+            document.querySelectorAll('.nav-link').forEach(link => {
+                if (link.getAttribute('href') === currentPath) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // Smooth page transitions
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add fade-out effect when navigating to a new page (only for internal links)
+            const internalLinks = document.querySelectorAll('a[href^="/"], a[href^="' + window.location.origin + '"]');
+
+            internalLinks.forEach(link => {
+                // Skip if it's a button or has special classes
+                if (link.classList.contains('btn') || link.classList.contains('alert')) {
+                    return;
+                }
+
+                link.addEventListener('click', function(e) {
+                    // Check if it's not opening in a new tab
+                    if (!e.ctrlKey && !e.metaKey && !e.shiftKey && this.target !== '_blank') {
+                        const href = this.getAttribute('href');
+
+                        // Skip if it's an anchor link on the same page
+                        if (href && href.startsWith('#')) {
+                            return;
+                        }
+
+                        // Add fade-out class
+                        document.body.classList.add('page-transitioning');
+                    }
+                });
+            });
+
+            // Remove page-transitioning class on page load
+            document.body.classList.remove('page-transitioning');
         });
     </script>
 

@@ -1,0 +1,539 @@
+{% extends "base.html" %}
+
+{% block title %}About - HabitFlow{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Page fade-in animation */
+    .page-content {
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Hero section */
+    .about-hero {
+        background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+        color: white;
+        padding: 80px 0 60px 0;
+        margin: -30px 0 40px 0;
+        border-radius: 0 0 30px 30px;
+        box-shadow: 0 10px 40px rgba(124, 58, 237, 0.3);
+    }
+
+    .about-hero h1 {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .about-hero p {
+        font-size: 1.3rem;
+        opacity: 0.95;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    /* Content cards */
+    .content-card {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        margin-bottom: 30px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .content-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(124, 58, 237, 0.2);
+    }
+
+    .content-card h2 {
+        color: #7c3aed;
+        font-weight: 700;
+        margin-bottom: 25px;
+        font-size: 2rem;
+    }
+
+    .content-card h3 {
+        color: #6d28d9;
+        font-weight: 600;
+        margin-top: 30px;
+        margin-bottom: 15px;
+        font-size: 1.5rem;
+    }
+
+    .content-card p {
+        color: #333;
+        line-height: 1.8;
+        font-size: 1.1rem;
+        margin-bottom: 20px;
+    }
+
+    /* Feature grid */
+    .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 25px;
+        margin: 30px 0;
+    }
+
+    .feature-item {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 30px;
+        border-radius: 15px;
+        border-left: 4px solid #7c3aed;
+        transition: all 0.3s ease;
+    }
+
+    .feature-item:hover {
+        transform: translateX(10px);
+        box-shadow: 0 5px 15px rgba(124, 58, 237, 0.2);
+    }
+
+    .feature-icon {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        display: block;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    }
+
+    .feature-title {
+        color: #7c3aed;
+        font-weight: 600;
+        font-size: 1.3rem;
+        margin-bottom: 10px;
+    }
+
+    .feature-description {
+        color: #666;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    /* Philosophy section */
+    .philosophy-item {
+        display: flex;
+        align-items: start;
+        margin-bottom: 30px;
+        padding: 25px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+        border-radius: 12px;
+        border-left: 5px solid #7c3aed;
+    }
+
+    .philosophy-number {
+        background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+        color: white;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.5rem;
+        flex-shrink: 0;
+        margin-right: 20px;
+        box-shadow: 0 4px 10px rgba(124, 58, 237, 0.3);
+    }
+
+    .philosophy-content h4 {
+        color: #7c3aed;
+        font-weight: 600;
+        margin-bottom: 10px;
+        font-size: 1.3rem;
+    }
+
+    .philosophy-content p {
+        color: #333;
+        line-height: 1.7;
+        margin: 0;
+    }
+
+    /* Stats section */
+    .stats-section {
+        background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+        color: white;
+        padding: 50px;
+        border-radius: 20px;
+        margin: 40px 0;
+        box-shadow: 0 10px 30px rgba(124, 58, 237, 0.3);
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 30px;
+        margin-top: 30px;
+    }
+
+    .stat-item {
+        text-align: center;
+    }
+
+    .stat-number {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .stat-label {
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+
+    /* CTA section */
+    .cta-section {
+        text-align: center;
+        padding: 60px 40px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 20px;
+        margin-top: 40px;
+    }
+
+    .cta-section h2 {
+        color: #7c3aed;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+    }
+
+    .cta-section p {
+        font-size: 1.2rem;
+        color: #666;
+        margin-bottom: 30px;
+    }
+
+    .cta-button {
+        background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+        color: white;
+        padding: 15px 40px;
+        font-size: 1.2rem;
+        font-weight: 600;
+        border: none;
+        border-radius: 50px;
+        box-shadow: 0 5px 20px rgba(124, 58, 237, 0.3);
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .cta-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 30px rgba(124, 58, 237, 0.4);
+        color: white;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .about-hero h1 {
+            font-size: 2rem;
+        }
+
+        .about-hero p {
+            font-size: 1.1rem;
+        }
+
+        .content-card {
+            padding: 25px;
+        }
+
+        .content-card h2 {
+            font-size: 1.5rem;
+        }
+
+        .philosophy-item {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .philosophy-number {
+            margin-right: 0;
+            margin-bottom: 15px;
+        }
+
+        .stats-section {
+            padding: 30px 20px;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <!-- Hero Section -->
+    <div class="about-hero">
+        <div class="container text-center">
+            <h1>🎯 About HabitFlow</h1>
+            <p>Building better habits, one day at a time. Your journey to lasting change starts here.</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Mission Section -->
+        <div class="content-card">
+            <h2>Our Mission</h2>
+            <p>
+                HabitFlow was created with a simple yet powerful belief: <strong>small, consistent actions lead to extraordinary results.</strong>
+                We're here to help you build the habits that transform your life, without overwhelming complexity or unnecessary features.
+            </p>
+            <p>
+                Too many habit trackers focus on gamification, points, and social comparison. We believe in something different—
+                <strong>authentic progress, personal growth, and sustainable change.</strong> Your journey is yours alone, and we're
+                here to support it with clarity, simplicity, and science-backed principles.
+            </p>
+        </div>
+
+        <!-- Philosophy Section -->
+        <div class="content-card">
+            <h2>Our Philosophy</h2>
+
+            <div class="philosophy-item">
+                <div class="philosophy-number">1</div>
+                <div class="philosophy-content">
+                    <h4>Consistency Over Perfection</h4>
+                    <p>
+                        Missing a day doesn't mean failure—it means you're human. What matters is showing up again tomorrow.
+                        We track your streaks to celebrate momentum, not to shame you for setbacks. Progress isn't linear, and that's okay.
+                    </p>
+                </div>
+            </div>
+
+            <div class="philosophy-item">
+                <div class="philosophy-number">2</div>
+                <div class="philosophy-content">
+                    <h4>Simplicity Breeds Success</h4>
+                    <p>
+                        Complex systems fail. Simple systems stick. We give you exactly what you need—habit tracking, streak monitoring,
+                        and progress visualization—without the clutter. No points, no levels, no social feeds. Just you and your goals.
+                    </p>
+                </div>
+            </div>
+
+            <div class="philosophy-item">
+                <div class="philosophy-number">3</div>
+                <div class="philosophy-content">
+                    <h4>Know Your Why</h4>
+                    <p>
+                        Motivation fades. Purpose endures. That's why we encourage you to define <em>why</em> each habit matters to you.
+                        When you remember your deeper reasons, you find the strength to continue when things get tough.
+                    </p>
+                </div>
+            </div>
+
+            <div class="philosophy-item">
+                <div class="philosophy-number">4</div>
+                <div class="philosophy-content">
+                    <h4>Data-Driven Insights</h4>
+                    <p>
+                        What gets measured gets managed. Our beautiful visualizations help you see patterns, identify your best days,
+                        and understand your progress at a glance. Make informed decisions based on your actual behavior, not guesswork.
+                    </p>
+                </div>
+            </div>
+
+            <div class="philosophy-item">
+                <div class="philosophy-number">5</div>
+                <div class="philosophy-content">
+                    <h4>Celebrate Every Win</h4>
+                    <p>
+                        From your first completion to your 365-day streak, every milestone deserves recognition. We celebrate your
+                        achievements with you—because building better habits is hard work, and you deserve to feel proud.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="content-card">
+            <h2>Key Features</h2>
+
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <span class="feature-icon">📊</span>
+                    <div class="feature-title">Beautiful Visualizations</div>
+                    <p class="feature-description">
+                        Track your progress with stunning purple-gradient charts, heatmaps, and trend analysis.
+                    </p>
+                </div>
+
+                <div class="feature-item">
+                    <span class="feature-icon">🔥</span>
+                    <div class="feature-title">Streak Tracking</div>
+                    <p class="feature-description">
+                        Build momentum with daily streaks and celebrate your personal records.
+                    </p>
+                </div>
+
+                <div class="feature-item">
+                    <span class="feature-icon">💡</span>
+                    <div class="feature-title">Motivation Reminders</div>
+                    <p class="feature-description">
+                        Define your "why" for each habit and see it whenever you need inspiration.
+                    </p>
+                </div>
+
+                <div class="feature-item">
+                    <span class="feature-icon">🎉</span>
+                    <div class="feature-title">Milestone Celebrations</div>
+                    <p class="feature-description">
+                        Special confetti animations for 7, 30, 100, and 365-day streaks!
+                    </p>
+                </div>
+
+                <div class="feature-item">
+                    <span class="feature-icon">📱</span>
+                    <div class="feature-title">Mobile-Optimized</div>
+                    <p class="feature-description">
+                        Access your habits anywhere with our iOS-ready responsive design.
+                    </p>
+                </div>
+
+                <div class="feature-item">
+                    <span class="feature-icon">🔒</span>
+                    <div class="feature-title">Privacy-First</div>
+                    <p class="feature-description">
+                        Your data is yours alone. No social features, no data selling, ever.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Science-Backed Section -->
+        <div class="content-card">
+            <h2>Built on Science</h2>
+            <p>
+                HabitFlow incorporates principles from behavioral psychology and habit formation research:
+            </p>
+
+            <h3>🔗 Habit Stacking</h3>
+            <p>
+                Link new habits to existing routines. "After I brush my teeth, I will meditate for 2 minutes."
+                This technique, popularized by James Clear in <em>Atomic Habits</em>, makes habits stick by anchoring
+                them to established behaviors.
+            </p>
+
+            <h3>📏 The 2-Minute Rule</h3>
+            <p>
+                Start so small you can't say no. Want to read daily? Start with just 2 minutes. The hardest part
+                is getting started—make it ridiculously easy, and momentum will carry you forward.
+            </p>
+
+            <h3>📈 Progress Visualization</h3>
+            <p>
+                Seeing your progress creates a powerful psychological effect. Our heatmaps and charts provide
+                immediate visual feedback, reinforcing positive behavior and motivating continued action.
+            </p>
+
+            <h3>🎯 Implementation Intentions</h3>
+            <p>
+                Research shows that specifying <em>when</em> and <em>where</em> you'll perform a habit doubles your
+                success rate. Use our "why" field to create clear implementation intentions.
+            </p>
+        </div>
+
+        <!-- Stats Section (Illustrative) -->
+        <div class="stats-section">
+            <div class="container">
+                <h2 style="text-align: center; margin-bottom: 10px;">The Power of Daily Habits</h2>
+                <p style="text-align: center; opacity: 0.9; margin-bottom: 0;">Research-backed statistics on habit formation</p>
+
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number">66</div>
+                        <div class="stat-label">Average days to form a habit</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">2x</div>
+                        <div class="stat-label">Success rate with tracking</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">1%</div>
+                        <div class="stat-label">Daily improvement compounds</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">37x</div>
+                        <div class="stat-label">Better after 1 year of 1% gains</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- How It Works -->
+        <div class="content-card">
+            <h2>How HabitFlow Works</h2>
+
+            <h3>1️⃣ Define Your Habits</h3>
+            <p>
+                Choose 2-3 habits to start with. Be specific: instead of "exercise," try "do 10 pushups" or
+                "walk for 15 minutes." Small, clear actions are easier to track and complete.
+            </p>
+
+            <h3>2️⃣ Set Your Why</h3>
+            <p>
+                For each habit, write down why it matters to you. This becomes your anchor when motivation
+                wanes. Your "why" should be personal, emotional, and meaningful.
+            </p>
+
+            <h3>3️⃣ Track Daily</h3>
+            <p>
+                Each day, mark your habits as complete. We'll track your streaks automatically and show you
+                beautiful visualizations of your progress over time.
+            </p>
+
+            <h3>4️⃣ Celebrate Milestones</h3>
+            <p>
+                Hit 7 days? 30 days? 100 days? We'll celebrate with you! Our confetti animations make every
+                milestone feel special and rewarding.
+            </p>
+
+            <h3>5️⃣ Analyze & Adjust</h3>
+            <p>
+                Use our stats page to see patterns. Which days are you most consistent? Which habits need
+                more attention? Data-driven insights help you optimize for success.
+            </p>
+        </div>
+
+        <!-- CTA Section -->
+        <div class="cta-section">
+            <h2>Ready to Build Better Habits?</h2>
+            <p>Join thousands of people transforming their lives, one day at a time.</p>
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('habits.dashboard') }}" class="cta-button">
+                    Go to Your Dashboard →
+                </a>
+            {% else %}
+                <a href="{{ url_for('auth.register') }}" class="cta-button">
+                    Get Started Free →
+                </a>
+            {% endif %}
+        </div>
+
+        <!-- Final Quote -->
+        <div class="content-card" style="text-align: center; margin-top: 40px;">
+            <blockquote style="font-size: 1.4rem; font-style: italic; color: #7c3aed; margin: 0; padding: 20px;">
+                "We are what we repeatedly do. Excellence, then, is not an act, but a habit."
+            </blockquote>
+            <p style="color: #666; margin-top: 15px; font-size: 1.1rem;">— Aristotle</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

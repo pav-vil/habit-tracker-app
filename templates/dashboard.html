@@ -1183,5 +1183,44 @@ function toggleWhy(header) {
         toggle.textContent = '▶';
     }
 }
+
+// Enhanced button interactions with visual feedback
+document.addEventListener('DOMContentLoaded', function() {
+    // Add visual feedback when completing a habit
+    document.querySelectorAll('.btn-complete').forEach(button => {
+        button.addEventListener('click', function(e) {
+            // Add celebrate animation to the habit card
+            const habitCard = this.closest('.habit-card');
+            if (habitCard) {
+                habitCard.classList.add('celebrate');
+                setTimeout(() => {
+                    habitCard.classList.remove('celebrate');
+                }, 600);
+            }
+        });
+    });
+
+    // Add subtle animation to archive buttons
+    document.querySelectorAll('form[action*="archive"]').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            const habitCard = this.closest('.habit-card');
+            if (habitCard) {
+                habitCard.style.transition = 'all 0.5s ease';
+                habitCard.style.opacity = '0.5';
+                habitCard.style.transform = 'scale(0.95)';
+            }
+        });
+    });
+
+    // Add loading state to edit buttons when clicked
+    document.querySelectorAll('a.btn[href*="edit"]').forEach(link => {
+        link.addEventListener('click', function(e) {
+            const originalText = this.innerHTML;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>' + originalText;
+            this.style.opacity = '0.7';
+            this.style.pointerEvents = 'none';
+        });
+    });
+});
 </script>
 {% endblock %}

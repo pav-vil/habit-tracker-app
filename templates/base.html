@@ -47,6 +47,60 @@
             border-radius: 10px;
             margin-bottom: 20px;
         }
+
+        /* Loading spinner customization */
+        .spinner-border-sm {
+            width: 1rem;
+            height: 1rem;
+            border-width: 0.15em;
+        }
+
+        /* Button loading state */
+        .btn-loading {
+            position: relative;
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        /* Animations */
+        @keyframes slideInDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        /* Success celebration animation */
+        .celebrate {
+            animation: pulse 0.6s ease-in-out;
+        }
+
+        /* Smooth transitions for all buttons */
+        .btn {
+            transition: all 0.3s ease;
+        }
     </style>
     
     {% block extra_css %}{% endblock %}
@@ -124,6 +178,137 @@
 
     <!-- Chart.js 4.4.1 - loaded at bottom for better performance -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <!-- Canvas Confetti for celebrations -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+    <!-- Global utilities for loading states and animations -->
+    <script>
+        // Loading state manager for buttons
+        function setButtonLoading(button, loading = true) {
+            if (loading) {
+                // Save original content
+                button.dataset.originalHtml = button.innerHTML;
+                button.disabled = true;
+                button.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Loading...';
+                button.style.opacity = '0.7';
+            } else {
+                // Restore original content
+                button.disabled = false;
+                button.innerHTML = button.dataset.originalHtml || button.innerHTML;
+                button.style.opacity = '1';
+                delete button.dataset.originalHtml;
+            }
+        }
+
+        // Add loading to all forms on submit
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle form submissions
+            document.querySelectorAll('form').forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    const submitButton = this.querySelector('button[type="submit"]');
+                    if (submitButton && !submitButton.disabled) {
+                        setButtonLoading(submitButton, true);
+                    }
+                });
+            });
+        });
+
+        // Confetti celebration for streak milestones
+        function celebrateStreak(streakCount) {
+            const isMilestone = streakCount === 1 || streakCount === 7 || streakCount === 30 ||
+                                streakCount === 100 || streakCount === 365 || streakCount % 50 === 0;
+
+            if (streakCount === 1) {
+                // First day - simple confetti
+                confetti({
+                    particleCount: 50,
+                    spread: 60,
+                    origin: { y: 0.6 },
+                    colors: ['#7c3aed', '#a78bfa', '#c4b5fd']
+                });
+            } else if (streakCount === 7) {
+                // One week - double burst
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#7c3aed', '#a78bfa', '#c4b5fd', '#ddd6fe']
+                });
+                setTimeout(() => {
+                    confetti({
+                        particleCount: 50,
+                        angle: 60,
+                        spread: 55,
+                        origin: { x: 0 },
+                        colors: ['#7c3aed', '#a78bfa']
+                    });
+                }, 200);
+                setTimeout(() => {
+                    confetti({
+                        particleCount: 50,
+                        angle: 120,
+                        spread: 55,
+                        origin: { x: 1 },
+                        colors: ['#7c3aed', '#a78bfa']
+                    });
+                }, 400);
+            } else if (streakCount === 30 || streakCount === 100 || streakCount === 365) {
+                // Major milestone - spectacular celebration
+                const duration = 3000;
+                const end = Date.now() + duration;
+
+                (function frame() {
+                    confetti({
+                        particleCount: 5,
+                        angle: 60,
+                        spread: 55,
+                        origin: { x: 0 },
+                        colors: ['#7c3aed', '#a78bfa', '#c4b5fd']
+                    });
+                    confetti({
+                        particleCount: 5,
+                        angle: 120,
+                        spread: 55,
+                        origin: { x: 1 },
+                        colors: ['#7c3aed', '#a78bfa', '#c4b5fd']
+                    });
+
+                    if (Date.now() < end) {
+                        requestAnimationFrame(frame);
+                    }
+                }());
+            } else {
+                // Regular completion - small celebration
+                confetti({
+                    particleCount: 30,
+                    spread: 50,
+                    origin: { y: 0.6 },
+                    colors: ['#7c3aed', '#a78bfa']
+                });
+            }
+        }
+
+        // Enhanced flash message animations
+        document.addEventListener('DOMContentLoaded', function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                // Animate in
+                alert.style.animation = 'slideInDown 0.3s ease-out';
+
+                // Check if it's a success message about completing a habit
+                if (alert.classList.contains('alert-success') && alert.textContent.includes('completed')) {
+                    // Extract streak count from message
+                    const match = alert.textContent.match(/Streak: (\d+) days?/);
+                    if (match) {
+                        const streakCount = parseInt(match[1]);
+                        // Trigger confetti after a brief delay
+                        setTimeout(() => celebrateStreak(streakCount), 200);
+                    }
+                }
+            });
+        });
+    </script>
 
     {% block extra_js %}{% endblock %}
 </body>

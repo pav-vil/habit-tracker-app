@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="HabitFlow - Build better habits, one day at a time. Track your daily habits and visualize your progress.">
     <title>{% block title %}HabitFlow - Track Your Success{% endblock %}</title>
     
     <!-- Bootstrap 5 CSS -->
@@ -279,22 +280,70 @@
                 height: 250px;
             }
         }
+
+        /* Skip navigation link - accessible but visually hidden until focused */
+        .skip-nav {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: #7c3aed;
+            color: white;
+            padding: 8px 16px;
+            text-decoration: none;
+            border-radius: 0 0 4px 0;
+            z-index: 10000;
+            transition: top 0.2s;
+        }
+
+        .skip-nav:focus {
+            top: 0;
+            outline: 3px solid #a78bfa;
+            outline-offset: 2px;
+        }
+
+        /* Focus visible styles for better keyboard navigation */
+        *:focus-visible {
+            outline: 3px solid #7c3aed;
+            outline-offset: 2px;
+        }
+
+        /* Enhanced focus for buttons */
+        .btn:focus-visible {
+            outline: 3px solid #7c3aed;
+            outline-offset: 3px;
+            box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.2);
+        }
+
+        /* Screen reader only text */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
     </style>
-    
+
     {% block extra_css %}{% endblock %}
 </head>
 <body>
+    <!-- Skip Navigation Link for keyboard users -->
+    <a href="#main-content" class="skip-nav">Skip to main content</a>
     <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top" role="navigation" aria-label="Main navigation">
         <div class="container">
-            <a class="navbar-brand brand-name" href="/">
+            <a class="navbar-brand brand-name" href="/" aria-label="HabitFlow home">
                 🎯 HabitFlow
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation menu">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav ms-auto" role="list">
                     {% if current_user.is_authenticated %}
                         <!-- Logged In User Menu -->
                         <li class="nav-item">
@@ -310,10 +359,12 @@
                             <a class="nav-link" href="{{ url_for('habits.about') }}">About</a>
                         </li>
                         <li class="nav-item">
-                            <span class="nav-link">👤 {{ current_user.email }}</span>
+                            <span class="nav-link" aria-label="Logged in as {{ current_user.email }}">
+                                <span aria-hidden="true">👤</span> {{ current_user.email }}
+                            </span>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link btn btn-outline-danger ms-2 px-4" href="{{ url_for('auth.logout') }}">Logout</a>
+                            <a class="nav-link btn btn-outline-danger ms-2 px-4" href="{{ url_for('auth.logout') }}" aria-label="Logout from your account">Logout</a>
                         </li>
                     {% else %}
                         <!-- Guest Menu -->
@@ -336,13 +387,13 @@
     </nav>
 
     <!-- Flash Messages -->
-    <div class="container content-container">
+    <div class="container content-container" role="region" aria-label="Notifications">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert" aria-live="polite" aria-atomic="true">
                         {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close notification"></button>
                     </div>
                 {% endfor %}
             {% endif %}
@@ -350,9 +401,9 @@
     </div>
 
     <!-- Main Content -->
-    <div class="container content-container">
+    <main id="main-content" class="container content-container" role="main">
         {% block content %}{% endblock %}
-    </div>
+    </main>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

@@ -4,48 +4,48 @@
 
 {% block content %}
 <div class="container py-4">
-    
+
     <!-- Page Header -->
     <div class="row mb-4">
         <div class="col-md-8">
-            <h1>📊 Your Statistics</h1>
+            <h1><span aria-hidden="true">📊</span> Your Statistics</h1>
             <p class="text-muted">Track your progress and identify patterns</p>
         </div>
         <div class="col-md-4 text-end">
             <!-- Export Buttons -->
-            <div class="btn-group" role="group">
-                <button type="button" class="btn btn-outline-primary" id="exportPdfBtn" title="Download as PDF">
-                    📄 Export PDF
+            <div class="btn-group" role="group" aria-label="Export options">
+                <button type="button" class="btn btn-outline-primary" id="exportPdfBtn" aria-label="Download statistics as PDF file">
+                    <span aria-hidden="true">📄</span> Export PDF
                 </button>
-                <button type="button" class="btn btn-outline-primary" id="exportImageBtn" title="Download as Image">
-                    🖼️ Export Image
+                <button type="button" class="btn btn-outline-primary" id="exportImageBtn" aria-label="Download statistics as PNG image">
+                    <span aria-hidden="true">🖼️</span> Export Image
                 </button>
             </div>
         </div>
     </div>
     
     <!-- Overview Cards -->
-    <div class="row mb-4">
+    <div class="row mb-4" role="region" aria-label="Statistics overview">
         <div class="col-md-4 mb-3">
-            <div class="card text-center h-100">
+            <div class="card text-center h-100" role="article" aria-label="Total habits: {{ total_habits }}">
                 <div class="card-body">
-                    <h3 class="text-primary">{{ total_habits }}</h3>
+                    <h2 class="text-primary" aria-label="{{ total_habits }} habits">{{ total_habits }}</h2>
                     <p class="text-muted mb-0">Total Habits</p>
                 </div>
             </div>
         </div>
         <div class="col-md-4 mb-3">
-            <div class="card text-center h-100">
+            <div class="card text-center h-100" role="article" aria-label="Active streaks: {{ active_streaks }}">
                 <div class="card-body">
-                    <h3 class="text-success">{{ active_streaks }}</h3>
+                    <h2 class="text-success" aria-label="{{ active_streaks }} active streaks">{{ active_streaks }}</h2>
                     <p class="text-muted mb-0">Active Streaks</p>
                 </div>
             </div>
         </div>
         <div class="col-md-4 mb-3">
-            <div class="card text-center h-100">
+            <div class="card text-center h-100" role="article" aria-label="Longest streak: {{ longest_streak }} days">
                 <div class="card-body">
-                    <h3 class="text-warning">🔥 {{ longest_streak }}</h3>
+                    <h2 class="text-warning" aria-label="{{ longest_streak }} days"><span aria-hidden="true">🔥</span> {{ longest_streak }}</h2>
                     <p class="text-muted mb-0">Longest Streak</p>
                 </div>
             </div>
@@ -57,14 +57,14 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">🗓️ Activity - Last 12 Weeks</h5>
+                    <h2 class="mb-0 h5"><span aria-hidden="true">🗓️</span> Activity - Last 12 Weeks</h2>
                 </div>
                 <div class="card-body">
                     <!-- Skeleton loader for heatmap -->
-                    <div id="heatmapLoading">
+                    <div id="heatmapLoading" aria-live="polite" aria-label="Loading heatmap">
                         <div class="skeleton" style="height: 120px; border-radius: 8px;"></div>
                     </div>
-                    <div id="heatmapContainer" style="overflow-x: auto; overflow-y: hidden; display: none;">
+                    <div id="heatmapContainer" style="overflow-x: auto; overflow-y: hidden; display: none;" role="img" aria-label="Heatmap showing daily habit completion activity for the last 12 weeks">
                         <div style="display: inline-flex; align-items: flex-start; min-width: fit-content;">
                             <!-- Day labels -->
                             <div style="display: flex; flex-direction: column; gap: 3px; margin-right: 8px; padding-top: 2px;">
@@ -101,46 +101,46 @@
         <div class="col-12 mb-4">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">📈 Completions - Last 14 Days</h5>
+                    <h2 class="mb-0 h5"><span aria-hidden="true">📈</span> Completions - Last 14 Days</h2>
                 </div>
                 <div class="card-body">
                     <!-- Skeleton loader for trend chart -->
-                    <div id="trendChartLoading">
+                    <div id="trendChartLoading" aria-live="polite" aria-label="Loading trend chart">
                         <div class="skeleton skeleton-chart" style="height: 400px;"></div>
                     </div>
-                    <canvas id="trendChart" height="100" style="display: none;"></canvas>
+                    <canvas id="trendChart" height="100" style="display: none;" role="img" aria-label="Line chart showing habit completions over the last 14 days"></canvas>
                 </div>
             </div>
         </div>
-        
+
         <!-- Streak Bar Chart -->
         <div class="col-lg-6 mb-4">
             <div class="card h-100">
                 <div class="card-header">
-                    <h5 class="mb-0">🔥 Current Streaks by Habit</h5>
+                    <h2 class="mb-0 h5"><span aria-hidden="true">🔥</span> Current Streaks by Habit</h2>
                 </div>
                 <div class="card-body">
                     <!-- Skeleton loader for streak chart -->
-                    <div id="streakChartLoading">
+                    <div id="streakChartLoading" aria-live="polite" aria-label="Loading streak chart">
                         <div class="skeleton skeleton-chart"></div>
                     </div>
-                    <canvas id="streakChart" style="display: none;"></canvas>
+                    <canvas id="streakChart" style="display: none;" role="img" aria-label="Bar chart showing current streaks for each habit"></canvas>
                 </div>
             </div>
         </div>
-        
+
         <!-- Day of Week Chart -->
         <div class="col-lg-6 mb-4">
             <div class="card h-100">
                 <div class="card-header">
-                    <h5 class="mb-0">📅 Best Days for Habits</h5>
+                    <h2 class="mb-0 h5"><span aria-hidden="true">📅</span> Best Days for Habits</h2>
                 </div>
                 <div class="card-body">
                     <!-- Skeleton loader for day chart -->
-                    <div id="dayChartLoading">
+                    <div id="dayChartLoading" aria-live="polite" aria-label="Loading day of week chart">
                         <div class="skeleton skeleton-chart"></div>
                     </div>
-                    <canvas id="dayChart" style="display: none;"></canvas>
+                    <canvas id="dayChart" style="display: none;" role="img" aria-label="Bar chart showing total completions by day of the week"></canvas>
                 </div>
             </div>
         </div>
@@ -151,18 +151,18 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">🎯 Habit Details</h5>
+                    <h2 class="mb-0 h5"><span aria-hidden="true">🎯</span> Habit Details</h2>
                 </div>
                 <div class="card-body">
                     {% if habits %}
                     <div class="table-responsive">
-                        <table class="table table-hover">
+                        <table class="table table-hover" aria-label="Detailed habit statistics">
                             <thead>
                                 <tr>
-                                    <th>Habit</th>
-                                    <th>Current Streak</th>
-                                    <th>Last Completed</th>
-                                    <th>Status</th>
+                                    <th scope="col">Habit</th>
+                                    <th scope="col">Current Streak</th>
+                                    <th scope="col">Last Completed</th>
+                                    <th scope="col">Status</th>
                                 </tr>
                             </thead>
                             <tbody>

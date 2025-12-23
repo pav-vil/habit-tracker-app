@@ -574,18 +574,18 @@
 <div class="container mt-4">
     <div class="row mb-4">
         <div class="col-md-12">
-            <h1>Welcome back, {{ current_user.email }}! 👋</h1>
+            <h1>Welcome back, {{ current_user.email }}! <span aria-hidden="true">👋</span></h1>
             <p class="text-muted">Track your habits and build consistency</p>
         </div>
     </div>
     
     <!-- Enhanced Statistics Cards with Tooltips -->
-    <div class="row mb-4">
+    <div class="row mb-4" role="region" aria-label="Statistics overview">
         <div class="col-lg-3 col-md-6 mb-3">
-            <div class="stats-card stats-card-habits" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="The total number of habits you're currently tracking. Start with 2-3 habits and gradually add more as they become automatic.">
-                <span class="stats-icon">🎯</span>
-                <div class="stats-number">{{ stats.total_habits }}</div>
-                <div class="stats-label">Total Habits <span style="font-size: 0.7rem;">ℹ️</span></div>
+            <div class="stats-card stats-card-habits" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="The total number of habits you're currently tracking. Start with 2-3 habits and gradually add more as they become automatic." role="article" aria-label="Total habits: {{ stats.total_habits }}">
+                <span class="stats-icon" aria-hidden="true">🎯</span>
+                <div class="stats-number" aria-label="{{ stats.total_habits }} habits">{{ stats.total_habits }}</div>
+                <div class="stats-label">Total Habits <span style="font-size: 0.7rem;" aria-hidden="true">ℹ️</span></div>
                 <div class="stats-sublabel">
                     {% if stats.total_habits == 0 %}
                         Get started!
@@ -598,10 +598,10 @@
             </div>
         </div>
         <div class="col-lg-3 col-md-6 mb-3">
-            <div class="stats-card stats-card-streaks" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="A streak starts when you complete a habit. Complete it again the next day to keep the streak going. Miss a day and it resets to 0. Active streaks are habits with a current streak of 1 or more days.">
-                <span class="stats-icon">🔥</span>
-                <div class="stats-number">{{ stats.active_streaks }}</div>
-                <div class="stats-label">Active Streaks <span style="font-size: 0.7rem;">ℹ️</span></div>
+            <div class="stats-card stats-card-streaks" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="A streak starts when you complete a habit. Complete it again the next day to keep the streak going. Miss a day and it resets to 0. Active streaks are habits with a current streak of 1 or more days." role="article" aria-label="Active streaks: {{ stats.active_streaks }}">
+                <span class="stats-icon" aria-hidden="true">🔥</span>
+                <div class="stats-number" aria-label="{{ stats.active_streaks }} active streaks">{{ stats.active_streaks }}</div>
+                <div class="stats-label">Active Streaks <span style="font-size: 0.7rem;" aria-hidden="true">ℹ️</span></div>
                 <div class="stats-sublabel">
                     {% if stats.active_streaks == 0 %}
                         Start one today
@@ -614,10 +614,10 @@
             </div>
         </div>
         <div class="col-lg-3 col-md-6 mb-3">
-            <div class="stats-card stats-card-longest" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Your best streak ever across all habits. This is your personal record! Even if a streak breaks, this number stays to remind you of what you've achieved.">
-                <span class="stats-icon">🏆</span>
-                <div class="stats-number">{{ stats.longest_streak }}</div>
-                <div class="stats-label">Longest Streak <span style="font-size: 0.7rem;">ℹ️</span></div>
+            <div class="stats-card stats-card-longest" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Your best streak ever across all habits. This is your personal record! Even if a streak breaks, this number stays to remind you of what you've achieved." role="article" aria-label="Longest streak: {{ stats.longest_streak }} days">
+                <span class="stats-icon" aria-hidden="true">🏆</span>
+                <div class="stats-number" aria-label="{{ stats.longest_streak }} days">{{ stats.longest_streak }}</div>
+                <div class="stats-label">Longest Streak <span style="font-size: 0.7rem;" aria-hidden="true">ℹ️</span></div>
                 <div class="stats-sublabel">
                     {% if stats.longest_streak == 0 %}
                         Your record awaits
@@ -632,8 +632,8 @@
             </div>
         </div>
         <div class="col-lg-3 col-md-6 mb-3">
-            <div class="stats-card stats-card-progress" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Percentage of your habits completed today. Aim for 100% to build strong momentum and consistency!">
-                <span class="stats-icon">
+            <div class="stats-card stats-card-progress" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Percentage of your habits completed today. Aim for 100% to build strong momentum and consistency!" role="article" aria-label="Today's progress: {{ stats.completion_rate }} percent">
+                <span class="stats-icon" aria-hidden="true">
                     {% if stats.completion_rate == 100 %}
                         ✅
                     {% elif stats.completion_rate >= 50 %}
@@ -642,8 +642,8 @@
                         ⏳
                     {% endif %}
                 </span>
-                <div class="stats-number">{{ stats.completion_rate }}%</div>
-                <div class="stats-label">Today's Progress <span style="font-size: 0.7rem;">ℹ️</span></div>
+                <div class="stats-number" aria-label="{{ stats.completion_rate }} percent complete">{{ stats.completion_rate }}%</div>
+                <div class="stats-label">Today's Progress <span style="font-size: 0.7rem;" aria-hidden="true">ℹ️</span></div>
                 <div class="stats-sublabel">
                     {% if stats.completion_rate == 100 %}
                         Perfect day!
@@ -681,15 +681,15 @@
         <div class="col-md-12">
             <div class="chart-card">
                 <div class="chart-header">
-                    <h5 class="chart-title">📈 30-Day Progress</h5>
+                    <h2 class="chart-title"><span aria-hidden="true">📈</span> 30-Day Progress</h2>
                     <p class="chart-subtitle">Total habits completed per day</p>
                 </div>
                 <div class="chart-container">
                     <!-- Skeleton loader for chart -->
-                    <div id="chartLoading">
+                    <div id="chartLoading" aria-live="polite" aria-label="Loading chart">
                         <div class="skeleton skeleton-chart"></div>
                     </div>
-                    <canvas id="completionTrendChart" style="display: none;"></canvas>
+                    <canvas id="completionTrendChart" style="display: none;" role="img" aria-label="Line chart showing total habits completed per day over the last 30 days"></canvas>
                 </div>
             </div>
         </div>
@@ -698,11 +698,11 @@
     <!-- Add New Habit Button -->
     <div class="row mb-4">
         <div class="col-md-12">
-            <a href="{{ url_for('habits.add_habit') }}" class="btn btn-primary btn-lg">
-                ➕ Add New Habit
+            <a href="{{ url_for('habits.add_habit') }}" class="btn btn-primary btn-lg" aria-label="Create a new habit">
+                <span aria-hidden="true">➕</span> Add New Habit
             </a>
-            <a href="{{ url_for('habits.archived') }}" class="btn btn-outline-secondary btn-lg ms-2">
-                📦 View Archived
+            <a href="{{ url_for('habits.archived') }}" class="btn btn-outline-secondary btn-lg ms-2" aria-label="View your archived habits">
+                <span aria-hidden="true">📦</span> View Archived
             </a>
         </div>
     </div>
@@ -711,15 +711,15 @@
     {% if habits %}
         <div class="row">
             <div class="col-md-12">
-                <h3 class="mb-3">Your Habits</h3>
+                <h2 class="mb-3">Your Habits</h2>
             </div>
         </div>
-        
+
         <div class="row">
             {% for habit in habits %}
             <div class="col-md-6">
-                <div class="habit-card">
-                    <div class="habit-name">{{ habit.name }}</div>
+                <article class="habit-card" aria-labelledby="habit-{{ habit.id }}-name">
+                    <h3 class="habit-name" id="habit-{{ habit.id }}-name">{{ habit.name }}</h3>
                     
                     {% if habit.description %}
                     <div class="habit-description">{{ habit.description }}</div>
@@ -728,24 +728,24 @@
                     <!-- Why Section (Motivation) -->
                     {% if habit.why %}
                     <div class="why-section">
-                        <div class="why-header" onclick="toggleWhy(this)">
-                            <span class="why-icon">💡</span>
+                        <button type="button" class="why-header" onclick="toggleWhy(this)" aria-expanded="true" aria-controls="why-{{ habit.id }}" style="background: none; border: none; padding: 0; width: 100%; text-align: left;">
+                            <span class="why-icon" aria-hidden="true">💡</span>
                             <span>Why track this habit?</span>
-                            <span class="why-toggle">▼</span>
-                        </div>
-                        <div class="why-content">
+                            <span class="why-toggle" aria-hidden="true">▼</span>
+                        </button>
+                        <div class="why-content" id="why-{{ habit.id }}">
                             {{ habit.why }}
                         </div>
                     </div>
                     {% endif %}
 
                     <div class="mb-3">
-                        <span class="streak-badge" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Current streak: Complete this habit daily to keep your streak growing. Miss a day and it resets to 0!">
-                            🔥 {{ habit.streak_count }} day{% if habit.streak_count != 1 %}s{% endif %} streak
+                        <span class="streak-badge" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Current streak: Complete this habit daily to keep your streak growing. Miss a day and it resets to 0!" aria-label="Current streak: {{ habit.streak_count }} days">
+                            <span aria-hidden="true">🔥</span> {{ habit.streak_count }} day{% if habit.streak_count != 1 %}s{% endif %} streak
                         </span>
                         {% if habit.longest_streak > 0 %}
-                        <span class="longest-streak-badge" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Your personal best for this habit! This record stays even if your current streak breaks. Keep going to beat it!">
-                            <span class="trophy-icon">🏆</span>{{ habit.longest_streak }} day{% if habit.longest_streak != 1 %}s{% endif %} best
+                        <span class="longest-streak-badge" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Your personal best for this habit! This record stays even if your current streak breaks. Keep going to beat it!" aria-label="Personal best: {{ habit.longest_streak }} days">
+                            <span class="trophy-icon" aria-hidden="true">🏆</span>{{ habit.longest_streak }} day{% if habit.longest_streak != 1 %}s{% endif %} best
                         </span>
                         {% endif %}
                     </div>
@@ -758,33 +758,33 @@
                     
                     <div class="habit-actions">
                         {% if habit.last_completed == current_user.get_user_date() %}
-                            <form action="{{ url_for('habits.undo_completion', habit_id=habit.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Undo today\\'s completion for &quot;{{ habit.name }}&quot;? This will decrease your streak.');">
+                            <form action="{{ url_for('habits.undo_completion', habit_id=habit.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Undo today\\'s completion for &quot;{{ habit.name }}&quot;? This will decrease your streak.');" aria-label="Undo completion for {{ habit.name }}">
                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                                <button type="submit" class="btn btn-warning">
-                                    ↶ Undo
+                                <button type="submit" class="btn btn-warning" aria-label="Undo today's completion for {{ habit.name }}">
+                                    <span aria-hidden="true">↶</span> Undo
                                 </button>
                             </form>
                         {% else %}
-                            <form action="{{ url_for('habits.complete_habit', habit_id=habit.id) }}" method="POST" style="display: inline;">
+                            <form action="{{ url_for('habits.complete_habit', habit_id=habit.id) }}" method="POST" style="display: inline;" aria-label="Complete {{ habit.name }} for today">
                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                                <button type="submit" class="btn btn-complete">
-                                    ✓ Complete Today
+                                <button type="submit" class="btn btn-complete btn-complete" aria-label="Mark {{ habit.name }} as completed for today">
+                                    <span aria-hidden="true">✓</span> Complete Today
                                 </button>
                             </form>
                         {% endif %}
 
-                        <a href="{{ url_for('habits.edit_habit', habit_id=habit.id) }}" class="btn btn-outline-secondary">
-                            ✏️ Edit
+                        <a href="{{ url_for('habits.edit_habit', habit_id=habit.id) }}" class="btn btn-outline-secondary" aria-label="Edit {{ habit.name }}">
+                            <span aria-hidden="true">✏️</span> Edit
                         </a>
 
-                        <form action="{{ url_for('habits.archive_habit', habit_id=habit.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to archive &quot;{{ habit.name }}&quot;? You can restore it later from the archived habits page.');">
+                        <form action="{{ url_for('habits.archive_habit', habit_id=habit.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to archive &quot;{{ habit.name }}&quot;? You can restore it later from the archived habits page.');" aria-label="Archive {{ habit.name }}">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                            <button type="submit" class="btn btn-outline-warning">
-                                📦 Archive
+                            <button type="submit" class="btn btn-outline-warning" aria-label="Archive {{ habit.name }}">
+                                <span aria-hidden="true">📦</span> Archive
                             </button>
                         </form>
                     </div>
-                </div>
+                </article>
             </div>
             {% endfor %}
         </div>
@@ -806,7 +806,7 @@
                         {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
                             {% if page_num %}
                                 <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
-                                    <a class="page-link" href="{{ url_for('habits.dashboard', page=page_num) }}">
+                                    <a class="page-link" href="{{ url_for('habits.dashboard', page=page_num) }}" {% if page_num == pagination.page %}aria-current="page"{% endif %} aria-label="Page {{ page_num }}">
                                         {{ page_num }}
                                     </a>
                                 </li>

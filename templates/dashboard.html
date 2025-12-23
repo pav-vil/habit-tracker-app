@@ -515,13 +515,13 @@
         </div>
     </div>
     
-    <!-- Enhanced Statistics Cards -->
+    <!-- Enhanced Statistics Cards with Tooltips -->
     <div class="row mb-4">
         <div class="col-lg-3 col-md-6 mb-3">
-            <div class="stats-card stats-card-habits">
+            <div class="stats-card stats-card-habits" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="The total number of habits you're currently tracking. Start with 2-3 habits and gradually add more as they become automatic.">
                 <span class="stats-icon">🎯</span>
                 <div class="stats-number">{{ stats.total_habits }}</div>
-                <div class="stats-label">Total Habits</div>
+                <div class="stats-label">Total Habits <span style="font-size: 0.7rem;">ℹ️</span></div>
                 <div class="stats-sublabel">
                     {% if stats.total_habits == 0 %}
                         Get started!
@@ -534,10 +534,10 @@
             </div>
         </div>
         <div class="col-lg-3 col-md-6 mb-3">
-            <div class="stats-card stats-card-streaks">
+            <div class="stats-card stats-card-streaks" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="A streak starts when you complete a habit. Complete it again the next day to keep the streak going. Miss a day and it resets to 0. Active streaks are habits with a current streak of 1 or more days.">
                 <span class="stats-icon">🔥</span>
                 <div class="stats-number">{{ stats.active_streaks }}</div>
-                <div class="stats-label">Active Streaks</div>
+                <div class="stats-label">Active Streaks <span style="font-size: 0.7rem;">ℹ️</span></div>
                 <div class="stats-sublabel">
                     {% if stats.active_streaks == 0 %}
                         Start one today
@@ -550,10 +550,10 @@
             </div>
         </div>
         <div class="col-lg-3 col-md-6 mb-3">
-            <div class="stats-card stats-card-longest">
+            <div class="stats-card stats-card-longest" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Your best streak ever across all habits. This is your personal record! Even if a streak breaks, this number stays to remind you of what you've achieved.">
                 <span class="stats-icon">🏆</span>
                 <div class="stats-number">{{ stats.longest_streak }}</div>
-                <div class="stats-label">Longest Streak</div>
+                <div class="stats-label">Longest Streak <span style="font-size: 0.7rem;">ℹ️</span></div>
                 <div class="stats-sublabel">
                     {% if stats.longest_streak == 0 %}
                         Your record awaits
@@ -568,7 +568,7 @@
             </div>
         </div>
         <div class="col-lg-3 col-md-6 mb-3">
-            <div class="stats-card stats-card-progress">
+            <div class="stats-card stats-card-progress" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Percentage of your habits completed today. Aim for 100% to build strong momentum and consistency!">
                 <span class="stats-icon">
                     {% if stats.completion_rate == 100 %}
                         ✅
@@ -579,7 +579,7 @@
                     {% endif %}
                 </span>
                 <div class="stats-number">{{ stats.completion_rate }}%</div>
-                <div class="stats-label">Today's Progress</div>
+                <div class="stats-label">Today's Progress <span style="font-size: 0.7rem;">ℹ️</span></div>
                 <div class="stats-sublabel">
                     {% if stats.completion_rate == 100 %}
                         Perfect day!
@@ -664,11 +664,11 @@
                     {% endif %}
                     
                     <div class="mb-3">
-                        <span class="streak-badge">
+                        <span class="streak-badge" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Current streak: Complete this habit daily to keep your streak growing. Miss a day and it resets to 0!">
                             🔥 {{ habit.streak_count }} day{% if habit.streak_count != 1 %}s{% endif %} streak
                         </span>
                         {% if habit.longest_streak > 0 %}
-                        <span class="longest-streak-badge">
+                        <span class="longest-streak-badge" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Your personal best for this habit! This record stays even if your current streak breaks. Keep going to beat it!">
                             <span class="trophy-icon">🏆</span>{{ habit.longest_streak }} day{% if habit.longest_streak != 1 %}s{% endif %} best
                         </span>
                         {% endif %}
@@ -853,10 +853,42 @@
                         </div>
                     </div>
 
+                    <hr style="margin: 30px 0; border-color: rgba(124, 58, 237, 0.2);">
+
+                    <h5 class="mb-3" style="color: #7c3aed; font-weight: 600;">🧠 Proven Habit-Building Strategies</h5>
+
+                    <div class="alert alert-light mb-3" style="border-left: 4px solid #7c3aed; border-radius: 8px;">
+                        <h6 style="color: #333; font-weight: 600; margin-bottom: 8px;">🔗 Habit Stacking</h6>
+                        <p class="mb-0" style="color: #666; font-size: 0.9rem;">
+                            Link new habits to existing routines. Example: "After I brush my teeth, I will do 5 pushups" or "After I pour my morning coffee, I will meditate for 2 minutes."
+                        </p>
+                    </div>
+
+                    <div class="alert alert-light mb-3" style="border-left: 4px solid #10b981; border-radius: 8px;">
+                        <h6 style="color: #333; font-weight: 600; margin-bottom: 8px;">🌱 Start Tiny</h6>
+                        <p class="mb-0" style="color: #666; font-size: 0.9rem;">
+                            Make it ridiculously easy to start. One pushup, one page, one minute. Once you start, you'll often do more. The goal is to show up, not to be perfect.
+                        </p>
+                    </div>
+
+                    <div class="alert alert-light mb-3" style="border-left: 4px solid #f59e0b; border-radius: 8px;">
+                        <h6 style="color: #333; font-weight: 600; margin-bottom: 8px;">🎯 If-Then Plans</h6>
+                        <p class="mb-0" style="color: #666; font-size: 0.9rem;">
+                            Plan for obstacles in advance. "If I'm too tired to exercise, then I'll do just 5 minutes." "If I miss a day, then I'll get back on track tomorrow." Decide ahead, act automatically.
+                        </p>
+                    </div>
+
+                    <div class="alert alert-light" style="border-left: 4px solid #3b82f6; border-radius: 8px;">
+                        <h6 style="color: #333; font-weight: 600; margin-bottom: 8px;">🔁 Consistent Repetition</h6>
+                        <p class="mb-0" style="color: #666; font-size: 0.9rem;">
+                            Habits form through repetition, not perfection. Do it daily for 66 days on average to make it automatic. Miss a day? No problem—just don't miss twice in a row.
+                        </p>
+                    </div>
+
                     <div class="alert alert-info mt-4" style="background: linear-gradient(135deg, #e0e7ff 0%, #ddd6fe 100%); border: none; border-radius: 12px;">
-                        <h6 style="color: #6d28d9; font-weight: 600; margin-bottom: 10px;">💡 Pro Tip</h6>
+                        <h6 style="color: #6d28d9; font-weight: 600; margin-bottom: 10px;">💡 Remember</h6>
                         <p class="mb-0" style="color: #6d28d9; font-size: 0.95rem;">
-                            Start with habits that take less than 5 minutes. Small wins build momentum!
+                            You don't rise to the level of your goals, you fall to the level of your systems. Focus on building the system, not just the outcome!
                         </p>
                     </div>
                 </div>
@@ -873,6 +905,12 @@
 
 {% block extra_js %}
 <script>
+// Initialize Bootstrap tooltips
+document.addEventListener('DOMContentLoaded', function() {
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+});
+
 // Show welcome modal for new users (no habits)
 {% if not habits %}
 document.addEventListener('DOMContentLoaded', function() {

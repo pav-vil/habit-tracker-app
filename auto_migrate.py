@@ -35,6 +35,20 @@ def auto_migrate_database(app, db):
                 except Exception as e:
                     print(f"[AUTO-MIGRATE] Error altering password_hash column: {e}")
 
+            # Migration 1.5: Add newsletter_subscribed column to user table
+            user_column_names = [col['name'] for col in user_columns]
+            if 'newsletter_subscribed' not in user_column_names:
+                print("[AUTO-MIGRATE] Adding newsletter_subscribed column to user table...")
+                try:
+                    with db.engine.connect() as conn:
+                        conn.execute(text(
+                            'ALTER TABLE "user" ADD COLUMN newsletter_subscribed BOOLEAN NOT NULL DEFAULT FALSE'
+                        ))
+                        conn.commit()
+                    print("[AUTO-MIGRATE] ✓ Successfully added newsletter_subscribed column")
+                except Exception as e:
+                    print(f"[AUTO-MIGRATE] Error adding newsletter_subscribed column: {e}")
+
             # Migration 2: Check if longest_streak column exists in habit table
             habit_columns = [col['name'] for col in inspector.get_columns('habit')]
 

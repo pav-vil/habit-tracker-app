@@ -859,30 +859,42 @@
 
                     <div class="alert alert-light mb-3" style="border-left: 4px solid #7c3aed; border-radius: 8px;">
                         <h6 style="color: #333; font-weight: 600; margin-bottom: 8px;">🔗 Habit Stacking</h6>
-                        <p class="mb-0" style="color: #666; font-size: 0.9rem;">
+                        <p style="color: #666; font-size: 0.9rem; margin-bottom: 8px;">
                             Link new habits to existing routines. Example: "After I brush my teeth, I will do 5 pushups" or "After I pour my morning coffee, I will meditate for 2 minutes."
                         </p>
+                        <a href="https://jamesclear.com/habit-stacking" target="_blank" rel="noopener noreferrer" style="font-size: 0.85rem; color: #7c3aed; text-decoration: none; font-weight: 600;">
+                            📖 Learn More →
+                        </a>
                     </div>
 
                     <div class="alert alert-light mb-3" style="border-left: 4px solid #10b981; border-radius: 8px;">
                         <h6 style="color: #333; font-weight: 600; margin-bottom: 8px;">🌱 Start Tiny</h6>
-                        <p class="mb-0" style="color: #666; font-size: 0.9rem;">
+                        <p style="color: #666; font-size: 0.9rem; margin-bottom: 8px;">
                             Make it ridiculously easy to start. One pushup, one page, one minute. Once you start, you'll often do more. The goal is to show up, not to be perfect.
                         </p>
+                        <a href="https://tinyhabits.com/start/" target="_blank" rel="noopener noreferrer" style="font-size: 0.85rem; color: #10b981; text-decoration: none; font-weight: 600;">
+                            📖 Learn More →
+                        </a>
                     </div>
 
                     <div class="alert alert-light mb-3" style="border-left: 4px solid #f59e0b; border-radius: 8px;">
                         <h6 style="color: #333; font-weight: 600; margin-bottom: 8px;">🎯 If-Then Plans</h6>
-                        <p class="mb-0" style="color: #666; font-size: 0.9rem;">
+                        <p style="color: #666; font-size: 0.9rem; margin-bottom: 8px;">
                             Plan for obstacles in advance. "If I'm too tired to exercise, then I'll do just 5 minutes." "If I miss a day, then I'll get back on track tomorrow." Decide ahead, act automatically.
                         </p>
+                        <a href="https://jamesclear.com/implementation-intentions" target="_blank" rel="noopener noreferrer" style="font-size: 0.85rem; color: #f59e0b; text-decoration: none; font-weight: 600;">
+                            📖 Learn More →
+                        </a>
                     </div>
 
                     <div class="alert alert-light" style="border-left: 4px solid #3b82f6; border-radius: 8px;">
                         <h6 style="color: #333; font-weight: 600; margin-bottom: 8px;">🔁 Consistent Repetition</h6>
-                        <p class="mb-0" style="color: #666; font-size: 0.9rem;">
+                        <p style="color: #666; font-size: 0.9rem; margin-bottom: 8px;">
                             Habits form through repetition, not perfection. Do it daily for 66 days on average to make it automatic. Miss a day? No problem—just don't miss twice in a row.
                         </p>
+                        <a href="https://jamesclear.com/new-habit" target="_blank" rel="noopener noreferrer" style="font-size: 0.85rem; color: #3b82f6; text-decoration: none; font-weight: 600;">
+                            📖 Learn More →
+                        </a>
                     </div>
 
                     <div class="alert alert-info mt-4" style="background: linear-gradient(135deg, #e0e7ff 0%, #ddd6fe 100%); border: none; border-radius: 12px;">
@@ -891,9 +903,22 @@
                             You don't rise to the level of your goals, you fall to the level of your systems. Focus on building the system, not just the outcome!
                         </p>
                     </div>
+
+                    <!-- Newsletter Subscription -->
+                    <div class="mt-4 p-3" style="background: #f8f9fa; border-radius: 12px; border: 2px dashed rgba(124, 58, 237, 0.3);">
+                        <div class="d-flex align-items-start">
+                            <input type="checkbox" id="newsletterCheckbox" class="form-check-input mt-1" style="cursor: pointer; width: 20px; height: 20px; border-color: #7c3aed;">
+                            <label for="newsletterCheckbox" style="cursor: pointer; margin-left: 12px; flex: 1;">
+                                <h6 style="color: #333; font-weight: 600; margin-bottom: 5px;">📧 Get Habit-Building Tips & Motivation</h6>
+                                <p style="color: #666; font-size: 0.85rem; margin-bottom: 0;">
+                                    Receive weekly emails with proven strategies, success stories, and science-backed insights to help you build better habits. Unsubscribe anytime.
+                                </p>
+                            </label>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer" style="border: none; padding: 20px 30px;">
-                    <button type="button" class="btn btn-primary btn-lg w-100" data-bs-dismiss="modal" style="padding: 12px;">
+                    <button type="button" class="btn btn-primary btn-lg w-100" data-bs-dismiss="modal" style="padding: 12px;" onclick="saveNewsletterPreference()">
                         Let's Get Started! 🚀
                     </button>
                 </div>
@@ -910,6 +935,29 @@ document.addEventListener('DOMContentLoaded', function() {
     const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
     const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
 });
+
+// Save newsletter preference
+function saveNewsletterPreference() {
+    const checkbox = document.getElementById('newsletterCheckbox');
+    if (checkbox && checkbox.checked) {
+        // Send to backend to update user preference
+        fetch('/habits/newsletter-subscribe', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ subscribed: true })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log('Newsletter subscription saved');
+            }
+        })
+        .catch(error => console.error('Error saving newsletter preference:', error));
+    }
+}
 
 // Show welcome modal for new users (no habits)
 {% if not habits %}

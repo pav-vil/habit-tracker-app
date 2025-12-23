@@ -337,3 +337,24 @@ def archived():
     )
 
     return render_template('archived.html', habits=pagination.items, pagination=pagination)
+
+
+@habits_bp.route('/newsletter-subscribe', methods=['POST'])
+@login_required
+def newsletter_subscribe():
+    """Handle newsletter subscription preference."""
+    from flask import jsonify
+
+    try:
+        data = request.get_json()
+        subscribed = data.get('subscribed', False)
+
+        # Update user's newsletter preference
+        current_user.newsletter_subscribed = subscribed
+        db.session.commit()
+
+        return jsonify({'success': True, 'subscribed': subscribed})
+    except Exception as e:
+        print(f"[NEWSLETTER] Error updating subscription: {e}")
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500

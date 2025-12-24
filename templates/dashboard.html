@@ -111,7 +111,20 @@
         transition: all 0.3s ease;
         position: relative;
         user-select: none;
+        -webkit-user-select: none; /* iOS Safari */
         touch-action: pan-y;
+        /* iOS Safari touch optimizations */
+        -webkit-tap-highlight-color: transparent;
+        cursor: pointer;
+        /* Force hardware acceleration on iOS */
+        transform: translateZ(0);
+        -webkit-transform: translateZ(0);
+        will-change: transform;
+    }
+
+    /* iOS Safari active state */
+    .habit-card:active {
+        opacity: 0.95;
     }
 
     .habit-card:hover {
@@ -173,16 +186,46 @@
     .habit-actions {
         margin-top: 15px;
     }
-    
+
+    /* Optimize touch targets for mobile */
+    @media (max-width: 768px) {
+        .habit-actions .btn {
+            min-height: 44px;
+            min-width: 44px;
+            padding: 12px 16px;
+            font-size: 15px;
+            margin-bottom: 8px;
+            margin-right: 8px;
+        }
+
+        .habit-card {
+            /* Increase padding for easier swipe detection */
+            padding: 30px 20px;
+        }
+    }
+
     .btn-complete {
         background: #28a745;
         color: white;
         border: none;
+        min-height: 44px;
+        padding: 12px 24px;
+        /* iOS Safari button fixes */
+        -webkit-appearance: none;
+        appearance: none;
+        border-radius: 8px;
+        -webkit-tap-highlight-color: transparent;
     }
-    
+
     .btn-complete:hover {
         background: #218838;
         color: white;
+    }
+
+    /* iOS Safari active state for buttons */
+    .btn-complete:active,
+    .btn:active {
+        transform: scale(0.98);
     }
     
     .empty-state {
@@ -561,27 +604,30 @@
         font-size: 0.9rem;
     }
 
-    /* Swipe Gesture Visual Feedback */
+    /* Enhanced Swipe Gesture Visual Feedback */
     .habit-card.swiping {
         transition: none !important;
     }
 
     .habit-card.swipe-right {
-        background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, var(--card-bg) 100%);
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, var(--card-bg) 100%);
+        border-left: 4px solid #10b981;
     }
 
     .habit-card.swipe-left {
-        background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, var(--card-bg) 100%);
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.25) 0%, var(--card-bg) 100%);
+        border-right: 4px solid #ef4444;
     }
 
     .swipe-indicator {
         position: absolute;
         top: 50%;
         transform: translateY(-50%);
-        font-size: 3rem;
+        font-size: 3.5rem;
         opacity: 0;
-        transition: opacity 0.2s ease;
+        transition: all 0.3s ease;
         pointer-events: none;
+        filter: drop-shadow(0 2px 8px rgba(0,0,0,0.2));
     }
 
     .swipe-indicator-right {
@@ -592,9 +638,126 @@
         right: 30px;
     }
 
-    .habit-card.swipe-right .swipe-indicator-right,
+    .habit-card.swipe-right .swipe-indicator-right {
+        opacity: 1;
+        animation: swipePulse 0.6s ease-in-out infinite;
+    }
+
     .habit-card.swipe-left .swipe-indicator-left {
         opacity: 1;
+        animation: swipePulse 0.6s ease-in-out infinite;
+    }
+
+    @keyframes swipePulse {
+        0%, 100% { transform: translateY(-50%) scale(1); }
+        50% { transform: translateY(-50%) scale(1.1); }
+    }
+
+    /* Swipe Tutorial Overlay */
+    .swipe-tutorial-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.85);
+        z-index: 9999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        animation: fadeIn 0.3s ease;
+        /* iOS Safari overlay fixes */
+        -webkit-backdrop-filter: blur(5px);
+        backdrop-filter: blur(5px);
+        /* Prevent scroll on iOS when overlay is active */
+        overflow: hidden;
+        /* Fix iOS safe areas */
+        padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0) env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0);
+    }
+
+    .swipe-tutorial-overlay.active {
+        display: flex;
+    }
+
+    .swipe-tutorial-content {
+        background: var(--card-bg);
+        border-radius: 20px;
+        padding: 40px 30px;
+        max-width: 400px;
+        margin: 20px;
+        text-align: center;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    }
+
+    .swipe-tutorial-content h3 {
+        color: #7c3aed;
+        font-size: 1.8rem;
+        margin-bottom: 20px;
+        font-weight: 700;
+    }
+
+    .swipe-demo {
+        display: flex;
+        justify-content: space-around;
+        margin: 30px 0;
+        gap: 20px;
+    }
+
+    .swipe-demo-item {
+        flex: 1;
+        padding: 20px;
+        border-radius: 12px;
+        background: rgba(124, 58, 237, 0.1);
+        border: 2px solid rgba(124, 58, 237, 0.3);
+    }
+
+    .swipe-demo-icon {
+        font-size: 3rem;
+        margin-bottom: 10px;
+        display: block;
+    }
+
+    .swipe-demo-text {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        font-weight: 600;
+    }
+
+    .swipe-demo-arrow {
+        font-size: 2rem;
+        color: #7c3aed;
+        margin-bottom: 5px;
+    }
+
+    .tutorial-close-btn {
+        background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 1rem;
+        margin-top: 20px;
+        cursor: pointer;
+        min-height: 44px;
+        transition: all 0.3s ease;
+    }
+
+    .tutorial-close-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
+    }
+
+    /* Mobile-specific swipe enhancements */
+    @media (max-width: 768px) {
+        .swipe-indicator {
+            font-size: 4rem;
+        }
+
+        .habit-card.swipe-right,
+        .habit-card.swipe-left {
+            border-width: 5px;
+        }
     }
 
     @media (max-width: 575px) {
@@ -610,6 +773,36 @@
 {% endblock %}
 
 {% block content %}
+<!-- Swipe Tutorial Overlay -->
+<div class="swipe-tutorial-overlay" id="swipeTutorial">
+    <div class="swipe-tutorial-content">
+        <h3>Quick Tip: Swipe to Complete! 👆</h3>
+        <p style="color: var(--text-secondary); margin-bottom: 20px;">
+            You can swipe habit cards to quickly complete or undo them
+        </p>
+
+        <div class="swipe-demo">
+            <div class="swipe-demo-item">
+                <div class="swipe-demo-arrow">→</div>
+                <span class="swipe-demo-icon">✓</span>
+                <div class="swipe-demo-text">Swipe Right<br>to Complete</div>
+            </div>
+
+            <div class="swipe-demo-item">
+                <div class="swipe-demo-arrow">←</div>
+                <span class="swipe-demo-icon">↶</span>
+                <div class="swipe-demo-text">Swipe Left<br>to Undo</div>
+            </div>
+        </div>
+
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">
+            Or use the buttons if you prefer!
+        </p>
+
+        <button class="tutorial-close-btn" onclick="closeSwipeTutorial()">Got it!</button>
+    </div>
+</div>
+
 <div class="container mt-4">
     <div class="row mb-4">
         <div class="col-md-12">
@@ -1259,7 +1452,52 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Swipe Gesture Detection for Habit Cards
+    // Swipe Tutorial Management
+    function closeSwipeTutorial() {
+        const tutorial = document.getElementById('swipeTutorial');
+        if (tutorial) {
+            tutorial.classList.remove('active');
+            // Re-enable body scroll (iOS Safari fix)
+            document.body.style.overflow = '';
+            document.body.style.position = '';
+            document.body.style.top = '';
+            document.body.style.width = '';
+            // Save to localStorage that user has seen the tutorial
+            localStorage.setItem('habitflow_swipe_tutorial_seen', 'true');
+        }
+    }
+
+    function showSwipeTutorial() {
+        const tutorial = document.getElementById('swipeTutorial');
+        if (tutorial) {
+            tutorial.classList.add('active');
+            // Prevent body scroll on iOS Safari
+            const scrollY = window.scrollY;
+            document.body.style.position = 'fixed';
+            document.body.style.top = `-${scrollY}px`;
+            document.body.style.width = '100%';
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    // Make closeSwipeTutorial globally available
+    window.closeSwipeTutorial = closeSwipeTutorial;
+
+    // Show tutorial on first visit (if user has habits)
+    {% if habits %}
+    document.addEventListener('DOMContentLoaded', function() {
+        const hasSeenTutorial = localStorage.getItem('habitflow_swipe_tutorial_seen');
+
+        if (!hasSeenTutorial && window.innerWidth <= 768) {
+            // Show tutorial after a brief delay for better UX
+            setTimeout(() => {
+                showSwipeTutorial();
+            }, 1000);
+        }
+    });
+    {% endif %}
+
+    // Enhanced Swipe Gesture Detection for Habit Cards
     const habitCards = document.querySelectorAll('.habit-card');
 
     habitCards.forEach(card => {
@@ -1267,8 +1505,10 @@ document.addEventListener('DOMContentLoaded', function() {
         let touchStartY = 0;
         let touchEndX = 0;
         let touchEndY = 0;
+        let touchStartTime = 0;
         let swipeIndicatorRight = null;
         let swipeIndicatorLeft = null;
+        let isSwiping = false;
 
         // Create swipe indicators
         swipeIndicatorRight = document.createElement('div');
@@ -1288,6 +1528,8 @@ document.addEventListener('DOMContentLoaded', function() {
         card.addEventListener('touchstart', function(e) {
             touchStartX = e.changedTouches[0].screenX;
             touchStartY = e.changedTouches[0].screenY;
+            touchStartTime = Date.now();
+            isSwiping = false;
             card.classList.add('swiping');
         }, { passive: true });
 
@@ -1299,35 +1541,61 @@ document.addEventListener('DOMContentLoaded', function() {
             const diffY = currentY - touchStartY;
 
             // Only show swipe feedback if horizontal swipe is dominant
-            if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 30) {
+            // Lower threshold (20px) for quicker visual feedback
+            if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 20) {
+                isSwiping = true;
+
+                // iOS Safari: Prevent default only when horizontal swipe detected
+                // This prevents page scroll during horizontal swipe
+                if (e.cancelable && Math.abs(diffX) > Math.abs(diffY)) {
+                    e.preventDefault();
+                }
+
                 if (diffX > 0) {
                     // Swiping right
                     card.classList.add('swipe-right');
                     card.classList.remove('swipe-left');
+
+                    // Scale indicator opacity based on swipe distance
+                    const opacity = Math.min(Math.abs(diffX) / 100, 1);
+                    swipeIndicatorRight.style.opacity = opacity;
                 } else {
                     // Swiping left
                     card.classList.add('swipe-left');
                     card.classList.remove('swipe-right');
+
+                    // Scale indicator opacity based on swipe distance
+                    const opacity = Math.min(Math.abs(diffX) / 100, 1);
+                    swipeIndicatorLeft.style.opacity = opacity;
                 }
             }
-        }, { passive: true });
+        }, { passive: false }); // Changed to passive: false for iOS Safari
 
         // Touch end
         card.addEventListener('touchend', function(e) {
             touchEndX = e.changedTouches[0].screenX;
             touchEndY = e.changedTouches[0].screenY;
+            const touchDuration = Date.now() - touchStartTime;
 
+            // Reset visual feedback
             card.classList.remove('swiping');
-            card.classList.remove('swipe-right');
-            card.classList.remove('swipe-left');
+            setTimeout(() => {
+                card.classList.remove('swipe-right');
+                card.classList.remove('swipe-left');
+                swipeIndicatorRight.style.opacity = '';
+                swipeIndicatorLeft.style.opacity = '';
+            }, 200);
 
-            handleSwipe(card);
+            // Only trigger swipe if it was a quick gesture (< 500ms)
+            if (isSwiping && touchDuration < 500) {
+                handleSwipe(card);
+            }
         }, { passive: false });
 
         function handleSwipe(card) {
             const diffX = touchEndX - touchStartX;
             const diffY = touchEndY - touchStartY;
-            const threshold = 100; // Minimum swipe distance in pixels
+            const threshold = 80; // Reduced threshold for easier swipes (was 100)
 
             // Check if horizontal swipe is dominant
             if (Math.abs(diffX) > Math.abs(diffY)) {
@@ -1345,14 +1613,22 @@ document.addEventListener('DOMContentLoaded', function() {
             // Find the complete button and click it
             const completeBtn = card.querySelector('.btn-complete');
             if (completeBtn) {
-                // Add visual feedback
-                card.style.transition = 'all 0.3s ease';
-                card.style.transform = 'translateX(20px)';
-                card.style.opacity = '0.8';
+                // Enhanced visual feedback with pulse animation
+                card.style.transition = 'all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+                card.style.transform = 'scale(1.02) translateX(10px)';
+                card.style.boxShadow = '0 8px 30px rgba(16, 185, 129, 0.4)';
+
+                // Trigger haptic-like visual feedback
+                card.classList.add('swipe-right');
 
                 setTimeout(() => {
-                    completeBtn.click();
-                }, 200);
+                    // Create success flash
+                    card.style.background = 'linear-gradient(135deg, rgba(16, 185, 129, 0.3) 0%, var(--card-bg) 100%)';
+
+                    setTimeout(() => {
+                        completeBtn.click();
+                    }, 100);
+                }, 150);
             }
         }
 
@@ -1362,14 +1638,30 @@ document.addEventListener('DOMContentLoaded', function() {
             const undoForm = card.querySelector('form[action*="undo"]');
 
             if (undoBtn && undoForm && undoBtn.textContent.includes('Undo')) {
-                // Add visual feedback
-                card.style.transition = 'all 0.3s ease';
-                card.style.transform = 'translateX(-20px)';
-                card.style.opacity = '0.8';
+                // Enhanced visual feedback with pulse animation
+                card.style.transition = 'all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+                card.style.transform = 'scale(1.02) translateX(-10px)';
+                card.style.boxShadow = '0 8px 30px rgba(239, 68, 68, 0.4)';
+
+                // Trigger haptic-like visual feedback
+                card.classList.add('swipe-left');
 
                 setTimeout(() => {
-                    undoBtn.click();
-                }, 200);
+                    // Create undo flash
+                    card.style.background = 'linear-gradient(135deg, rgba(239, 68, 68, 0.3) 0%, var(--card-bg) 100%)';
+
+                    setTimeout(() => {
+                        undoBtn.click();
+                    }, 100);
+                }, 150);
+            } else {
+                // Visual feedback that undo is not available
+                card.style.transition = 'all 0.2s ease';
+                card.style.transform = 'translateX(-5px)';
+
+                setTimeout(() => {
+                    card.style.transform = '';
+                }, 100);
             }
         }
     });

@@ -2,7 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- iOS Safari optimized viewport -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="HabitFlow">
+    <meta name="format-detection" content="telephone=no">
     <meta name="description" content="HabitFlow - Build better habits, one day at a time. Track your daily habits and visualize your progress.">
     <title>{% block title %}HabitFlow - Track Your Success{% endblock %}</title>
     
@@ -41,20 +46,49 @@
             --skeleton-bg: linear-gradient(90deg, #3d3d5c 25%, #4d4d6c 50%, #3d3d5c 75%);
         }
 
+        /* iOS Safari Fixes */
+        * {
+            -webkit-tap-highlight-color: transparent; /* Remove iOS tap highlight */
+            -webkit-touch-callout: none; /* Disable callout on long press */
+        }
+
+        html {
+            /* Fix iOS Safari address bar height issues */
+            height: -webkit-fill-available;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
             min-height: 100vh;
+            min-height: -webkit-fill-available; /* iOS Safari viewport fix */
             padding-top: 70px;
             color: var(--text-primary);
             transition: background 0.3s ease, color 0.3s ease;
+            /* Improve font rendering on iOS */
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            /* Prevent bounce/rubber-banding at edges */
+            overscroll-behavior-y: none;
+            /* Enable momentum scrolling */
+            -webkit-overflow-scrolling: touch;
         }
         
         .navbar {
             background: var(--navbar-bg) !important;
             backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px); /* iOS Safari */
             box-shadow: 0 2px 20px var(--shadow-color);
             transition: all 0.3s ease;
+            /* Fix iOS Safari fixed positioning */
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1030;
+            /* Prevent iOS from creating stacking context issues */
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
         }
 
         .navbar-light .navbar-brand,
@@ -169,6 +203,84 @@
         /* Smooth scroll behavior */
         html {
             scroll-behavior: smooth;
+        }
+
+        /* Touch Target Optimization - Minimum 44px for iOS */
+        @media (max-width: 768px) {
+            /* All buttons must meet 44px minimum */
+            .btn,
+            button {
+                min-height: 44px;
+                min-width: 44px;
+                padding: 12px 20px;
+                font-size: 16px; /* Prevents iOS zoom on focus */
+                /* iOS Safari button fixes */
+                -webkit-appearance: none;
+                appearance: none;
+                border-radius: 8px; /* Override iOS default */
+                cursor: pointer;
+                /* Ensure tappable on iOS */
+                touch-action: manipulation;
+            }
+
+            /* Links should have adequate touch area */
+            a.nav-link {
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+            }
+
+            /* Form inputs */
+            input[type="text"],
+            input[type="email"],
+            input[type="password"],
+            input[type="number"],
+            textarea,
+            select {
+                min-height: 44px;
+                font-size: 16px; /* Prevents iOS zoom */
+                padding: 10px 15px;
+                /* iOS Safari input fixes */
+                -webkit-appearance: none;
+                appearance: none;
+                border-radius: 8px;
+                /* Prevent iOS from adding inner shadows */
+                background-clip: padding-box;
+                /* Fix autofill styles */
+                -webkit-text-fill-color: var(--text-primary);
+            }
+
+            /* Fix iOS autofill background */
+            input:-webkit-autofill,
+            input:-webkit-autofill:hover,
+            input:-webkit-autofill:focus {
+                -webkit-box-shadow: 0 0 0 1000px var(--card-bg) inset;
+                -webkit-text-fill-color: var(--text-primary);
+                transition: background-color 5000s ease-in-out 0s;
+            }
+
+            /* Checkboxes and radios need larger touch area */
+            input[type="checkbox"],
+            input[type="radio"] {
+                min-width: 24px;
+                min-height: 24px;
+                cursor: pointer;
+            }
+
+            /* Labels for checkboxes/radios should be tappable */
+            label {
+                cursor: pointer;
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+            }
+
+            /* Icon buttons need minimum size */
+            .btn-close,
+            .navbar-toggler {
+                min-width: 44px;
+                min-height: 44px;
+            }
         }
 
         /* Navigation link transitions */
@@ -310,12 +422,18 @@
             right: 0;
             background: var(--card-bg);
             box-shadow: 0 -2px 10px var(--shadow-color);
-            padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+            /* iOS Safari safe area support */
+            padding: 8px env(safe-area-inset-right, 0) max(8px, env(safe-area-inset-bottom, 0)) env(safe-area-inset-left, 0);
+            padding-bottom: calc(8px + env(safe-area-inset-bottom, 0));
             z-index: 1000;
             display: none;
             backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px); /* iOS Safari */
             border-top: 1px solid var(--border-color);
             transition: all 0.3s ease;
+            /* Fix iOS Safari fixed positioning issues */
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
         }
 
         @media (max-width: 768px) {
@@ -324,8 +442,16 @@
             }
 
             /* Add bottom padding to content to prevent overlap */
+            /* Account for safe area on devices with notches */
             main.container {
-                padding-bottom: 80px !important;
+                padding-bottom: calc(80px + env(safe-area-inset-bottom, 0)) !important;
+                padding-left: max(15px, env(safe-area-inset-left, 0));
+                padding-right: max(15px, env(safe-area-inset-right, 0));
+            }
+
+            /* Fix body padding for notched devices */
+            body {
+                padding-top: max(70px, env(safe-area-inset-top, 70px));
             }
 
             /* Hide regular navbar links on mobile (keep logo and toggle) */
@@ -356,12 +482,13 @@
             text-decoration: none;
             color: var(--text-muted);
             transition: all 0.2s ease;
-            padding: 8px 12px;
+            padding: 10px 12px;
             border-radius: 12px;
-            min-width: 60px;
+            min-width: 64px;
+            min-height: 48px; /* Ensure 44px+ touch target */
             position: relative;
             flex: 1;
-            max-width: 80px;
+            max-width: 85px;
         }
 
         .bottom-nav-item:hover,

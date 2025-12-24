@@ -808,6 +808,13 @@
         <div class="col-md-12">
             <h1>Welcome back, {{ current_user.email }}! <span aria-hidden="true">👋</span></h1>
             <p class="text-muted">Track your habits and build consistency</p>
+
+            <!-- Inline Help Banner (Mobile) -->
+            {% if habits %}
+            <div class="alert alert-info d-md-none mt-3" role="alert" style="border-left: 4px solid #7c3aed; background: rgba(124, 58, 237, 0.1); border-radius: 8px;">
+                <strong>💡 Quick Tip:</strong> Swipe right on any habit card to complete it instantly! Swipe left to undo.
+            </div>
+            {% endif %}
         </div>
     </div>
     

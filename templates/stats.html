@@ -11,6 +11,28 @@
             <h1><span aria-hidden="true">📊</span> Your Statistics</h1>
             <p class="text-muted">Track your progress and identify patterns</p>
         </div>
+    </div>
+
+    <!-- Helpful Guide Banner -->
+    <div class="alert alert-info mb-4" role="alert" style="border-left: 4px solid #7c3aed; background: rgba(124, 58, 237, 0.1);">
+        <h6 class="alert-heading mb-2"><strong>📖 Understanding Your Statistics</strong></h6>
+        <div class="row">
+            <div class="col-md-6">
+                <ul class="mb-0 small" style="padding-left: 1.2rem;">
+                    <li><strong>Active Streaks:</strong> Number of habits with consecutive completions</li>
+                    <li><strong>Heatmap:</strong> Darker purple = more completions that day</li>
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <ul class="mb-0 small" style="padding-left: 1.2rem;">
+                    <li><strong>14-Day Trend:</strong> See your daily completion patterns</li>
+                    <li><strong>Export:</strong> Download your stats as PDF or image for sharing</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
         <div class="col-md-4 text-end">
             <!-- Export Buttons -->
             <div class="btn-group" role="group" aria-label="Export options">
@@ -27,26 +49,32 @@
     <!-- Overview Cards -->
     <div class="row mb-4" role="region" aria-label="Statistics overview">
         <div class="col-md-4 mb-3">
-            <div class="card text-center h-100" role="article" aria-label="Total habits: {{ total_habits }}">
+            <div class="card text-center h-100" role="article" aria-label="Total habits: {{ total_habits }}"
+                 title="Total number of active habits you're tracking">
                 <div class="card-body">
                     <h2 class="text-primary" aria-label="{{ total_habits }} habits">{{ total_habits }}</h2>
                     <p class="text-muted mb-0">Total Habits</p>
+                    <small class="text-muted d-block mt-1" style="font-size: 0.75rem;">Active habits tracked</small>
                 </div>
             </div>
         </div>
         <div class="col-md-4 mb-3">
-            <div class="card text-center h-100" role="article" aria-label="Active streaks: {{ active_streaks }}">
+            <div class="card text-center h-100" role="article" aria-label="Active streaks: {{ active_streaks }}"
+                 title="Habits with at least 1 consecutive day of completion">
                 <div class="card-body">
                     <h2 class="text-success" aria-label="{{ active_streaks }} active streaks">{{ active_streaks }}</h2>
                     <p class="text-muted mb-0">Active Streaks</p>
+                    <small class="text-muted d-block mt-1" style="font-size: 0.75rem;">Consecutive completions</small>
                 </div>
             </div>
         </div>
         <div class="col-md-4 mb-3">
-            <div class="card text-center h-100" role="article" aria-label="Longest streak: {{ longest_streak }} days">
+            <div class="card text-center h-100" role="article" aria-label="Longest streak: {{ longest_streak }} days"
+                 title="Your best streak record across all habits">
                 <div class="card-body">
                     <h2 class="text-warning" aria-label="{{ longest_streak }} days"><span aria-hidden="true">🔥</span> {{ longest_streak }}</h2>
                     <p class="text-muted mb-0">Longest Streak</p>
+                    <small class="text-muted d-block mt-1" style="font-size: 0.75rem;">Your best record</small>
                 </div>
             </div>
         </div>

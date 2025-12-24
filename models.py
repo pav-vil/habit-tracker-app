@@ -19,6 +19,7 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(255), nullable=False)  # Increased from 150 to 255 for scrypt hashes
     timezone = db.Column(db.String(50), default='UTC', nullable=False)
     newsletter_subscribed = db.Column(db.Boolean, default=False, nullable=False)  # Newsletter subscription status
+    dark_mode = db.Column(db.Boolean, default=False, nullable=False)  # Dark mode preference
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     
     habits = db.relationship(

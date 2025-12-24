@@ -5,11 +5,11 @@
 {% block extra_css %}
 <style>
     .stats-card {
-        background: white;
+        background: var(--card-bg);
         border-radius: 15px;
         padding: 25px 20px;
         text-align: center;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        box-shadow: 0 4px 15px var(--shadow-color);
         margin-bottom: 20px;
         transition: all 0.3s ease;
         position: relative;
@@ -52,7 +52,7 @@
     }
 
     .stats-label {
-        color: #666;
+        color: var(--text-secondary);
         font-size: 0.85rem;
         text-transform: uppercase;
         letter-spacing: 1.2px;
@@ -61,7 +61,7 @@
     }
 
     .stats-sublabel {
-        color: #999;
+        color: var(--text-muted);
         font-size: 0.75rem;
         margin-top: 5px;
         font-weight: 400;
@@ -103,28 +103,31 @@
     }
     
     .habit-card {
-        background: white;
+        background: var(--card-bg);
         border-radius: 15px;
         padding: 25px;
         margin-bottom: 20px;
-        box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+        box-shadow: 0 3px 15px var(--shadow-color);
         transition: all 0.3s ease;
+        position: relative;
+        user-select: none;
+        touch-action: pan-y;
     }
-    
+
     .habit-card:hover {
         transform: translateY(-3px);
-        box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+        box-shadow: 0 5px 25px var(--shadow-color);
     }
-    
+
     .habit-name {
         font-size: 1.4rem;
         font-weight: 600;
-        color: #333;
+        color: var(--text-primary);
         margin-bottom: 10px;
     }
-    
+
     .habit-description {
-        color: #666;
+        color: var(--text-secondary);
         margin-bottom: 15px;
     }
     
@@ -185,7 +188,7 @@
     .empty-state {
         text-align: center;
         padding: 40px 20px;
-        color: #666;
+        color: var(--text-secondary);
     }
 
     .empty-state-icon {
@@ -195,10 +198,10 @@
     }
 
     .empty-state-card {
-        background: white;
+        background: var(--card-bg);
         border-radius: 20px;
         padding: 50px 30px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        box-shadow: 0 10px 40px var(--shadow-color);
         max-width: 800px;
         margin: 0 auto;
     }
@@ -217,13 +220,13 @@
     .empty-state-title {
         font-size: 2rem;
         font-weight: 700;
-        color: #333;
+        color: var(--text-primary);
         margin-bottom: 15px;
     }
 
     .empty-state-subtitle {
         font-size: 1.1rem;
-        color: #666;
+        color: var(--text-secondary);
         margin-bottom: 40px;
     }
 
@@ -250,13 +253,13 @@
 
     .tip-title {
         font-weight: 600;
-        color: #333;
+        color: var(--text-primary);
         margin-bottom: 8px;
     }
 
     .tip-text {
         font-size: 0.9rem;
-        color: #666;
+        color: var(--text-secondary);
         margin: 0;
     }
 
@@ -309,13 +312,13 @@
 
     .step-content h5 {
         margin-bottom: 8px;
-        color: #333;
+        color: var(--text-primary);
         font-weight: 600;
     }
 
     .step-content p {
         margin: 0;
-        color: #666;
+        color: var(--text-secondary);
         font-size: 0.95rem;
     }
 
@@ -434,15 +437,15 @@
     }
 
     .chart-card {
-        background: white;
+        background: var(--card-bg);
         border-radius: 15px;
         padding: 25px;
-        box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+        box-shadow: 0 3px 15px var(--shadow-color);
         transition: all 0.3s ease;
     }
 
     .chart-card:hover {
-        box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+        box-shadow: 0 5px 25px var(--shadow-color);
     }
 
     .chart-header {
@@ -452,12 +455,12 @@
     .chart-title {
         font-size: 1.5rem;
         font-weight: 600;
-        color: #333;
+        color: var(--text-primary);
         margin-bottom: 5px;
     }
 
     .chart-subtitle {
-        color: #666;
+        color: var(--text-secondary);
         font-size: 0.9rem;
         margin-bottom: 0;
     }
@@ -545,7 +548,7 @@
     }
 
     .why-content {
-        color: #333;
+        color: var(--text-primary);
         line-height: 1.6;
         font-size: 0.95rem;
         white-space: pre-wrap;
@@ -553,9 +556,45 @@
     }
 
     .why-empty {
-        color: #999;
+        color: var(--text-muted);
         font-style: italic;
         font-size: 0.9rem;
+    }
+
+    /* Swipe Gesture Visual Feedback */
+    .habit-card.swiping {
+        transition: none !important;
+    }
+
+    .habit-card.swipe-right {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, var(--card-bg) 100%);
+    }
+
+    .habit-card.swipe-left {
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, var(--card-bg) 100%);
+    }
+
+    .swipe-indicator {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 3rem;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        pointer-events: none;
+    }
+
+    .swipe-indicator-right {
+        left: 30px;
+    }
+
+    .swipe-indicator-left {
+        right: 30px;
+    }
+
+    .habit-card.swipe-right .swipe-indicator-right,
+    .habit-card.swipe-left .swipe-indicator-left {
+        opacity: 1;
     }
 
     @media (max-width: 575px) {
@@ -1218,6 +1257,121 @@ document.addEventListener('DOMContentLoaded', function() {
             this.style.opacity = '0.7';
             this.style.pointerEvents = 'none';
         });
+    });
+
+    // Swipe Gesture Detection for Habit Cards
+    const habitCards = document.querySelectorAll('.habit-card');
+
+    habitCards.forEach(card => {
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchEndX = 0;
+        let touchEndY = 0;
+        let swipeIndicatorRight = null;
+        let swipeIndicatorLeft = null;
+
+        // Create swipe indicators
+        swipeIndicatorRight = document.createElement('div');
+        swipeIndicatorRight.className = 'swipe-indicator swipe-indicator-right';
+        swipeIndicatorRight.textContent = '✓';
+        swipeIndicatorRight.setAttribute('aria-hidden', 'true');
+
+        swipeIndicatorLeft = document.createElement('div');
+        swipeIndicatorLeft.className = 'swipe-indicator swipe-indicator-left';
+        swipeIndicatorLeft.textContent = '↶';
+        swipeIndicatorLeft.setAttribute('aria-hidden', 'true');
+
+        card.appendChild(swipeIndicatorRight);
+        card.appendChild(swipeIndicatorLeft);
+
+        // Touch start
+        card.addEventListener('touchstart', function(e) {
+            touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
+            card.classList.add('swiping');
+        }, { passive: true });
+
+        // Touch move (for visual feedback)
+        card.addEventListener('touchmove', function(e) {
+            const currentX = e.changedTouches[0].screenX;
+            const currentY = e.changedTouches[0].screenY;
+            const diffX = currentX - touchStartX;
+            const diffY = currentY - touchStartY;
+
+            // Only show swipe feedback if horizontal swipe is dominant
+            if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 30) {
+                if (diffX > 0) {
+                    // Swiping right
+                    card.classList.add('swipe-right');
+                    card.classList.remove('swipe-left');
+                } else {
+                    // Swiping left
+                    card.classList.add('swipe-left');
+                    card.classList.remove('swipe-right');
+                }
+            }
+        }, { passive: true });
+
+        // Touch end
+        card.addEventListener('touchend', function(e) {
+            touchEndX = e.changedTouches[0].screenX;
+            touchEndY = e.changedTouches[0].screenY;
+
+            card.classList.remove('swiping');
+            card.classList.remove('swipe-right');
+            card.classList.remove('swipe-left');
+
+            handleSwipe(card);
+        }, { passive: false });
+
+        function handleSwipe(card) {
+            const diffX = touchEndX - touchStartX;
+            const diffY = touchEndY - touchStartY;
+            const threshold = 100; // Minimum swipe distance in pixels
+
+            // Check if horizontal swipe is dominant
+            if (Math.abs(diffX) > Math.abs(diffY)) {
+                if (diffX > threshold) {
+                    // Swipe right - Complete habit
+                    handleSwipeRight(card);
+                } else if (diffX < -threshold) {
+                    // Swipe left - Undo completion (if already completed today)
+                    handleSwipeLeft(card);
+                }
+            }
+        }
+
+        function handleSwipeRight(card) {
+            // Find the complete button and click it
+            const completeBtn = card.querySelector('.btn-complete');
+            if (completeBtn) {
+                // Add visual feedback
+                card.style.transition = 'all 0.3s ease';
+                card.style.transform = 'translateX(20px)';
+                card.style.opacity = '0.8';
+
+                setTimeout(() => {
+                    completeBtn.click();
+                }, 200);
+            }
+        }
+
+        function handleSwipeLeft(card) {
+            // Find the undo button (if habit is completed today)
+            const undoBtn = card.querySelector('button[type="submit"]');
+            const undoForm = card.querySelector('form[action*="undo"]');
+
+            if (undoBtn && undoForm && undoBtn.textContent.includes('Undo')) {
+                // Add visual feedback
+                card.style.transition = 'all 0.3s ease';
+                card.style.transform = 'translateX(-20px)';
+                card.style.opacity = '0.8';
+
+                setTimeout(() => {
+                    undoBtn.click();
+                }, 200);
+            }
+        }
     });
 });
 </script>

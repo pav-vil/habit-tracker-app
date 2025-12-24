@@ -363,6 +363,27 @@ def newsletter_subscribe():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
+@habits_bp.route('/dark-mode-toggle', methods=['POST'])
+@login_required
+def dark_mode_toggle():
+    """Handle dark mode preference toggle."""
+    from flask import jsonify
+
+    try:
+        data = request.get_json()
+        dark_mode = data.get('dark_mode', False)
+
+        # Update user's dark mode preference
+        current_user.dark_mode = dark_mode
+        db.session.commit()
+
+        return jsonify({'success': True, 'dark_mode': dark_mode})
+    except Exception as e:
+        print(f"[DARK_MODE] Error updating preference: {e}")
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 @habits_bp.route('/about')
 def about():
     """

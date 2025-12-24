@@ -607,6 +607,9 @@
                             <a class="nav-link" href="{{ url_for('habits.add_habit') }}">Add Habit</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('habits.habit_guide') }}">📖 Guide</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('habits.about') }}">About</a>
                         </li>
                         <li class="nav-item">
@@ -625,6 +628,9 @@
                         </li>
                     {% else %}
                         <!-- Guest Menu -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('habits.habit_guide') }}">📖 Guide</a>
+                        </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('habits.about') }}">About</a>
                         </li>
@@ -680,9 +686,9 @@
                 <span class="bottom-nav-icon" aria-hidden="true">+</span>
             </a>
 
-            <a href="{{ url_for('habits.archived') }}" class="bottom-nav-item" aria-label="Archived habits">
-                <span class="bottom-nav-icon" aria-hidden="true">📦</span>
-                <span class="bottom-nav-label">Archive</span>
+            <a href="{{ url_for('habits.habit_guide') }}" class="bottom-nav-item" aria-label="Habit building guide">
+                <span class="bottom-nav-icon" aria-hidden="true">📖</span>
+                <span class="bottom-nav-label">Guide</span>
             </a>
 
             <a href="{{ url_for('habits.about') }}" class="bottom-nav-item" aria-label="About HabitFlow">
@@ -937,6 +943,10 @@
                 }
                 // Special case for archived
                 else if (href && href.includes('archived') && currentPath.includes('archived')) {
+                    item.classList.add('active');
+                }
+                // Special case for guide
+                else if (href && href.includes('guide') && currentPath.includes('guide')) {
                     item.classList.add('active');
                 }
                 // Special case for about

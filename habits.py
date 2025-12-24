@@ -391,3 +391,12 @@ def about():
     Public route - no login required.
     """
     return render_template('about.html')
+
+
+@habits_bp.route('/guide')
+def habit_guide():
+    """
+    How to Build Lasting Habits - Comprehensive guide.
+    Public route - no login required.
+    """
+    return render_template('habit_guide.html')

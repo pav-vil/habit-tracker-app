@@ -157,3 +157,123 @@ class HabitForm(FlaskForm):
     )
 
     submit = SubmitField('Save Habit', render_kw={"class": "btn btn-primary"})
+
+
+class EditEmailForm(FlaskForm):
+    """Form for editing user email address"""
+
+    email = StringField(
+        'New Email Address',
+        validators=[
+            DataRequired(message='Email is required'),
+            Email(message='Please enter a valid email address'),
+            Length(max=120, message='Email must be less than 120 characters')
+        ],
+        render_kw={"placeholder": "your.new.email@example.com", "class": "form-control"}
+    )
+
+    submit = SubmitField('Update Email', render_kw={"class": "btn btn-primary"})
+
+
+class EditPasswordForm(FlaskForm):
+    """Form for changing user password"""
+
+    current_password = PasswordField(
+        'Current Password',
+        validators=[
+            DataRequired(message='Current password is required')
+        ],
+        render_kw={"placeholder": "Enter your current password", "class": "form-control"}
+    )
+
+    new_password = PasswordField(
+        'New Password',
+        validators=[
+            DataRequired(message='New password is required'),
+            Length(min=8, max=50, message='Password must be between 8 and 50 characters'),
+            password_strength
+        ],
+        render_kw={"placeholder": "Enter your new password", "class": "form-control"}
+    )
+
+    confirm_new_password = PasswordField(
+        'Confirm New Password',
+        validators=[
+            DataRequired(message='Please confirm your new password'),
+            EqualTo('new_password', message='Passwords must match')
+        ],
+        render_kw={"placeholder": "Re-enter your new password", "class": "form-control"}
+    )
+
+    submit = SubmitField('Update Password', render_kw={"class": "btn btn-primary"})
+
+
+class SettingsForm(FlaskForm):
+    """Form for user settings (timezone, dark mode, newsletter)"""
+
+    timezone = SelectField(
+        'Timezone',
+        choices=[
+            ('UTC', 'UTC (Coordinated Universal Time)'),
+            ('America/New_York', 'America/New York (EST/EDT)'),
+            ('America/Chicago', 'America/Chicago (CST/CDT)'),
+            ('America/Denver', 'America/Denver (MST/MDT)'),
+            ('America/Los_Angeles', 'America/Los Angeles (PST/PDT)'),
+            ('America/Phoenix', 'America/Phoenix (MST - No DST)'),
+            ('America/Anchorage', 'America/Anchorage (AKST/AKDT)'),
+            ('Pacific/Honolulu', 'Pacific/Honolulu (HST)'),
+            ('Europe/London', 'Europe/London (GMT/BST)'),
+            ('Europe/Paris', 'Europe/Paris (CET/CEST)'),
+            ('Europe/Berlin', 'Europe/Berlin (CET/CEST)'),
+            ('Europe/Rome', 'Europe/Rome (CET/CEST)'),
+            ('Europe/Madrid', 'Europe/Madrid (CET/CEST)'),
+            ('Europe/Moscow', 'Europe/Moscow (MSK)'),
+            ('Asia/Dubai', 'Asia/Dubai (GST)'),
+            ('Asia/Kolkata', 'Asia/Kolkata (IST)'),
+            ('Asia/Shanghai', 'Asia/Shanghai (CST)'),
+            ('Asia/Tokyo', 'Asia/Tokyo (JST)'),
+            ('Asia/Seoul', 'Asia/Seoul (KST)'),
+            ('Asia/Singapore', 'Asia/Singapore (SGT)'),
+            ('Asia/Hong_Kong', 'Asia/Hong Kong (HKT)'),
+            ('Australia/Sydney', 'Australia/Sydney (AEDT/AEST)'),
+            ('Australia/Melbourne', 'Australia/Melbourne (AEDT/AEST)'),
+            ('Australia/Perth', 'Australia/Perth (AWST)'),
+            ('Pacific/Auckland', 'Pacific/Auckland (NZDT/NZST)'),
+        ],
+        validators=[DataRequired(message='Please select your timezone')],
+        render_kw={"class": "form-select"}
+    )
+
+    dark_mode = BooleanField(
+        'Dark Mode',
+        render_kw={"class": "form-check-input"}
+    )
+
+    newsletter_subscribed = BooleanField(
+        'Subscribe to Newsletter',
+        render_kw={"class": "form-check-input"}
+    )
+
+    submit = SubmitField('Save Settings', render_kw={"class": "btn btn-primary"})
+
+
+class DeleteAccountForm(FlaskForm):
+    """Form for account deletion confirmation"""
+
+    password = PasswordField(
+        'Confirm Password',
+        validators=[
+            DataRequired(message='Password is required to delete your account')
+        ],
+        render_kw={"placeholder": "Enter your password to confirm", "class": "form-control"}
+    )
+
+    confirm_deletion = BooleanField(
+        'I understand that this action cannot be undone',
+        validators=[
+            DataRequired(message='You must confirm account deletion')
+        ],
+        render_kw={"class": "form-check-input"}
+    )
+
+    submit = SubmitField('Delete My Account', render_kw={"class": "btn btn-danger"})

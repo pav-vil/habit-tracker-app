@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}Subscription - HabitFlow{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h1 class="mb-2">💳 Subscription Management</h1>
+            <p class="text-muted">Manage your subscription plan and billing</p>
+            <a href="{{ url_for('profile.view') }}" class="btn btn-outline-secondary btn-sm">← Back to Profile</a>
+        </div>
+    </div>
+
+    <!-- Current Plan Card -->
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="mb-0 h5">Current Plan</h2>
+                </div>
+                <div class="card-body">
+                    <!-- Current Tier Display -->
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <strong>Plan:</strong>
+                        </div>
+                        <div class="col-sm-8">
+                            {% if subscription_tier == 'free' %}
+                                <span class="badge bg-secondary">Free Tier</span>
+                                <p class="text-muted small mt-2 mb-0">Limited to 3 habits. Upgrade for unlimited habits and premium features!</p>
+                            {% elif subscription_tier == 'monthly' %}
+                                <span class="badge" style="background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);">Monthly Plan ($2.99/month)</span>
+                                <p class="text-muted small mt-2 mb-0">Unlimited habits and all premium features.</p>
+                            {% elif subscription_tier == 'annual' %}
+                                <span class="badge" style="background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);">Annual Plan ($19.99/year)</span>
+                                <p class="text-muted small mt-2 mb-0">Best value! Save 67% compared to monthly. Unlimited habits and all premium features.</p>
+                            {% elif subscription_tier == 'lifetime' %}
+                                <span class="badge bg-success">Lifetime Access ($59.99 one-time)</span>
+                                <p class="text-muted small mt-2 mb-0">You own it forever! Unlimited habits and all premium features.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <strong>Status:</strong>
+                        </div>
+                        <div class="col-sm-8">
+                            {% if subscription_status == 'active' %}
+                                <span class="badge bg-success">Active</span>
+                            {% elif subscription_status == 'cancelled' %}
+                                <span class="badge bg-warning text-dark">Cancelled</span>
+                            {% elif subscription_status == 'expired' %}
+                                <span class="badge bg-danger">Expired</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ subscription_status }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Upgrade/Manage Buttons -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            {% if subscription_tier == 'free' %}
+                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#pricingModal">
+                                    ⬆️ Upgrade to Premium
+                                </button>
+                                <p class="text-muted small mt-2 mb-0">
+                                    Get unlimited habits, advanced statistics, and priority support!
+                                </p>
+                            {% elif subscription_tier in ['monthly', 'annual'] %}
+                                <button class="btn btn-outline-primary" disabled>
+                                    Cancel Subscription
+                                </button>
+                                <p class="text-muted small mt-2 mb-0">
+                                    Payment management will be available after Phase 3 implementation.
+                                </p>
+                            {% else %}
+                                <p class="text-success mb-0">
+                                    ✓ You have lifetime access! No further action needed.
+                                </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Plan Benefits Sidebar -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0 h6">✨ Premium Benefits</h3>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">✓ <strong>Unlimited habits</strong></li>
+                        <li class="mb-2">✓ <strong>Advanced statistics</strong></li>
+                        <li class="mb-2">✓ <strong>Export data</strong> (PDF, CSV)</li>
+                        <li class="mb-2">✓ <strong>Priority support</strong></li>
+                        <li class="mb-2">✓ <strong>Dark mode</strong></li>
+                        <li class="mb-2">✓ <strong>No ads</strong></li>
+                        <li class="mb-0">✓ <strong>Early access</strong> to new features</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Billing History Link -->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="mb-0 h5">Billing</h2>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2">View your payment history and download receipts.</p>
+                    <a href="{{ url_for('profile.billing') }}" class="btn btn-outline-primary">
+                        📊 View Billing History
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Pricing Modal (Placeholder for Phase 3) -->
+<div class="modal fade" id="pricingModal" tabindex="-1" aria-labelledby="pricingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-id" id="pricingModalLabel">Choose Your Plan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <p class="mb-4">Pricing and payment integration coming in Phase 3!</p>
+                <p class="text-muted">
+                    We're working on integrating Stripe, PayPal, and Bitcoin payments.
+                    Stay tuned for updates!
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

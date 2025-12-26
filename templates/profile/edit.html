@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Profile - HabitFlow{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h1 class="mb-2">✏️ Edit Profile</h1>
+            <p class="text-muted">Update your email address or change your password</p>
+            <a href="{{ url_for('profile.view') }}" class="btn btn-outline-secondary btn-sm">← Back to Profile</a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Edit Email Card -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h2 class="mb-0 h5">📧 Change Email Address</h2>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('profile.edit') }}">
+                        {{ email_form.csrf_token }}
+                        <input type="hidden" name="form_type" value="email">
+
+                        <div class="mb-3">
+                            {{ email_form.email.label(class="form-label") }}
+                            {{ email_form.email(class="form-control") }}
+                            {% if email_form.email.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in email_form.email.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">
+                                Your current email: <strong>{{ current_user.email }}</strong>
+                            </div>
+                        </div>
+
+                        <div class="d-grid">
+                            {{ email_form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Change Password Card -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h2 class="mb-0 h5">🔒 Change Password</h2>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('profile.edit') }}">
+                        {{ password_form.csrf_token }}
+                        <input type="hidden" name="form_type" value="password">
+
+                        <div class="mb-3">
+                            {{ password_form.current_password.label(class="form-label") }}
+                            {{ password_form.current_password(class="form-control") }}
+                            {% if password_form.current_password.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in password_form.current_password.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ password_form.new_password.label(class="form-label") }}
+                            {{ password_form.new_password(class="form-control") }}
+                            {% if password_form.new_password.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in password_form.new_password.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">
+                                Must be 8-50 characters, include 1 uppercase and 1 number
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ password_form.confirm_new_password.label(class="form-label") }}
+                            {{ password_form.confirm_new_password(class="form-control") }}
+                            {% if password_form.confirm_new_password.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in password_form.confirm_new_password.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-grid">
+                            {{ password_form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Security Tips -->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="alert alert-info" style="border-left: 4px solid #7c3aed; background: rgba(124, 58, 237, 0.1);">
+                <h6 class="alert-heading mb-2"><strong>🔐 Security Tips</strong></h6>
+                <ul class="mb-0 small">
+                    <li>Use a strong, unique password for your HabitFlow account</li>
+                    <li>Don't share your password with anyone</li>
+                    <li>If you suspect unauthorized access, change your password immediately</li>
+                    <li>Enable two-factor authentication (coming soon)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

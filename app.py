@@ -17,7 +17,7 @@ print(f"[INIT] Loading configuration for environment: {env}")
 
 try:
     app.config.from_object(config[env])
-    print(f"[INIT] ✓ Configuration loaded successfully")
+    print(f"[INIT] Configuration loaded successfully")
     print(f"[INIT] DEBUG mode: {app.config.get('DEBUG')}")
     print(f"[INIT] SECRET_KEY length: {len(app.config.get('SECRET_KEY', ''))}")
 except Exception as e:
@@ -85,6 +85,10 @@ app.register_blueprint(habits_bp, url_prefix='/habits')
 # Import and register stats blueprint
 from stats import stats_bp
 app.register_blueprint(stats_bp)
+
+# Import and register profile blueprint
+from profile import profile_bp
+app.register_blueprint(profile_bp)
 
 @app.route('/')
 def home():

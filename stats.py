@@ -99,7 +99,49 @@ def chart_data():
             'weekday': day.weekday(),
             'display': day.strftime('%b %d')
         })
-    
+
+    # Comparison data: This week vs Last week
+    # This week = last 7 days (including today)
+    # Last week = 7 days before that
+    this_week_data = []
+    last_week_data = []
+    comparison_labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+
+    # Calculate total completions for this week and last week
+    this_week_total = 0
+    last_week_total = 0
+
+    for i in range(7):
+        # This week (last 7 days)
+        this_week_day = today - timedelta(days=6-i)
+        if habit_ids:
+            this_week_count = CompletionLog.query.filter(
+                CompletionLog.habit_id.in_(habit_ids),
+                CompletionLog.completed_at == this_week_day
+            ).count()
+        else:
+            this_week_count = 0
+        this_week_data.append(this_week_count)
+        this_week_total += this_week_count
+
+        # Last week (7-13 days ago)
+        last_week_day = today - timedelta(days=13-i)
+        if habit_ids:
+            last_week_count = CompletionLog.query.filter(
+                CompletionLog.habit_id.in_(habit_ids),
+                CompletionLog.completed_at == last_week_day
+            ).count()
+        else:
+            last_week_count = 0
+        last_week_data.append(last_week_count)
+        last_week_total += last_week_count
+
+    # Calculate percentage change
+    if last_week_total > 0:
+        percentage_change = ((this_week_total - last_week_total) / last_week_total) * 100
+    else:
+        percentage_change = 100 if this_week_total > 0 else 0
+
     return jsonify({
         'habitNames': habit_names,
         'streakCounts': streak_counts,
@@ -108,7 +150,13 @@ def chart_data():
         'trendLabels': trend_labels,
         'trendData': trend_data,
         'totalHabits': len(habits),
-        'heatmapData': heatmap_data
+        'heatmapData': heatmap_data,
+        'comparisonLabels': comparison_labels,
+        'thisWeekData': this_week_data,
+        'lastWeekData': last_week_data,
+        'thisWeekTotal': this_week_total,
+        'lastWeekTotal': last_week_total,
+        'percentageChange': round(percentage_change, 1)
     })
 
 

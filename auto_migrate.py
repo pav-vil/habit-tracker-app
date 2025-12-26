@@ -98,11 +98,120 @@ def auto_migrate_database(app, db):
                         ))
                         conn.commit()
 
-                    print("[AUTO-MIGRATE] ✓ Successfully added 'why' column")
+                    print("[AUTO-MIGRATE] Successfully added 'why' column")
                 except Exception as e:
                     print(f"[AUTO-MIGRATE] Error adding 'why' column: {e}")
 
-            print("[AUTO-MIGRATE] ✓ All migrations completed successfully")
+            # Migration 4: Add subscription fields to user table
+            user_columns = inspector.get_columns('user')
+            user_column_names = [col['name'] for col in user_columns]
+
+            # SQLite doesn't support adding UNIQUE constraints via ALTER TABLE
+            # So we skip UNIQUE constraint and rely on application-level uniqueness checks
+            subscription_columns = {
+                'subscription_tier': "VARCHAR(20) NOT NULL DEFAULT 'free'",
+                'subscription_status': "VARCHAR(20) NOT NULL DEFAULT 'active'",
+                'subscription_start_date': 'TIMESTAMP',
+                'subscription_end_date': 'TIMESTAMP',
+                'trial_end_date': 'TIMESTAMP',
+                'stripe_customer_id': 'VARCHAR(255)',  # UNIQUE constraint handled by model
+                'stripe_subscription_id': 'VARCHAR(255)',
+                'paypal_subscription_id': 'VARCHAR(255)',
+                'coinbase_charge_code': 'VARCHAR(255)',
+                'billing_email': 'VARCHAR(120)',
+                'last_payment_date': 'TIMESTAMP',
+                'payment_failures': 'INTEGER NOT NULL DEFAULT 0',
+                'account_deleted': 'BOOLEAN NOT NULL DEFAULT FALSE',
+                'deletion_scheduled_date': 'TIMESTAMP'
+            }
+
+            for col_name, col_type in subscription_columns.items():
+                if col_name not in user_column_names:
+                    print(f"[AUTO-MIGRATE] Adding {col_name} column to user table...")
+                    try:
+                        with db.engine.connect() as conn:
+                            conn.execute(text(
+                                f'ALTER TABLE "user" ADD COLUMN {col_name} {col_type}'
+                            ))
+                            conn.commit()
+                        print(f"[AUTO-MIGRATE] Successfully added {col_name} column")
+                    except Exception as e:
+                        print(f"[AUTO-MIGRATE] Error adding {col_name} column: {e}")
+
+            # Migration 5: Create subscription table
+            existing_tables = inspector.get_table_names()
+
+            if 'subscription' not in existing_tables:
+                print("[AUTO-MIGRATE] Creating subscription table...")
+                try:
+                    with db.engine.connect() as conn:
+                        conn.execute(text('''
+                            CREATE TABLE subscription (
+                                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                user_id INTEGER NOT NULL,
+                                tier VARCHAR(20) NOT NULL,
+                                status VARCHAR(20) NOT NULL,
+                                payment_provider VARCHAR(20) NOT NULL,
+                                provider_subscription_id VARCHAR(255),
+                                start_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                end_date TIMESTAMP,
+                                next_billing_date TIMESTAMP,
+                                amount_paid REAL NOT NULL,
+                                currency VARCHAR(3) NOT NULL DEFAULT 'USD',
+                                FOREIGN KEY (user_id) REFERENCES user (id)
+                            )
+                        '''))
+                        conn.commit()
+
+                        # Create indexes
+                        conn.execute(text('CREATE INDEX idx_subscription_user_id ON subscription (user_id)'))
+                        conn.execute(text('CREATE INDEX idx_subscription_status ON subscription (status)'))
+                        conn.execute(text('CREATE INDEX idx_subscription_provider ON subscription (payment_provider)'))
+                        conn.execute(text('CREATE INDEX idx_subscription_provider_id ON subscription (provider_subscription_id)'))
+                        conn.commit()
+
+                    print("[AUTO-MIGRATE] Successfully created subscription table")
+                except Exception as e:
+                    print(f"[AUTO-MIGRATE] Error creating subscription table: {e}")
+
+            # Migration 6: Create payment table
+            if 'payment' not in existing_tables:
+                print("[AUTO-MIGRATE] Creating payment table...")
+                try:
+                    with db.engine.connect() as conn:
+                        conn.execute(text('''
+                            CREATE TABLE payment (
+                                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                user_id INTEGER NOT NULL,
+                                subscription_id INTEGER,
+                                payment_provider VARCHAR(20) NOT NULL,
+                                provider_transaction_id VARCHAR(255) NOT NULL UNIQUE,
+                                amount REAL NOT NULL,
+                                currency VARCHAR(3) NOT NULL DEFAULT 'USD',
+                                status VARCHAR(20) NOT NULL,
+                                payment_type VARCHAR(20) NOT NULL,
+                                payment_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                notes TEXT,
+                                FOREIGN KEY (user_id) REFERENCES user (id),
+                                FOREIGN KEY (subscription_id) REFERENCES subscription (id)
+                            )
+                        '''))
+                        conn.commit()
+
+                        # Create indexes
+                        conn.execute(text('CREATE INDEX idx_payment_user_id ON payment (user_id)'))
+                        conn.execute(text('CREATE INDEX idx_payment_subscription_id ON payment (subscription_id)'))
+                        conn.execute(text('CREATE INDEX idx_payment_provider ON payment (payment_provider)'))
+                        conn.execute(text('CREATE INDEX idx_payment_transaction_id ON payment (provider_transaction_id)'))
+                        conn.execute(text('CREATE INDEX idx_payment_status ON payment (status)'))
+                        conn.execute(text('CREATE INDEX idx_payment_date ON payment (payment_date)'))
+                        conn.commit()
+
+                    print("[AUTO-MIGRATE] Successfully created payment table")
+                except Exception as e:
+                    print(f"[AUTO-MIGRATE] Error creating payment table: {e}")
+
+            print("[AUTO-MIGRATE] All migrations completed successfully")
         except Exception as e:
             print(f"[AUTO-MIGRATE] Error during migration check: {e}")
             # Don't crash the app if migration fails

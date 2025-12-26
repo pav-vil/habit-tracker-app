@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - HabitFlow{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="mb-2">👤 Your Profile</h1>
+            <p class="text-muted">Manage your account settings and subscription</p>
+        </div>
+    </div>
+
+    <!-- Profile Information Card -->
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="mb-0 h5">Account Information</h2>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <strong>Email:</strong>
+                        </div>
+                        <div class="col-sm-8">
+                            {{ current_user.email }}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <strong>Member Since:</strong>
+                        </div>
+                        <div class="col-sm-8">
+                            {{ current_user.created_at.strftime('%B %d, %Y') }}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <strong>Subscription:</strong>
+                        </div>
+                        <div class="col-sm-8">
+                            {% if current_user.subscription_tier is defined and current_user.subscription_tier %}
+                                {% if current_user.subscription_tier == 'free' %}
+                                    <span class="badge bg-secondary">Free Tier (3 habits max)</span>
+                                {% elif current_user.subscription_tier == 'monthly' %}
+                                    <span class="badge" style="background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);">Monthly Plan</span>
+                                {% elif current_user.subscription_tier == 'annual' %}
+                                    <span class="badge" style="background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);">Annual Plan</span>
+                                {% elif current_user.subscription_tier == 'lifetime' %}
+                                    <span class="badge bg-success">Lifetime Access</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="badge bg-secondary">Free Tier (3 habits max)</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <a href="{{ url_for('profile.edit') }}" class="btn btn-primary me-2">
+                                ✏️ Edit Email & Password
+                            </a>
+                            <a href="{{ url_for('profile.settings') }}" class="btn btn-outline-primary me-2">
+                                ⚙️ Settings
+                            </a>
+                            <a href="{{ url_for('profile.subscription') }}" class="btn btn-outline-success">
+                                💳 Manage Subscription
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="mb-0 h5">Quick Actions</h2>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <a href="{{ url_for('profile.billing') }}" class="list-group-item list-group-item-action">
+                            📊 View Billing History
+                        </a>
+                        <a href="{{ url_for('habits.dashboard') }}" class="list-group-item list-group-item-action">
+                            🏠 Go to Dashboard
+                        </a>
+                        <a href="{{ url_for('stats.stats_dashboard') }}" class="list-group-item list-group-item-action">
+                            📈 View Statistics
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Danger Zone -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h2 class="mb-0 h5">⚠️ Danger Zone</h2>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3">
+                        Once you delete your account, there is no going back. This action cannot be undone.
+                        All your habits, statistics, and data will be permanently deleted after 30 days.
+                    </p>
+                    <a href="{{ url_for('profile.delete_account') }}" class="btn btn-danger">
+                        🗑️ Delete My Account
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

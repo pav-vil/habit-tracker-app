@@ -16,7 +16,7 @@ def auto_migrate_database(app, db):
 
             # Check if habit table exists first
             if 'habit' not in inspector.get_table_names():
-                print("[AUTO-MIGRATE] ✓ Fresh database - no migrations needed")
+                print("[AUTO-MIGRATE] Fresh database - no migrations needed")
                 return
 
             # Migration 1: Increase password_hash column length in user table
@@ -31,7 +31,7 @@ def auto_migrate_database(app, db):
                             'ALTER TABLE "user" ALTER COLUMN password_hash TYPE VARCHAR(255)'
                         ))
                         conn.commit()
-                    print("[AUTO-MIGRATE] ✓ Successfully increased password_hash column length")
+                    print("[AUTO-MIGRATE] Successfully increased password_hash column length")
                 except Exception as e:
                     print(f"[AUTO-MIGRATE] Error altering password_hash column: {e}")
 
@@ -45,7 +45,7 @@ def auto_migrate_database(app, db):
                             'ALTER TABLE "user" ADD COLUMN newsletter_subscribed BOOLEAN NOT NULL DEFAULT FALSE'
                         ))
                         conn.commit()
-                    print("[AUTO-MIGRATE] ✓ Successfully added newsletter_subscribed column")
+                    print("[AUTO-MIGRATE] Successfully added newsletter_subscribed column")
                 except Exception as e:
                     print(f"[AUTO-MIGRATE] Error adding newsletter_subscribed column: {e}")
 
@@ -59,7 +59,7 @@ def auto_migrate_database(app, db):
                             'ALTER TABLE "user" ADD COLUMN dark_mode BOOLEAN NOT NULL DEFAULT FALSE'
                         ))
                         conn.commit()
-                    print("[AUTO-MIGRATE] ✓ Successfully added dark_mode column")
+                    print("[AUTO-MIGRATE] Successfully added dark_mode column")
                 except Exception as e:
                     print(f"[AUTO-MIGRATE] Error adding dark_mode column: {e}")
 
@@ -82,7 +82,7 @@ def auto_migrate_database(app, db):
                         ))
                         conn.commit()
 
-                    print("[AUTO-MIGRATE] ✓ Successfully added longest_streak column")
+                    print("[AUTO-MIGRATE] Successfully added longest_streak column")
                 except Exception as e:
                     print(f"[AUTO-MIGRATE] Error adding longest_streak column: {e}")
 

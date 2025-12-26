@@ -28,7 +28,7 @@ except Exception as e:
 # This allows SESSION_COOKIE_SECURE to work properly
 if env == 'production':
     app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
-    print("[INIT] ✓ ProxyFix middleware enabled for production")
+    print("[INIT] ProxyFix middleware enabled for production")
 
 # Initialize SQLAlchemy with the app
 from models import db
@@ -39,7 +39,7 @@ try:
     with app.app_context():
         print(f"[INIT] Connecting to database: {app.config['SQLALCHEMY_DATABASE_URI'][:30]}...")
         db.create_all()
-        print("[INIT] ✓ Database tables created/verified successfully")
+        print("[INIT] Database tables created/verified successfully")
 except Exception as e:
     print(f"[INIT] ERROR creating database tables: {e}")
     if env == 'production':

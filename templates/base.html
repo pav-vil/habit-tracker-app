@@ -747,6 +747,14 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('profile.view') }}">👤 Profile</a>
                         </li>
+                        {% if current_user.subscription_tier == 'free' %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('profile.subscription') }}"
+                               style="background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%); color: white; border-radius: 50px; padding: 8px 20px; font-weight: 600; box-shadow: 0 2px 10px rgba(124, 58, 237, 0.3);">
+                                ⬆️ Upgrade
+                            </a>
+                        </li>
+                        {% endif %}
                         <li class="nav-item d-none d-lg-block">
                             <span class="nav-link" aria-label="Logged in as {{ current_user.email }}">
                                 {{ current_user.email }}

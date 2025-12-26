@@ -129,26 +129,146 @@
 
 </div>
 
-<!-- Pricing Modal (Placeholder for Phase 3) -->
+<!-- Pricing Modal -->
 <div class="modal fade" id="pricingModal" tabindex="-1" aria-labelledby="pricingModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-id" id="pricingModalLabel">Choose Your Plan</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content" style="border-radius: 20px;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%); color: white; border-radius: 20px 20px 0 0;">
+                <h5 class="modal-title" id="pricingModalLabel">💎 Upgrade to Premium</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body text-center">
-                <p class="mb-4">Pricing and payment integration coming in Phase 3!</p>
-                <p class="text-muted">
-                    We're working on integrating Stripe, PayPal, and Bitcoin payments.
-                    Stay tuned for updates!
-                </p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <div class="modal-body p-4">
+                <div class="text-center mb-4">
+                    <p class="lead mb-0">Choose the plan that works best for you</p>
+                </div>
+
+                <!-- Pricing Cards -->
+                <div class="row g-4">
+                    <!-- Monthly Plan -->
+                    <div class="col-md-4">
+                        <div class="card h-100" style="border-radius: 15px; border: 2px solid #e0e0e0; transition: all 0.3s ease;">
+                            <div class="card-body text-center p-4">
+                                <h4 class="mb-3" style="color: #7c3aed; font-weight: 700;">Monthly</h4>
+                                <div class="mb-3">
+                                    <span style="font-size: 3rem; font-weight: 700; color: #7c3aed;">$2.99</span>
+                                    <span class="text-muted">/month</span>
+                                </div>
+                                <p class="text-muted small mb-4">Billed monthly</p>
+
+                                <ul class="list-unstyled text-start mb-4">
+                                    <li class="mb-2">✓ Unlimited habits</li>
+                                    <li class="mb-2">✓ Advanced statistics</li>
+                                    <li class="mb-2">✓ Export data (PDF/CSV)</li>
+                                    <li class="mb-2">✓ Priority support</li>
+                                    <li class="mb-2">✓ Dark mode</li>
+                                    <li class="mb-0">✓ Early access features</li>
+                                </ul>
+
+                                <a href="{{ url_for('payments.checkout', tier='monthly', provider='stripe') }}"
+                                   class="btn btn-outline-primary w-100"
+                                   style="border-radius: 50px; padding: 12px; font-weight: 600;">
+                                    Choose Monthly
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Annual Plan (BEST VALUE) -->
+                    <div class="col-md-4">
+                        <div class="card h-100" style="border-radius: 15px; border: 3px solid #7c3aed; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.3); transform: scale(1.05); position: relative;">
+                            <!-- Best Value Badge -->
+                            <div style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 8px 20px; border-radius: 50px; font-weight: 700; font-size: 0.85rem; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.4);">
+                                BEST VALUE
+                            </div>
+
+                            <div class="card-body text-center p-4" style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.05) 0%, rgba(167, 139, 250, 0.05) 100%); border-radius: 15px;">
+                                <h4 class="mb-3" style="color: #7c3aed; font-weight: 700;">Annual</h4>
+                                <div class="mb-3">
+                                    <span style="font-size: 3rem; font-weight: 700; color: #7c3aed;">$19.99</span>
+                                    <span class="text-muted">/year</span>
+                                </div>
+                                <p class="mb-4">
+                                    <span class="badge bg-success">Save 67%</span>
+                                    <span class="text-muted small d-block mt-1">vs. $35.88/year monthly</span>
+                                </p>
+
+                                <ul class="list-unstyled text-start mb-4">
+                                    <li class="mb-2">✓ Unlimited habits</li>
+                                    <li class="mb-2">✓ Advanced statistics</li>
+                                    <li class="mb-2">✓ Export data (PDF/CSV)</li>
+                                    <li class="mb-2">✓ Priority support</li>
+                                    <li class="mb-2">✓ Dark mode</li>
+                                    <li class="mb-0">✓ Early access features</li>
+                                </ul>
+
+                                <a href="{{ url_for('payments.checkout', tier='annual', provider='stripe') }}"
+                                   class="btn btn-primary w-100"
+                                   style="background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%); border: none; border-radius: 50px; padding: 12px; font-weight: 600; box-shadow: 0 5px 15px rgba(124, 58, 237, 0.4);">
+                                    Choose Annual →
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lifetime Plan -->
+                    <div class="col-md-4">
+                        <div class="card h-100" style="border-radius: 15px; border: 2px solid #e0e0e0; transition: all 0.3s ease;">
+                            <div class="card-body text-center p-4">
+                                <h4 class="mb-3" style="color: #7c3aed; font-weight: 700;">Lifetime</h4>
+                                <div class="mb-3">
+                                    <span style="font-size: 3rem; font-weight: 700; color: #7c3aed;">$59.99</span>
+                                    <span class="text-muted">one-time</span>
+                                </div>
+                                <p class="text-muted small mb-4">Pay once, own forever</p>
+
+                                <ul class="list-unstyled text-start mb-4">
+                                    <li class="mb-2">✓ Unlimited habits</li>
+                                    <li class="mb-2">✓ Advanced statistics</li>
+                                    <li class="mb-2">✓ Export data (PDF/CSV)</li>
+                                    <li class="mb-2">✓ Priority support</li>
+                                    <li class="mb-2">✓ Dark mode</li>
+                                    <li class="mb-0">✓ Early access features</li>
+                                </ul>
+
+                                <a href="{{ url_for('payments.checkout', tier='lifetime', provider='stripe') }}"
+                                   class="btn btn-outline-primary w-100"
+                                   style="border-radius: 50px; padding: 12px; font-weight: 600;">
+                                    Choose Lifetime
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Methods -->
+                <div class="text-center mt-4">
+                    <p class="text-muted small mb-2">Secure payment powered by:</p>
+                    <div class="d-flex justify-content-center align-items-center gap-3">
+                        <span style="font-size: 1.5rem;">💳</span>
+                        <span class="text-muted">Stripe</span>
+                        <span class="mx-2">|</span>
+                        <span class="text-muted small">PayPal & Bitcoin coming soon</span>
+                    </div>
+                </div>
+
+                <!-- Money-back guarantee -->
+                <div class="alert alert-info mt-4 mb-0" style="background: rgba(124, 58, 237, 0.1); border: 1px solid #7c3aed; border-radius: 12px;">
+                    <div class="text-center">
+                        <strong style="color: #7c3aed;">💯 30-Day Money-Back Guarantee</strong>
+                        <p class="mb-0 small text-muted mt-1">Not satisfied? Get a full refund within 30 days, no questions asked.</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Pricing Modal Hover Effect -->
+<style>
+    .modal .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(124, 58, 237, 0.2);
+    }
+</style>
 
 {% endblock %}

@@ -16,6 +16,19 @@ class Config:
     # Rate limiting
     RATELIMIT_STORAGE_URL = os.environ.get('REDIS_URL') or 'memory://'
 
+    # Stripe Payment Configuration (Phase 3)
+    STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
+    STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY')
+    STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET')
+
+    # Stripe Price IDs (set these after creating products in Stripe Dashboard)
+    STRIPE_MONTHLY_PRICE_ID = os.environ.get('STRIPE_MONTHLY_PRICE_ID')
+    STRIPE_ANNUAL_PRICE_ID = os.environ.get('STRIPE_ANNUAL_PRICE_ID')
+    STRIPE_LIFETIME_PRICE_ID = os.environ.get('STRIPE_LIFETIME_PRICE_ID')
+
+    # App URL (for payment redirects)
+    APP_URL = os.environ.get('APP_URL') or 'http://localhost:5000'
+
 
 class DevelopmentConfig(Config):
     """Development configuration"""

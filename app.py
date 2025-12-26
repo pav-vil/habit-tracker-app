@@ -90,6 +90,14 @@ app.register_blueprint(stats_bp)
 from profile import profile_bp
 app.register_blueprint(profile_bp)
 
+# Import and register payments blueprint (Phase 3)
+from payments import payments_bp
+app.register_blueprint(payments_bp)
+
+# Import and register webhooks blueprint (Phase 3)
+from webhooks import webhooks_bp
+app.register_blueprint(webhooks_bp)
+
 @app.route('/')
 def home():
     """Home page"""

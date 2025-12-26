@@ -204,3 +204,12 @@ def billing():
 
     return render_template('profile/billing.html',
                            payments=payments)
+
+
+@profile_bp.route('/about')
+def about():
+    """
+    About page - App philosophy, features, and mission.
+    Public route - no login required.
+    """
+    return render_template('profile/about.html')

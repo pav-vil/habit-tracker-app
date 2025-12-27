@@ -4,38 +4,77 @@
 
 {% block content %}
 <div class="container py-4">
-    
+
     <!-- Page Header -->
     <div class="row mb-4">
-        <div class="col-12">
-            <h1>📊 Your Statistics</h1>
+        <div class="col-md-8">
+            <h1><span aria-hidden="true">📊</span> Your Statistics</h1>
             <p class="text-muted">Track your progress and identify patterns</p>
+        </div>
+    </div>
+
+    <!-- Helpful Guide Banner -->
+    <div class="alert alert-info mb-4" role="alert" style="border-left: 4px solid #7c3aed; background: rgba(124, 58, 237, 0.1);">
+        <h6 class="alert-heading mb-2"><strong>📖 Understanding Your Statistics</strong></h6>
+        <div class="row">
+            <div class="col-md-6">
+                <ul class="mb-0 small" style="padding-left: 1.2rem;">
+                    <li><strong>Active Streaks:</strong> Number of habits with consecutive completions</li>
+                    <li><strong>Heatmap:</strong> Darker purple = more completions that day</li>
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <ul class="mb-0 small" style="padding-left: 1.2rem;">
+                    <li><strong>14-Day Trend:</strong> See your daily completion patterns</li>
+                    <li><strong>Export:</strong> Download your stats as PDF or image for sharing</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4 text-end">
+            <!-- Export Buttons -->
+            <div class="btn-group" role="group" aria-label="Export options">
+                <button type="button" class="btn btn-outline-primary" id="exportPdfBtn" aria-label="Download statistics as PDF file">
+                    <span aria-hidden="true">📄</span> Export PDF
+                </button>
+                <button type="button" class="btn btn-outline-primary" id="exportImageBtn" aria-label="Download statistics as PNG image">
+                    <span aria-hidden="true">🖼️</span> Export Image
+                </button>
+            </div>
         </div>
     </div>
     
     <!-- Overview Cards -->
-    <div class="row mb-4">
+    <div class="row mb-4" role="region" aria-label="Statistics overview">
         <div class="col-md-4 mb-3">
-            <div class="card text-center h-100">
+            <div class="card text-center h-100" role="article" aria-label="Total habits: {{ total_habits }}"
+                 title="Total number of active habits you're tracking">
                 <div class="card-body">
-                    <h3 class="text-primary">{{ total_habits }}</h3>
+                    <h2 class="text-primary" aria-label="{{ total_habits }} habits">{{ total_habits }}</h2>
                     <p class="text-muted mb-0">Total Habits</p>
+                    <small class="text-muted d-block mt-1" style="font-size: 0.75rem;">Active habits tracked</small>
                 </div>
             </div>
         </div>
         <div class="col-md-4 mb-3">
-            <div class="card text-center h-100">
+            <div class="card text-center h-100" role="article" aria-label="Active streaks: {{ active_streaks }}"
+                 title="Habits with at least 1 consecutive day of completion">
                 <div class="card-body">
-                    <h3 class="text-success">{{ active_streaks }}</h3>
+                    <h2 class="text-success" aria-label="{{ active_streaks }} active streaks">{{ active_streaks }}</h2>
                     <p class="text-muted mb-0">Active Streaks</p>
+                    <small class="text-muted d-block mt-1" style="font-size: 0.75rem;">Consecutive completions</small>
                 </div>
             </div>
         </div>
         <div class="col-md-4 mb-3">
-            <div class="card text-center h-100">
+            <div class="card text-center h-100" role="article" aria-label="Longest streak: {{ longest_streak }} days"
+                 title="Your best streak record across all habits">
                 <div class="card-body">
-                    <h3 class="text-warning">🔥 {{ longest_streak }}</h3>
+                    <h2 class="text-warning" aria-label="{{ longest_streak }} days"><span aria-hidden="true">🔥</span> {{ longest_streak }}</h2>
                     <p class="text-muted mb-0">Longest Streak</p>
+                    <small class="text-muted d-block mt-1" style="font-size: 0.75rem;">Your best record</small>
                 </div>
             </div>
         </div>
@@ -46,10 +85,14 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">🗓️ Activity - Last 12 Weeks</h5>
+                    <h2 class="mb-0 h5"><span aria-hidden="true">🗓️</span> Activity - Last 12 Weeks</h2>
                 </div>
                 <div class="card-body">
-                    <div style="overflow-x: auto; overflow-y: hidden;">
+                    <!-- Skeleton loader for heatmap -->
+                    <div id="heatmapLoading" aria-live="polite" aria-label="Loading heatmap">
+                        <div class="skeleton" style="height: 120px; border-radius: 8px;"></div>
+                    </div>
+                    <div id="heatmapContainer" style="overflow-x: auto; overflow-y: hidden; display: none;" role="img" aria-label="Heatmap showing daily habit completion activity for the last 12 weeks">
                         <div style="display: inline-flex; align-items: flex-start; min-width: fit-content;">
                             <!-- Day labels -->
                             <div style="display: flex; flex-direction: column; gap: 3px; margin-right: 8px; padding-top: 2px;">
@@ -65,14 +108,14 @@
                             <div id="heatmap" style="display: flex; gap: 3px;"></div>
                         </div>
                     </div>
-                    <!-- Legend -->
+                    <!-- Legend with Purple Theme -->
                     <div class="mt-3 d-flex align-items-center justify-content-end">
                         <span class="text-muted small me-2">Less</span>
                         <div style="width: 12px; height: 12px; background: #ebedf0; border-radius: 2px;"></div>
-                        <div style="width: 12px; height: 12px; background: #9be9a8; border-radius: 2px; margin-left: 3px;"></div>
-                        <div style="width: 12px; height: 12px; background: #40c463; border-radius: 2px; margin-left: 3px;"></div>
-                        <div style="width: 12px; height: 12px; background: #30a14e; border-radius: 2px; margin-left: 3px;"></div>
-                        <div style="width: 12px; height: 12px; background: #216e39; border-radius: 2px; margin-left: 3px;"></div>
+                        <div style="width: 12px; height: 12px; background: #ddd6fe; border-radius: 2px; margin-left: 3px;"></div>
+                        <div style="width: 12px; height: 12px; background: #c4b5fd; border-radius: 2px; margin-left: 3px;"></div>
+                        <div style="width: 12px; height: 12px; background: #a78bfa; border-radius: 2px; margin-left: 3px;"></div>
+                        <div style="width: 12px; height: 12px; background: #7c3aed; border-radius: 2px; margin-left: 3px;"></div>
                         <span class="text-muted small ms-2">More</span>
                     </div>
                 </div>
@@ -86,34 +129,86 @@
         <div class="col-12 mb-4">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">📈 Completions - Last 14 Days</h5>
+                    <h2 class="mb-0 h5"><span aria-hidden="true">📈</span> Completions - Last 14 Days</h2>
                 </div>
                 <div class="card-body">
-                    <canvas id="trendChart" height="100"></canvas>
+                    <!-- Skeleton loader for trend chart -->
+                    <div id="trendChartLoading" aria-live="polite" aria-label="Loading trend chart">
+                        <div class="skeleton skeleton-chart" style="height: 400px;"></div>
+                    </div>
+                    <canvas id="trendChart" height="100" style="display: none;" role="img" aria-label="Line chart showing habit completions over the last 14 days"></canvas>
                 </div>
             </div>
         </div>
-        
+
+        <!-- Weekly Comparison Chart - This Week vs Last Week -->
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h2 class="mb-0 h5"><span aria-hidden="true">📊</span> This Week vs Last Week</h2>
+                    <span id="weekComparisonBadge" class="badge" style="display: none;"></span>
+                </div>
+                <div class="card-body">
+                    <!-- Skeleton loader for comparison chart -->
+                    <div id="comparisonChartLoading" aria-live="polite" aria-label="Loading comparison chart">
+                        <div class="skeleton skeleton-chart" style="height: 350px;"></div>
+                    </div>
+                    <canvas id="comparisonChart" height="100" style="display: none;" role="img" aria-label="Bar chart comparing this week's completions to last week"></canvas>
+                    <!-- Comparison Summary -->
+                    <div id="comparisonSummary" class="mt-3 text-center" style="display: none;">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="p-3 rounded" style="background: rgba(124, 58, 237, 0.1);">
+                                    <h4 class="mb-1" id="thisWeekTotal" style="color: #7c3aed;">-</h4>
+                                    <small class="text-muted">This Week</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3 rounded" style="background: rgba(167, 139, 250, 0.1);">
+                                    <h4 class="mb-1" id="lastWeekTotal" style="color: #a78bfa;">-</h4>
+                                    <small class="text-muted">Last Week</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3 rounded" style="background: rgba(16, 185, 129, 0.1);">
+                                    <h4 class="mb-1" id="percentageChange" style="color: #10b981;">-</h4>
+                                    <small class="text-muted">Change</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Streak Bar Chart -->
         <div class="col-lg-6 mb-4">
             <div class="card h-100">
                 <div class="card-header">
-                    <h5 class="mb-0">🔥 Current Streaks by Habit</h5>
+                    <h2 class="mb-0 h5"><span aria-hidden="true">🔥</span> Current Streaks by Habit</h2>
                 </div>
                 <div class="card-body">
-                    <canvas id="streakChart"></canvas>
+                    <!-- Skeleton loader for streak chart -->
+                    <div id="streakChartLoading" aria-live="polite" aria-label="Loading streak chart">
+                        <div class="skeleton skeleton-chart"></div>
+                    </div>
+                    <canvas id="streakChart" style="display: none;" role="img" aria-label="Bar chart showing current streaks for each habit"></canvas>
                 </div>
             </div>
         </div>
-        
+
         <!-- Day of Week Chart -->
         <div class="col-lg-6 mb-4">
             <div class="card h-100">
                 <div class="card-header">
-                    <h5 class="mb-0">📅 Best Days for Habits</h5>
+                    <h2 class="mb-0 h5"><span aria-hidden="true">📅</span> Best Days for Habits</h2>
                 </div>
                 <div class="card-body">
-                    <canvas id="dayChart"></canvas>
+                    <!-- Skeleton loader for day chart -->
+                    <div id="dayChartLoading" aria-live="polite" aria-label="Loading day of week chart">
+                        <div class="skeleton skeleton-chart"></div>
+                    </div>
+                    <canvas id="dayChart" style="display: none;" role="img" aria-label="Bar chart showing total completions by day of the week"></canvas>
                 </div>
             </div>
         </div>
@@ -124,18 +219,18 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">🎯 Habit Details</h5>
+                    <h2 class="mb-0 h5"><span aria-hidden="true">🎯</span> Habit Details</h2>
                 </div>
                 <div class="card-body">
                     {% if habits %}
                     <div class="table-responsive">
-                        <table class="table table-hover">
+                        <table class="table table-hover" aria-label="Detailed habit statistics">
                             <thead>
                                 <tr>
-                                    <th>Habit</th>
-                                    <th>Current Streak</th>
-                                    <th>Last Completed</th>
-                                    <th>Status</th>
+                                    <th scope="col">Habit</th>
+                                    <th scope="col">Current Streak</th>
+                                    <th scope="col">Last Completed</th>
+                                    <th scope="col">Status</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -176,11 +271,16 @@
             </div>
         </div>
     </div>
-    
+
 </div>
 
-<!-- Chart.js CDN -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<!-- Chart.js is loaded globally in base.html - no need to load it again here -->
+
+<!-- Export Libraries -->
+<!-- html2canvas: Captures HTML elements as images -->
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<!-- jsPDF: Generates PDF documents -->
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
 <script>
 // Fetch chart data from API and render charts
@@ -188,8 +288,15 @@ fetch('/stats/api/chart-data')
     .then(response => response.json())
     .then(data => {
         
-        // 14-Day Trend Line Chart
-        const trendCtx = document.getElementById('trendChart').getContext('2d');
+        // 14-Day Trend Line Chart with Purple Gradient Theme
+        const trendCanvas = document.getElementById('trendChart');
+        const trendCtx = trendCanvas.getContext('2d');
+
+        // Create gradient for the line chart
+        const trendGradient = trendCtx.createLinearGradient(0, 0, 0, 300);
+        trendGradient.addColorStop(0, 'rgba(124, 58, 237, 0.3)');    // #7c3aed with transparency
+        trendGradient.addColorStop(1, 'rgba(124, 58, 237, 0.05)');   // Fade to almost transparent
+
         new Chart(trendCtx, {
             type: 'line',
             data: {
@@ -197,32 +304,214 @@ fetch('/stats/api/chart-data')
                 datasets: [{
                     label: 'Habits Completed',
                     data: data.trendData,
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: '#7c3aed',                    // Purple primary color
+                    backgroundColor: trendGradient,            // Purple gradient fill
+                    borderWidth: 3,
                     fill: true,
-                    tension: 0.3,
-                    pointBackgroundColor: 'rgba(75, 192, 192, 1)',
+                    tension: 0.4,                              // Smooth curves
+                    pointBackgroundColor: '#a78bfa',           // Light purple points
+                    pointBorderColor: '#7c3aed',               // Purple border on points
+                    pointBorderWidth: 2,
                     pointRadius: 5,
-                    pointHoverRadius: 7
+                    pointHoverRadius: 8,
+                    pointHoverBackgroundColor: '#a78bfa',
+                    pointHoverBorderColor: '#6d28d9'           // Dark purple on hover
                 }]
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: true,
                 plugins: {
-                    legend: { display: false }
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(124, 58, 237, 0.9)',
+                        titleColor: '#ffffff',
+                        bodyColor: '#ffffff',
+                        borderColor: '#a78bfa',
+                        borderWidth: 1,
+                        padding: 12,
+                        displayColors: false,
+                        callbacks: {
+                            label: function(context) {
+                                return context.parsed.y + ' habit' + (context.parsed.y !== 1 ? 's' : '') + ' completed';
+                            }
+                        }
+                    }
                 },
                 scales: {
+                    x: {
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: '#666',
+                            font: { size: 11 }
+                        }
+                    },
                     y: {
                         beginAtZero: true,
                         max: data.totalHabits > 0 ? data.totalHabits + 1 : 5,
-                        ticks: { stepSize: 1 }
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            stepSize: 1,
+                            color: '#666',
+                            font: { size: 12 }
+                        }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                }
+            }
+        });
+
+        // Hide loading spinner and show chart
+        document.getElementById('trendChartLoading').style.display = 'none';
+        trendCanvas.style.display = 'block';
+
+        // Weekly Comparison Chart - This Week vs Last Week
+        const comparisonCanvas = document.getElementById('comparisonChart');
+        const comparisonCtx = comparisonCanvas.getContext('2d');
+
+        // Create gradients for both datasets
+        const thisWeekGradient = comparisonCtx.createLinearGradient(0, 0, 0, 400);
+        thisWeekGradient.addColorStop(0, 'rgba(124, 58, 237, 0.9)');   // Primary purple
+        thisWeekGradient.addColorStop(1, 'rgba(124, 58, 237, 0.7)');
+
+        const lastWeekGradient = comparisonCtx.createLinearGradient(0, 0, 0, 400);
+        lastWeekGradient.addColorStop(0, 'rgba(167, 139, 250, 0.7)');  // Light purple
+        lastWeekGradient.addColorStop(1, 'rgba(167, 139, 250, 0.5)');
+
+        new Chart(comparisonCtx, {
+            type: 'bar',
+            data: {
+                labels: data.comparisonLabels,
+                datasets: [
+                    {
+                        label: 'This Week',
+                        data: data.thisWeekData,
+                        backgroundColor: thisWeekGradient,
+                        borderColor: '#7c3aed',
+                        borderWidth: 2,
+                        borderRadius: 6,
+                        hoverBackgroundColor: '#6d28d9',
+                        hoverBorderColor: '#6d28d9'
+                    },
+                    {
+                        label: 'Last Week',
+                        data: data.lastWeekData,
+                        backgroundColor: lastWeekGradient,
+                        borderColor: '#a78bfa',
+                        borderWidth: 2,
+                        borderRadius: 6,
+                        hoverBackgroundColor: '#c4b5fd',
+                        hoverBorderColor: '#c4b5fd'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            color: '#666',
+                            font: { size: 13, weight: '600' },
+                            padding: 15,
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(124, 58, 237, 0.9)',
+                        titleColor: '#ffffff',
+                        bodyColor: '#ffffff',
+                        borderColor: '#a78bfa',
+                        borderWidth: 1,
+                        padding: 12,
+                        displayColors: true,
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.parsed.y + ' completion' + (context.parsed.y !== 1 ? 's' : '');
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: '#666',
+                            font: { size: 11 }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            stepSize: 1,
+                            color: '#666',
+                            font: { size: 12 }
+                        }
                     }
                 }
             }
         });
-        
-        // Streak Bar Chart
-        const streakCtx = document.getElementById('streakChart').getContext('2d');
+
+        // Update comparison summary
+        document.getElementById('thisWeekTotal').textContent = data.thisWeekTotal;
+        document.getElementById('lastWeekTotal').textContent = data.lastWeekTotal;
+
+        // Format percentage change with appropriate styling
+        const percentageChangeEl = document.getElementById('percentageChange');
+        const badge = document.getElementById('weekComparisonBadge');
+
+        if (data.percentageChange > 0) {
+            percentageChangeEl.textContent = '+' + data.percentageChange + '%';
+            percentageChangeEl.style.color = '#10b981'; // Green for positive
+            badge.textContent = '↑ +' + data.percentageChange + '%';
+            badge.className = 'badge bg-success';
+            badge.style.display = 'inline-block';
+        } else if (data.percentageChange < 0) {
+            percentageChangeEl.textContent = data.percentageChange + '%';
+            percentageChangeEl.style.color = '#ef4444'; // Red for negative
+            badge.textContent = '↓ ' + data.percentageChange + '%';
+            badge.className = 'badge bg-danger';
+            badge.style.display = 'inline-block';
+        } else {
+            percentageChangeEl.textContent = '0%';
+            percentageChangeEl.style.color = '#6b7280'; // Gray for no change
+            badge.textContent = '→ No change';
+            badge.className = 'badge bg-secondary';
+            badge.style.display = 'inline-block';
+        }
+
+        // Hide loading spinner and show chart + summary
+        document.getElementById('comparisonChartLoading').style.display = 'none';
+        comparisonCanvas.style.display = 'block';
+        document.getElementById('comparisonSummary').style.display = 'block';
+
+        // Streak Bar Chart with Purple Theme
+        const streakCanvas = document.getElementById('streakChart');
+        const streakCtx = streakCanvas.getContext('2d');
+
+        // Create gradient bars for each habit (purple shades)
+        const streakGradient = streakCtx.createLinearGradient(0, 0, 0, 400);
+        streakGradient.addColorStop(0, 'rgba(167, 139, 250, 0.9)');  // Light purple top
+        streakGradient.addColorStop(1, 'rgba(124, 58, 237, 0.9)');   // Dark purple bottom
+
         new Chart(streakCtx, {
             type: 'bar',
             data: {
@@ -230,27 +519,79 @@ fetch('/stats/api/chart-data')
                 datasets: [{
                     label: 'Current Streak (days)',
                     data: data.streakCounts,
-                    backgroundColor: 'rgba(255, 159, 64, 0.7)',
-                    borderColor: 'rgba(255, 159, 64, 1)',
-                    borderWidth: 1
+                    backgroundColor: streakGradient,           // Purple gradient
+                    borderColor: '#7c3aed',                    // Purple border
+                    borderWidth: 2,
+                    borderRadius: 6,                           // Rounded corners
+                    hoverBackgroundColor: '#a78bfa',           // Light purple on hover
+                    hoverBorderColor: '#6d28d9'                // Dark purple border on hover
                 }]
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: true,
                 plugins: {
-                    legend: { display: false }
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(124, 58, 237, 0.9)',
+                        titleColor: '#ffffff',
+                        bodyColor: '#ffffff',
+                        borderColor: '#a78bfa',
+                        borderWidth: 1,
+                        padding: 12,
+                        displayColors: false,
+                        callbacks: {
+                            label: function(context) {
+                                return context.parsed.y + ' day' + (context.parsed.y !== 1 ? 's' : '') + ' streak';
+                            }
+                        }
+                    }
                 },
                 scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: '#666',
+                            font: { size: 11 }
+                        }
+                    },
                     y: {
                         beginAtZero: true,
-                        ticks: { stepSize: 1 }
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            stepSize: 1,
+                            color: '#666',
+                            font: { size: 12 }
+                        }
                     }
                 }
             }
         });
-        
-        // Day of Week Chart
-        const dayCtx = document.getElementById('dayChart').getContext('2d');
+
+        // Hide loading spinner and show chart
+        document.getElementById('streakChartLoading').style.display = 'none';
+        streakCanvas.style.display = 'block';
+
+        // Day of Week Chart with Purple Gradient
+        const dayCanvas = document.getElementById('dayChart');
+        const dayCtx = dayCanvas.getContext('2d');
+
+        // Create purple gradient shades for each day of the week
+        const purpleShades = [
+            'rgba(167, 139, 250, 0.85)',   // Light purple - Monday
+            'rgba(147, 119, 240, 0.85)',   //
+            'rgba(134, 99, 237, 0.85)',    //
+            'rgba(124, 58, 237, 0.85)',    // Primary purple - Thursday (middle)
+            'rgba(109, 40, 217, 0.85)',    //
+            'rgba(99, 30, 207, 0.85)',     //
+            'rgba(88, 28, 185, 0.85)'      // Dark purple - Sunday
+        ];
+
         new Chart(dayCtx, {
             type: 'bar',
             data: {
@@ -258,77 +599,397 @@ fetch('/stats/api/chart-data')
                 datasets: [{
                     label: 'Total Completions',
                     data: data.completionsByDay,
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.7)',
-                        'rgba(54, 162, 235, 0.7)',
-                        'rgba(255, 206, 86, 0.7)',
-                        'rgba(75, 192, 192, 0.7)',
-                        'rgba(153, 102, 255, 0.7)',
-                        'rgba(255, 159, 64, 0.7)',
-                        'rgba(199, 199, 199, 0.7)'
-                    ],
-                    borderWidth: 1
+                    backgroundColor: purpleShades,
+                    borderColor: '#7c3aed',
+                    borderWidth: 2,
+                    borderRadius: 6,                           // Rounded corners
+                    hoverBackgroundColor: '#a78bfa',           // Light purple on hover
+                    hoverBorderColor: '#6d28d9'                // Dark purple border on hover
                 }]
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: true,
                 plugins: {
-                    legend: { display: false }
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(124, 58, 237, 0.9)',
+                        titleColor: '#ffffff',
+                        bodyColor: '#ffffff',
+                        borderColor: '#a78bfa',
+                        borderWidth: 1,
+                        padding: 12,
+                        displayColors: false,
+                        callbacks: {
+                            label: function(context) {
+                                return context.parsed.y + ' completion' + (context.parsed.y !== 1 ? 's' : '');
+                            }
+                        }
+                    }
                 },
                 scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: '#666',
+                            font: { size: 11 }
+                        }
+                    },
                     y: {
                         beginAtZero: true,
-                        ticks: { stepSize: 1 }
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            stepSize: 1,
+                            color: '#666',
+                            font: { size: 12 }
+                        }
                     }
                 }
             }
         });
-        
-        // Heatmap Calendar
+
+        // Hide loading spinner and show chart
+        document.getElementById('dayChartLoading').style.display = 'none';
+        dayCanvas.style.display = 'block';
+
+        // Heatmap Calendar with Purple Color Scheme
         const heatmapContainer = document.getElementById('heatmap');
         const totalHabits = data.totalHabits || 1;
-        
+
+        // Hide skeleton and show heatmap container
+        document.getElementById('heatmapLoading').style.display = 'none';
+        document.getElementById('heatmapContainer').style.display = 'block';
+
         // Group by week (7 days per column)
         let currentWeek = [];
         data.heatmapData.forEach((day, index) => {
             currentWeek.push(day);
-            
+
             // Every 7 days, render a column
             if (currentWeek.length === 7) {
                 const weekDiv = document.createElement('div');
                 weekDiv.style.display = 'flex';
                 weekDiv.style.flexDirection = 'column';
                 weekDiv.style.gap = '3px';
-                
+
                 currentWeek.forEach(d => {
                     const cell = document.createElement('div');
                     cell.style.width = '12px';
                     cell.style.height = '12px';
                     cell.style.borderRadius = '2px';
                     cell.title = `${d.display}: ${d.count} completion${d.count !== 1 ? 's' : ''}`;
-                    
-                    // Color based on completion ratio
+
+                    // Color based on completion ratio - Purple gradient theme
                     const ratio = d.count / totalHabits;
                     if (d.count === 0) {
-                        cell.style.background = '#ebedf0';
+                        cell.style.background = '#ebedf0';        // Light gray (no completions)
                     } else if (ratio <= 0.25) {
-                        cell.style.background = '#9be9a8';
+                        cell.style.background = '#ddd6fe';        // Very light purple (25%)
                     } else if (ratio <= 0.5) {
-                        cell.style.background = '#40c463';
+                        cell.style.background = '#c4b5fd';        // Light purple (50%)
                     } else if (ratio <= 0.75) {
-                        cell.style.background = '#30a14e';
+                        cell.style.background = '#a78bfa';        // Medium purple (75%)
                     } else {
-                        cell.style.background = '#216e39';
+                        cell.style.background = '#7c3aed';        // Primary purple (100%)
                     }
-                    
+
                     weekDiv.appendChild(cell);
                 });
-                
+
                 heatmapContainer.appendChild(weekDiv);
                 currentWeek = [];
             }
         });
     })
-    .catch(error => console.error('Error loading chart data:', error));
+    .catch(error => {
+        console.error('Error loading chart data:', error);
+
+        // Show error message to user
+        const errorMessage = '<div class="alert alert-warning text-center m-3"><strong>⚠️ Unable to load chart data</strong><br>Please refresh the page or try again later.</div>';
+
+        // Replace skeleton loaders with error messages
+        ['trendChartLoading', 'streakChartLoading', 'dayChartLoading', 'heatmapLoading', 'comparisonChartLoading'].forEach(loaderId => {
+            const loader = document.getElementById(loaderId);
+            if (loader) {
+                loader.innerHTML = errorMessage;
+            }
+        });
+    });
+
+// ============================================================================
+// EXPORT FUNCTIONALITY - Export statistics as Image or PDF
+// ============================================================================
+
+/**
+ * Export the statistics page as a PNG image
+ * Uses html2canvas to capture the entire page content
+ */
+async function exportAsImage() {
+    const exportBtn = document.getElementById('exportImageBtn');
+
+    try {
+        // Show loading state on button
+        setButtonLoading(exportBtn, true);
+
+        // Get the main container element (all stats content)
+        const container = document.querySelector('.container.py-4');
+
+        if (!container) {
+            throw new Error('Container not found');
+        }
+
+        // Temporarily hide export buttons so they don't appear in the image
+        const exportButtons = document.querySelector('.btn-group');
+        const originalDisplay = exportButtons.style.display;
+        exportButtons.style.display = 'none';
+
+        // Capture the container as a canvas using html2canvas
+        const canvas = await html2canvas(container, {
+            backgroundColor: '#ffffff',        // White background
+            scale: 2,                          // Higher resolution (2x)
+            logging: false,                    // Disable console logs
+            useCORS: true,                     // Allow cross-origin images
+            allowTaint: false,                 // Prevent tainted canvas
+            windowWidth: container.scrollWidth,
+            windowHeight: container.scrollHeight
+        });
+
+        // Restore export buttons
+        exportButtons.style.display = originalDisplay;
+
+        // Convert canvas to blob and trigger download
+        canvas.toBlob(blob => {
+            // Create download link
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+
+            // Generate filename with current date
+            const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+            link.download = `habitflow-stats-${today}.png`;
+            link.href = url;
+
+            // Trigger download
+            link.click();
+
+            // Clean up
+            URL.revokeObjectURL(url);
+
+            // Show success message
+            showExportSuccess('Image downloaded successfully!');
+
+        }, 'image/png');
+
+    } catch (error) {
+        console.error('Error exporting image:', error);
+
+        // Show error message to user
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+        alertDiv.style.position = 'fixed';
+        alertDiv.style.top = '90px';
+        alertDiv.style.right = '20px';
+        alertDiv.style.zIndex = '9999';
+        alertDiv.style.maxWidth = '400px';
+        alertDiv.innerHTML = `
+            <strong>❌ Export Failed</strong><br>
+            Unable to export as image. Please try again.
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.body.appendChild(alertDiv);
+
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+        }, 5000);
+
+    } finally {
+        // Remove loading state from button
+        setButtonLoading(exportBtn, false);
+    }
+}
+
+/**
+ * Export the statistics page as a PDF document
+ * Uses html2canvas to capture the page, then jsPDF to create PDF
+ */
+async function exportAsPDF() {
+    const exportBtn = document.getElementById('exportPdfBtn');
+
+    try {
+        // Show loading state on button
+        setButtonLoading(exportBtn, true);
+
+        // Get the main container element (all stats content)
+        const container = document.querySelector('.container.py-4');
+
+        if (!container) {
+            throw new Error('Container not found');
+        }
+
+        // Temporarily hide export buttons so they don't appear in the PDF
+        const exportButtons = document.querySelector('.btn-group');
+        const originalDisplay = exportButtons.style.display;
+        exportButtons.style.display = 'none';
+
+        // Capture the container as a canvas using html2canvas
+        const canvas = await html2canvas(container, {
+            backgroundColor: '#ffffff',        // White background
+            scale: 2,                          // Higher resolution (2x)
+            logging: false,                    // Disable console logs
+            useCORS: true,                     // Allow cross-origin images
+            allowTaint: false,                 // Prevent tainted canvas
+            windowWidth: container.scrollWidth,
+            windowHeight: container.scrollHeight
+        });
+
+        // Restore export buttons
+        exportButtons.style.display = originalDisplay;
+
+        // Get canvas dimensions
+        const imgWidth = canvas.width;
+        const imgHeight = canvas.height;
+
+        // Calculate PDF dimensions (A4 size with margins)
+        // A4 size: 210mm x 297mm (595pt x 842pt at 72 DPI)
+        const pdfWidth = 595;
+        const pdfHeight = 842;
+        const margin = 40; // 40pt margins on all sides
+        const contentWidth = pdfWidth - (margin * 2);
+
+        // Calculate scaling to fit content width
+        const ratio = contentWidth / imgWidth;
+        const scaledHeight = imgHeight * ratio;
+
+        // Initialize jsPDF
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({
+            orientation: scaledHeight > pdfHeight ? 'portrait' : 'portrait',
+            unit: 'pt',
+            format: 'a4'
+        });
+
+        // Convert canvas to image data URL
+        const imgData = canvas.toDataURL('image/png');
+
+        // Add image to PDF
+        // If content is taller than one page, it will overflow (user can scroll in PDF viewer)
+        pdf.addImage(imgData, 'PNG', margin, margin, contentWidth, scaledHeight);
+
+        // Add page numbers if content spans multiple pages
+        const totalPages = Math.ceil(scaledHeight / (pdfHeight - margin * 2));
+        if (totalPages > 1) {
+            for (let i = 1; i <= totalPages; i++) {
+                if (i > 1) {
+                    pdf.addPage();
+                    const yOffset = -(pdfHeight - margin * 2) * (i - 1);
+                    pdf.addImage(imgData, 'PNG', margin, margin + yOffset, contentWidth, scaledHeight);
+                }
+
+                // Add page number at bottom
+                pdf.setFontSize(10);
+                pdf.setTextColor(150);
+                pdf.text(
+                    `Page ${i} of ${totalPages}`,
+                    pdfWidth / 2,
+                    pdfHeight - 20,
+                    { align: 'center' }
+                );
+            }
+        }
+
+        // Generate filename with current date
+        const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+        const filename = `habitflow-stats-${today}.pdf`;
+
+        // Download the PDF
+        pdf.save(filename);
+
+        // Show success message
+        showExportSuccess('PDF downloaded successfully!');
+
+    } catch (error) {
+        console.error('Error exporting PDF:', error);
+
+        // Show error message to user
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+        alertDiv.style.position = 'fixed';
+        alertDiv.style.top = '90px';
+        alertDiv.style.right = '20px';
+        alertDiv.style.zIndex = '9999';
+        alertDiv.style.maxWidth = '400px';
+        alertDiv.innerHTML = `
+            <strong>❌ Export Failed</strong><br>
+            Unable to export as PDF. Please try again.
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.body.appendChild(alertDiv);
+
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+        }, 5000);
+
+    } finally {
+        // Remove loading state from button
+        setButtonLoading(exportBtn, false);
+    }
+}
+
+/**
+ * Show success notification after export completes
+ * @param {string} message - Success message to display
+ */
+function showExportSuccess(message) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = 'alert alert-success alert-dismissible fade show';
+    alertDiv.style.position = 'fixed';
+    alertDiv.style.top = '90px';
+    alertDiv.style.right = '20px';
+    alertDiv.style.zIndex = '9999';
+    alertDiv.style.maxWidth = '400px';
+    alertDiv.innerHTML = `
+        <strong>✅ Success!</strong><br>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(alertDiv);
+
+    // Auto-remove after 4 seconds
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.classList.remove('show');
+            setTimeout(() => alertDiv.remove(), 150);
+        }
+    }, 4000);
+}
+
+// ============================================================================
+// EVENT LISTENERS - Attach export functions to buttons
+// ============================================================================
+
+// Wait for DOM to be fully loaded before attaching event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Export as Image button
+    const exportImageBtn = document.getElementById('exportImageBtn');
+    if (exportImageBtn) {
+        exportImageBtn.addEventListener('click', exportAsImage);
+    }
+
+    // Export as PDF button
+    const exportPdfBtn = document.getElementById('exportPdfBtn');
+    if (exportPdfBtn) {
+        exportPdfBtn.addEventListener('click', exportAsPDF);
+    }
+});
 </script>
 {% endblock %}

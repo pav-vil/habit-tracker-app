@@ -17,7 +17,7 @@ print(f"[INIT] Loading configuration for environment: {env}")
 
 try:
     app.config.from_object(config[env])
-    print(f"[INIT] OK Configuration loaded successfully")
+    print(f"[INIT] Configuration loaded successfully")
     print(f"[INIT] DEBUG mode: {app.config.get('DEBUG')}")
     print(f"[INIT] SECRET_KEY length: {len(app.config.get('SECRET_KEY', ''))}")
 except Exception as e:
@@ -28,7 +28,7 @@ except Exception as e:
 # This allows SESSION_COOKIE_SECURE to work properly
 if env == 'production':
     app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
-    print("[INIT] OK ProxyFix middleware enabled for production")
+    print("[INIT] ProxyFix middleware enabled for production")
 
 # Initialize SQLAlchemy with the app
 from models import db
@@ -39,7 +39,7 @@ try:
     with app.app_context():
         print(f"[INIT] Connecting to database: {app.config['SQLALCHEMY_DATABASE_URI'][:30]}...")
         db.create_all()
-        print("[INIT] OK Database tables created/verified successfully")
+        print("[INIT] Database tables created/verified successfully")
 except Exception as e:
     print(f"[INIT] ERROR creating database tables: {e}")
     if env == 'production':
@@ -91,11 +91,19 @@ app.register_blueprint(habits_bp, url_prefix='/habits')
 from stats import stats_bp
 app.register_blueprint(stats_bp)
 
+# Import and register profile blueprint
+from profile import profile_bp
+app.register_blueprint(profile_bp)
+
 # Import and register subscription blueprint
 from subscription import subscription_bp
 app.register_blueprint(subscription_bp, url_prefix='/subscription')
 
-# Import and register webhooks blueprint (no CSRF protection needed for webhooks)
+# Import and register payments blueprint
+from payments import payments_bp
+app.register_blueprint(payments_bp)
+
+# Import and register webhooks blueprint
 from webhooks import webhooks_bp
 app.register_blueprint(webhooks_bp, url_prefix='/webhooks')
 

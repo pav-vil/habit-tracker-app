@@ -26,10 +26,10 @@ psycopg2-binary>=2.9.9
 # Environment variables
 python-dotenv>=1.0.0
 
-# Payment processing
-stripe>=7.0.0
+# Payment Processing (Phase 3+)
+stripe>=7.0.0,<8.0.0
 
-# Email sending
+# Email Notifications (Phase 5)
 Flask-Mail>=0.9.1
 
 # Security headers (optional, recommended for production)

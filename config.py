@@ -16,17 +16,20 @@ class Config:
     # Rate limiting
     RATELIMIT_STORAGE_URL = os.environ.get('REDIS_URL') or 'memory://'
 
-    # Stripe configuration
+    # Stripe Payment Configuration (Phase 3)
     STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
     STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY')
     STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET')
 
-    # Stripe Price IDs
+    # Stripe Price IDs (set these after creating products in Stripe Dashboard)
     STRIPE_PRICE_ID_MONTHLY = os.environ.get('STRIPE_PRICE_ID_MONTHLY')
     STRIPE_PRICE_ID_ANNUAL = os.environ.get('STRIPE_PRICE_ID_ANNUAL')
     STRIPE_PRICE_ID_LIFETIME = os.environ.get('STRIPE_PRICE_ID_LIFETIME')
 
-    # Email configuration (Flask-Mail)
+    # App URL (for payment redirects)
+    APP_URL = os.environ.get('APP_URL') or 'http://localhost:5000'
+
+    # Email Configuration (Flask-Mail - Phase 5)
     MAIL_SERVER = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
     MAIL_PORT = int(os.environ.get('MAIL_PORT', '587'))
     MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', 'True').lower() == 'true'
@@ -48,18 +51,6 @@ class ProductionConfig(Config):
     DEBUG = False
     TESTING = False
 
-    # SECRET_KEY must be set via environment variable
-    SECRET_KEY = os.environ.get('SECRET_KEY')
-
-    # Warn if SECRET_KEY is not properly set (but don't crash)
-    if not SECRET_KEY:
-        print("WARNING: SECRET_KEY not set in environment variables!")
-        print("WARNING: Using fallback key - THIS IS INSECURE!")
-        SECRET_KEY = 'insecure-fallback-key-change-this-immediately'
-    elif len(SECRET_KEY) < 32:
-        print(f"WARNING: SECRET_KEY is too short ({len(SECRET_KEY)} chars, need 32+)")
-        print("WARNING: This may cause security issues!")
-
     # Session security (HTTPS only)
     SESSION_COOKIE_SECURE = True
     SESSION_COOKIE_HTTPONLY = True
@@ -68,18 +59,36 @@ class ProductionConfig(Config):
     # Session timeout (1 hour for production)
     PERMANENT_SESSION_LIFETIME = timedelta(hours=1)
 
-    # PostgreSQL for production
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
+    def __init__(self):
+        """Initialize production config and validate environment variables"""
+        # SECRET_KEY must be set via environment variable
+        secret_key = os.environ.get('SECRET_KEY')
 
-    # Validate DATABASE_URL is set
-    # Note: Commented out to allow imports in development
-    # if not SQLALCHEMY_DATABASE_URI:
-    #     print("ERROR: DATABASE_URL not set in environment variables!")
-    #     raise ValueError("DATABASE_URL must be set in environment variables for production")
+        # Warn if SECRET_KEY is not properly set (but don't crash)
+        if not secret_key:
+            print("⚠️  WARNING: SECRET_KEY not set in environment variables!")
+            print("⚠️  Using fallback key - THIS IS INSECURE!")
+            self.SECRET_KEY = 'insecure-fallback-key-change-this-immediately'
+        elif len(secret_key) < 32:
+            print(f"⚠️  WARNING: SECRET_KEY is too short ({len(secret_key)} chars, need 32+)")
+            print("⚠️  This may cause security issues!")
+            self.SECRET_KEY = secret_key
+        else:
+            self.SECRET_KEY = secret_key
 
-    # Fix for Heroku postgres:// -> postgresql://
-    if SQLALCHEMY_DATABASE_URI and SQLALCHEMY_DATABASE_URI.startswith('postgres://'):
-        SQLALCHEMY_DATABASE_URI = SQLALCHEMY_DATABASE_URI.replace('postgres://', 'postgresql://', 1)
+        # PostgreSQL for production
+        database_url = os.environ.get('DATABASE_URL')
+
+        # Validate DATABASE_URL is set
+        if not database_url:
+            print("❌ ERROR: DATABASE_URL not set in environment variables!")
+            raise ValueError("DATABASE_URL must be set in environment variables for production")
+
+        # Fix for Heroku postgres:// -> postgresql://
+        if database_url.startswith('postgres://'):
+            database_url = database_url.replace('postgres://', 'postgresql://', 1)
+
+        self.SQLALCHEMY_DATABASE_URI = database_url
 
     # Validate Stripe keys in production
     if not Config.STRIPE_SECRET_KEY or not Config.STRIPE_PUBLISHABLE_KEY:

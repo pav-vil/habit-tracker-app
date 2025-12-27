@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Payment Cancelled - HabitFlow{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <!-- Cancel Card -->
+            <div class="card text-center" style="border-radius: 20px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);">
+                <div class="card-body p-5">
+                    <!-- Cancel Icon -->
+                    <div class="mb-4">
+                        <div style="font-size: 80px; color: #f59e0b;">⚠️</div>
+                    </div>
+
+                    <!-- Cancel Message -->
+                    <h1 class="mb-3" style="color: #333; font-weight: 700;">Payment Cancelled</h1>
+                    <p class="lead mb-4" style="color: #666;">
+                        No worries! Your payment was not processed and you won't be charged.
+                    </p>
+
+                    <!-- Reassurance -->
+                    <div class="alert alert-info" style="border-radius: 12px; background: rgba(59, 130, 246, 0.1); border: 1px solid #3b82f6;">
+                        <p class="mb-0">
+                            You can continue using HabitFlow with your current plan.
+                            <br>
+                            Upgrade anytime when you're ready!
+                        </p>
+                    </div>
+
+                    <!-- Benefits Reminder -->
+                    <div class="mt-4 p-4" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 12px;">
+                        <h5 style="color: #7c3aed; font-weight: 600; margin-bottom: 20px;">Premium Benefits You're Missing:</h5>
+                        <ul class="list-unstyled mb-0 text-start">
+                            <li class="mb-2">✓ <strong>Unlimited habits</strong> - Currently limited to 3</li>
+                            <li class="mb-2">✓ <strong>Advanced statistics</strong> - Deep insights & trends</li>
+                            <li class="mb-2">✓ <strong>Export data</strong> - PDF & CSV reports</li>
+                            <li class="mb-2">✓ <strong>Priority support</strong> - Faster response times</li>
+                            <li class="mb-2">✓ <strong>Dark mode</strong> - Easier on the eyes</li>
+                            <li class="mb-0">✓ <strong>Early access</strong> - New features first</li>
+                        </ul>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="mt-5">
+                        <a href="{{ url_for('profile.subscription') }}" class="btn btn-primary btn-lg mb-2" style="background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%); border: none; border-radius: 50px; padding: 15px 40px; font-weight: 600; box-shadow: 0 5px 20px rgba(124, 58, 237, 0.3);">
+                            Try Again - View Plans
+                        </a>
+                        <br>
+                        <a href="{{ url_for('habits.dashboard') }}" class="btn btn-outline-secondary mt-2" style="border-radius: 50px; padding: 10px 30px;">
+                            Back to Dashboard
+                        </a>
+                    </div>
+
+                    <!-- Help Text -->
+                    <div class="mt-4">
+                        <p class="text-muted small mb-0">
+                            Need help or have questions about our plans?
+                            <br>
+                            <a href="{{ url_for('profile.about') }}">Learn more about HabitFlow</a> or contact us at support@habitflow.com
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Optional: Why Upgrade Section -->
+            <div class="card mt-4" style="border-radius: 15px; background: linear-gradient(135deg, rgba(124, 58, 237, 0.05) 0%, rgba(167, 139, 250, 0.05) 100%); border: 1px solid rgba(124, 58, 237, 0.2);">
+                <div class="card-body p-4">
+                    <h6 style="color: #7c3aed; font-weight: 600; margin-bottom: 15px;">💡 Why Users Upgrade:</h6>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-start">
+                                <div style="color: #7c3aed; font-size: 24px; margin-right: 10px;">📈</div>
+                                <div>
+                                    <strong style="color: #333;">Track More Goals</strong>
+                                    <p class="text-muted small mb-0">Build 10, 20, or 50 habits simultaneously</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-start">
+                                <div style="color: #7c3aed; font-size: 24px; margin-right: 10px;">📊</div>
+                                <div>
+                                    <strong style="color: #333;">Better Insights</strong>
+                                    <p class="text-muted small mb-0">Advanced charts & export capabilities</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-0">
+                            <div class="d-flex align-items-start">
+                                <div style="color: #7c3aed; font-size: 24px; margin-right: 10px;">💰</div>
+                                <div>
+                                    <strong style="color: #333;">Best Value</strong>
+                                    <p class="text-muted small mb-0">Annual plan saves 67% vs monthly</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-0">
+                            <div class="d-flex align-items-start">
+                                <div style="color: #7c3aed; font-size: 24px; margin-right: 10px;">🎯</div>
+                                <div>
+                                    <strong style="color: #333;">Lifetime Option</strong>
+                                    <p class="text-muted small mb-0">One payment, forever access</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

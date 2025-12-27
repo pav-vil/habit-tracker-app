@@ -62,11 +62,50 @@ def dashboard():
             over_limit = True
             habits_to_archive = total_habits - current_user.habit_limit
 
+    # Motivational quotes that rotate daily
+    motivational_quotes = [
+        {"quote": "Small daily improvements are the key to staggering long-term results.", "author": "Unknown"},
+        {"quote": "Success is the sum of small efforts repeated day in and day out.", "author": "Robert Collier"},
+        {"quote": "A journey of a thousand miles begins with a single step.", "author": "Lao Tzu"},
+        {"quote": "The secret of getting ahead is getting started.", "author": "Mark Twain"},
+        {"quote": "You don't have to be great to start, but you have to start to be great.", "author": "Zig Ziglar"},
+        {"quote": "The only way to do great work is to love what you do.", "author": "Steve Jobs"},
+        {"quote": "Don't watch the clock; do what it does. Keep going.", "author": "Sam Levenson"},
+        {"quote": "Believe you can and you're halfway there.", "author": "Theodore Roosevelt"},
+        {"quote": "The best time to plant a tree was 20 years ago. The second best time is now.", "author": "Chinese Proverb"},
+        {"quote": "Your future is created by what you do today, not tomorrow.", "author": "Unknown"},
+        {"quote": "Excellence is not a destination; it is a continuous journey that never ends.", "author": "Brian Tracy"},
+        {"quote": "Motivation is what gets you started. Habit is what keeps you going.", "author": "Jim Ryun"},
+        {"quote": "We are what we repeatedly do. Excellence, then, is not an act, but a habit.", "author": "Aristotle"},
+        {"quote": "The difference between who you are and who you want to be is what you do.", "author": "Unknown"},
+        {"quote": "Discipline is choosing between what you want now and what you want most.", "author": "Unknown"},
+        {"quote": "The pain of discipline is far less than the pain of regret.", "author": "Unknown"},
+        {"quote": "Success doesn't come from what you do occasionally, it comes from what you do consistently.", "author": "Unknown"},
+        {"quote": "First we make our habits, then our habits make us.", "author": "Charles C. Noble"},
+        {"quote": "You'll never change your life until you change something you do daily.", "author": "John C. Maxwell"},
+        {"quote": "Consistency is the true foundation of trust. Either keep your promises or do not make them.", "author": "Roy T. Bennett"},
+        {"quote": "The only impossible journey is the one you never begin.", "author": "Tony Robbins"},
+        {"quote": "Don't count the days, make the days count.", "author": "Muhammad Ali"},
+        {"quote": "Discipline equals freedom.", "author": "Jocko Willink"},
+        {"quote": "The harder you work for something, the greater you'll feel when you achieve it.", "author": "Unknown"},
+        {"quote": "Dream bigger. Do bigger.", "author": "Unknown"},
+        {"quote": "Little by little, a little becomes a lot.", "author": "Tanzanian Proverb"},
+        {"quote": "It's not about perfect. It's about effort.", "author": "Jillian Michaels"},
+        {"quote": "Start where you are. Use what you have. Do what you can.", "author": "Arthur Ashe"},
+        {"quote": "Your only limit is you.", "author": "Unknown"},
+        {"quote": "One day or day one. You decide.", "author": "Unknown"},
+    ]
+
+    # Select quote based on day of year (ensures same quote all day)
+    day_of_year = today.timetuple().tm_yday
+    daily_quote = motivational_quotes[day_of_year % len(motivational_quotes)]
+
     return render_template(
         'dashboard.html',
         habits=user_habits,
         stats=stats,
         pagination=pagination,
+        daily_quote=daily_quote,
         over_limit=over_limit,
         habits_to_archive=habits_to_archive
     )
@@ -97,11 +136,12 @@ def add_habit():
             flash('Habit limit reached. Please upgrade to premium.', 'danger')
             return redirect(url_for('subscription.pricing'))
 
-        # Create new habit
+        # Create new habit with all fields from form
         new_habit = Habit(
             user_id=current_user.id,
             name=form.name.data,
             description=form.description.data,
+            why=form.why.data,  # Add the "why" motivation field
             streak_count=0
         )
 
@@ -134,19 +174,21 @@ def edit_habit(habit_id):
     form = HabitForm()
     
     if form.validate_on_submit():
-        # Update habit
+        # Update habit with all fields from form
         habit.name = form.name.data
         habit.description = form.description.data
-        
+        habit.why = form.why.data  # Update the "why" motivation field
+
         db.session.commit()
-        
+
         flash(f'Habit "{habit.name}" updated successfully!', 'success')
         return redirect(url_for('habits.dashboard'))
-    
+
     # Pre-fill form with current data (GET request)
     elif request.method == 'GET':
         form.name.data = habit.name
         form.description.data = habit.description
+        form.why.data = habit.why  # Pre-fill the "why" field
     
     return render_template('habit_form.html', form=form, title='Edit Habit', habit=habit)
 
@@ -328,3 +370,54 @@ def archived():
     )
 
     return render_template('archived.html', habits=pagination.items, pagination=pagination)
+
+
+@habits_bp.route('/newsletter-subscribe', methods=['POST'])
+@login_required
+def newsletter_subscribe():
+    """Handle newsletter subscription preference."""
+    from flask import jsonify
+
+    try:
+        data = request.get_json()
+        subscribed = data.get('subscribed', False)
+
+        # Update user's newsletter preference
+        current_user.newsletter_subscribed = subscribed
+        db.session.commit()
+
+        return jsonify({'success': True, 'subscribed': subscribed})
+    except Exception as e:
+        print(f"[NEWSLETTER] Error updating subscription: {e}")
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@habits_bp.route('/dark-mode-toggle', methods=['POST'])
+@login_required
+def dark_mode_toggle():
+    """Handle dark mode preference toggle."""
+    from flask import jsonify
+
+    try:
+        data = request.get_json()
+        dark_mode = data.get('dark_mode', False)
+
+        # Update user's dark mode preference
+        current_user.dark_mode = dark_mode
+        db.session.commit()
+
+        return jsonify({'success': True, 'dark_mode': dark_mode})
+    except Exception as e:
+        print(f"[DARK_MODE] Error updating preference: {e}")
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@habits_bp.route('/guide')
+def habit_guide():
+    """
+    How to Build Lasting Habits - Comprehensive guide.
+    Public route - no login required.
+    """
+    return render_template('habit_guide.html')

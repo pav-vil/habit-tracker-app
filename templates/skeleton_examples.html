@@ -1,0 +1,144 @@
+<!--
+    SKELETON LOADER EXAMPLES
+
+    This file contains copy-paste examples of skeleton loaders for common components.
+    Use these when adding new features that require loading states.
+-->
+
+<!-- 1. HABIT CARD SKELETON -->
+<div class="col-md-6">
+    <div class="skeleton-card">
+        <!-- Habit name -->
+        <div class="skeleton skeleton-text-lg" style="width: 70%;"></div>
+
+        <!-- Description -->
+        <div class="skeleton skeleton-text" style="width: 90%;"></div>
+        <div class="skeleton skeleton-text" style="width: 60%;"></div>
+
+        <!-- Streak badges -->
+        <div class="mb-3 mt-3">
+            <div class="skeleton skeleton-badge"></div>
+            <div class="skeleton skeleton-badge"></div>
+        </div>
+
+        <!-- Last completed text -->
+        <div class="skeleton skeleton-text-sm" style="width: 40%; margin-bottom: 20px;"></div>
+
+        <!-- Action buttons -->
+        <div class="skeleton skeleton-button"></div>
+        <div class="skeleton skeleton-button"></div>
+        <div class="skeleton skeleton-button"></div>
+    </div>
+</div>
+
+<!-- 2. STATS CARD SKELETON (for dashboard stats) -->
+<div class="col-lg-3 col-md-6 mb-3">
+    <div class="skeleton-stat-card">
+        <div class="skeleton skeleton-circle" style="width: 60px; height: 60px; margin: 0 auto 15px;"></div>
+        <div class="skeleton skeleton-stat-number"></div>
+        <div class="skeleton skeleton-stat-label"></div>
+    </div>
+</div>
+
+<!-- 3. CHART SKELETON -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Chart Title</h5>
+    </div>
+    <div class="card-body">
+        <div class="skeleton skeleton-chart"></div>
+    </div>
+</div>
+
+<!-- 4. TABLE ROW SKELETON -->
+<tr>
+    <td><div class="skeleton skeleton-text" style="width: 80%;"></div></td>
+    <td><div class="skeleton skeleton-badge" style="width: 100px;"></div></td>
+    <td><div class="skeleton skeleton-text" style="width: 60%;"></div></td>
+    <td><div class="skeleton skeleton-badge" style="width: 80px;"></div></td>
+</tr>
+
+<!-- 5. LIST ITEM SKELETON -->
+<div class="list-group-item">
+    <div class="d-flex align-items-center">
+        <div class="skeleton skeleton-circle" style="width: 40px; height: 40px; margin-right: 15px;"></div>
+        <div style="flex: 1;">
+            <div class="skeleton skeleton-text" style="width: 70%;"></div>
+            <div class="skeleton skeleton-text-sm" style="width: 40%;"></div>
+        </div>
+    </div>
+</div>
+
+<!-- 6. FORM SKELETON -->
+<div class="auth-card">
+    <div class="skeleton skeleton-text-lg" style="width: 50%; margin: 0 auto 30px;"></div>
+
+    <div class="mb-3">
+        <div class="skeleton skeleton-text-sm" style="width: 30%; margin-bottom: 8px;"></div>
+        <div class="skeleton" style="height: 38px; border-radius: 6px;"></div>
+    </div>
+
+    <div class="mb-3">
+        <div class="skeleton skeleton-text-sm" style="width: 30%; margin-bottom: 8px;"></div>
+        <div class="skeleton" style="height: 38px; border-radius: 6px;"></div>
+    </div>
+
+    <div class="skeleton skeleton-button" style="width: 100%; height: 46px; margin-top: 20px;"></div>
+</div>
+
+<!-- 7. GRID OF CARDS SKELETON -->
+<div class="skeleton-grid">
+    <div class="skeleton-card">
+        <div class="skeleton skeleton-text-lg" style="width: 60%;"></div>
+        <div class="skeleton skeleton-text" style="width: 90%;"></div>
+        <div class="skeleton skeleton-text" style="width: 70%;"></div>
+    </div>
+    <div class="skeleton-card">
+        <div class="skeleton skeleton-text-lg" style="width: 60%;"></div>
+        <div class="skeleton skeleton-text" style="width: 90%;"></div>
+        <div class="skeleton skeleton-text" style="width: 70%;"></div>
+    </div>
+</div>
+
+<!-- 8. HEATMAP SKELETON -->
+<div class="skeleton" style="height: 120px; border-radius: 8px;"></div>
+
+<!-- 9. QUOTE CARD SKELETON -->
+<div class="quote-card">
+    <div class="skeleton skeleton-circle" style="width: 50px; height: 50px; margin-bottom: 15px;"></div>
+    <div class="skeleton skeleton-text" style="width: 90%;"></div>
+    <div class="skeleton skeleton-text" style="width: 80%;"></div>
+    <div class="skeleton skeleton-text" style="width: 40%; margin-left: auto;"></div>
+</div>
+
+<!-- USAGE INSTRUCTIONS:
+
+1. Copy the appropriate skeleton example above
+2. Replace your loading spinner with the skeleton
+3. Hide the skeleton when data loads using:
+   - element.style.display = 'none'
+   - OR add class 'skeleton-hidden'
+
+4. Example JavaScript:
+
+   // Show skeleton initially
+   <div id="contentLoading">
+       <!-- skeleton HTML here -->
+   </div>
+   <div id="actualContent" style="display: none;">
+       <!-- actual content here -->
+   </div>
+
+   // When data loads:
+   document.getElementById('contentLoading').style.display = 'none';
+   document.getElementById('actualContent').style.display = 'block';
+
+5. Tips:
+   - Match skeleton heights to actual content
+   - Use appropriate widths (70%, 90%, etc.) for variety
+   - Stack multiple skeleton-text for paragraph-like content
+   - Use skeleton-circle for avatars/icons
+   - Use skeleton-badge for pill-shaped elements
+   - Use skeleton-button for button placeholders
+
+-->

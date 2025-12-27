@@ -5,55 +5,131 @@
 {% block extra_css %}
 <style>
     .stats-card {
-        background: var(--bg-surface);
-        border: 1px solid rgba(179, 136, 255, 0.2);
-        border-radius: 10px;
-        padding: 20px;
+        background: var(--card-bg);
+        border-radius: 15px;
+        padding: 25px 20px;
         text-align: center;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.5), 0 0 15px var(--glow-purple);
+        box-shadow: 0 4px 15px var(--shadow-color);
         margin-bottom: 20px;
         transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(124, 58, 237, 0.1);
     }
 
     .stats-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 6px 20px rgba(0,0,0,0.6), 0 0 25px var(--glow-purple);
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(124, 58, 237, 0.15);
+        border-color: rgba(124, 58, 237, 0.3);
+    }
+
+    .stats-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+    }
+
+    .stats-icon {
+        font-size: 2.5rem;
+        margin-bottom: 12px;
+        display: block;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
     }
 
     .stats-number {
-        font-size: 2.5rem;
+        font-size: 2.8rem;
         font-weight: 700;
-        background: linear-gradient(135deg, var(--purple-vibrant), var(--purple-light));
+        background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
+        margin-bottom: 8px;
+        display: block;
     }
 
     .stats-label {
         color: var(--text-secondary);
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 1.2px;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .stats-sublabel {
+        color: var(--text-muted);
+        font-size: 0.75rem;
+        margin-top: 5px;
+        font-weight: 400;
+    }
+
+    /* Individual card accent colors */
+    .stats-card-habits::before {
+        background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+    }
+
+    .stats-card-streaks::before {
+        background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+    }
+
+    .stats-card-longest::before {
+        background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+    }
+
+    .stats-card-progress::before {
+        background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+    }
+
+    @media (max-width: 767px) {
+        .stats-card {
+            padding: 20px 15px;
+        }
+
+        .stats-number {
+            font-size: 2.2rem;
+        }
+
+        .stats-icon {
+            font-size: 2rem;
+        }
+
+        .stats-label {
+            font-size: 0.8rem;
+        }
     }
 
     .habit-card {
-        background: var(--bg-surface);
-        border: 1px solid rgba(179, 136, 255, 0.15);
+        background: var(--card-bg);
         border-radius: 15px;
         padding: 25px;
         margin-bottom: 20px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        box-shadow: 0 3px 15px var(--shadow-color);
         transition: all 0.3s ease;
+        position: relative;
+        user-select: none;
+        -webkit-user-select: none; /* iOS Safari */
+        touch-action: pan-y;
+        /* iOS Safari touch optimizations */
+        -webkit-tap-highlight-color: transparent;
+        cursor: pointer;
+        /* Force hardware acceleration on iOS */
+        transform: translateZ(0);
+        -webkit-transform: translateZ(0);
+        will-change: transform;
+    }
+
+    /* iOS Safari active state */
+    .habit-card:active {
+        opacity: 0.95;
     }
 
     .habit-card:hover {
         transform: translateY(-3px);
-        box-shadow: 0 6px 25px rgba(0,0,0,0.6), 0 0 20px var(--glow-purple);
-        border-color: var(--text-secondary);
-    }
-
-    .habit-card.active-habit {
-        box-shadow: 0 4px 15px rgba(0,0,0,0.5), 0 0 15px var(--glow-purple);
+        box-shadow: 0 5px 25px var(--shadow-color);
     }
 
     .habit-name {
@@ -64,7 +140,7 @@
     }
 
     .habit-description {
-        color: var(--text-muted);
+        color: var(--text-secondary);
         margin-bottom: 15px;
     }
 
@@ -112,12 +188,34 @@
         margin-top: 15px;
     }
 
+    /* Optimize touch targets for mobile */
+    @media (max-width: 768px) {
+        .habit-actions .btn {
+            min-height: 44px;
+            min-width: 44px;
+            padding: 12px 16px;
+            font-size: 15px;
+            margin-bottom: 8px;
+            margin-right: 8px;
+        }
+
+        .habit-card {
+            /* Increase padding for easier swipe detection */
+            padding: 30px 20px;
+        }
+    }
+
     .btn-complete {
         background: linear-gradient(135deg, #4caf50, var(--purple-medium));
         color: white;
         border: none;
-        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
-        transition: all 0.3s ease;
+        min-height: 44px;
+        padding: 12px 24px;
+        /* iOS Safari button fixes */
+        -webkit-appearance: none;
+        appearance: none;
+        border-radius: 8px;
+        -webkit-tap-highlight-color: transparent;
     }
 
     .btn-complete:hover {
@@ -127,10 +225,16 @@
         box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
     }
 
+    /* iOS Safari active state for buttons */
+    .btn-complete:active,
+    .btn:active {
+        transform: scale(0.98);
+    }
+
     .empty-state {
         text-align: center;
-        padding: 60px 20px;
-        color: var(--text-muted);
+        padding: 40px 20px;
+        color: var(--text-secondary);
     }
 
     .empty-state-icon {
@@ -139,17 +243,255 @@
         opacity: 0.3;
     }
 
+    .empty-state-card {
+        background: var(--card-bg);
+        border-radius: 20px;
+        padding: 50px 30px;
+        box-shadow: 0 10px 40px var(--shadow-color);
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .empty-state-illustration {
+        font-size: 8rem;
+        margin-bottom: 30px;
+        animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
+
+    .empty-state-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 15px;
+    }
+
+    .empty-state-subtitle {
+        font-size: 1.1rem;
+        color: var(--text-secondary);
+        margin-bottom: 40px;
+    }
+
+    .tips-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin: 40px 0;
+        text-align: left;
+    }
+
+    .tip-card {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 20px;
+        border-radius: 12px;
+        border-left: 4px solid #7c3aed;
+    }
+
+    .tip-icon {
+        font-size: 2rem;
+        margin-bottom: 10px;
+        display: block;
+    }
+
+    .tip-title {
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+    }
+
+    .tip-text {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        margin: 0;
+    }
+
+    /* Welcome Modal Styles */
+    .modal-content {
+        border-radius: 20px;
+        border: none;
+    }
+
+    .modal-header {
+        background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+        color: white;
+        border-radius: 20px 20px 0 0;
+        padding: 30px;
+        border: none;
+    }
+
+    .modal-header h4 {
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+
+    .modal-body {
+        padding: 30px;
+    }
+
+    .welcome-step {
+        display: flex;
+        align-items: start;
+        margin-bottom: 25px;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 12px;
+    }
+
+    .step-number {
+        background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+        margin-right: 15px;
+    }
+
+    .step-content h5 {
+        margin-bottom: 8px;
+        color: var(--text-primary);
+        font-weight: 600;
+    }
+
+    .step-content p {
+        margin: 0;
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+    }
+
+    @media (max-width: 768px) {
+        .empty-state-card {
+            padding: 30px 20px;
+        }
+
+        .empty-state-illustration {
+            font-size: 5rem;
+        }
+
+        .empty-state-title {
+            font-size: 1.5rem;
+        }
+
+        .tips-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Motivational Quote Card */
+    .quote-card {
+        background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+        border-radius: 20px;
+        padding: 35px 40px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(124, 58, 237, 0.25);
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .quote-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 40px rgba(124, 58, 237, 0.35);
+    }
+
+    .quote-card::before {
+        content: '"';
+        position: absolute;
+        top: -20px;
+        left: 20px;
+        font-size: 120px;
+        font-family: Georgia, serif;
+        color: rgba(255, 255, 255, 0.1);
+        line-height: 1;
+    }
+
+    .quote-icon {
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+        display: block;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+    }
+
+    .quote-text {
+        font-size: 1.3rem;
+        line-height: 1.6;
+        color: white;
+        font-weight: 500;
+        font-style: italic;
+        margin-bottom: 15px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .quote-author {
+        font-size: 1rem;
+        color: rgba(255, 255, 255, 0.9);
+        font-weight: 600;
+        text-align: right;
+        position: relative;
+        z-index: 1;
+    }
+
+    .quote-author::before {
+        content: '— ';
+    }
+
+    .quote-label {
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.8);
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        font-weight: 600;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .quote-refresh-icon {
+        font-size: 0.9rem;
+        opacity: 0.7;
+    }
+
+    @media (max-width: 768px) {
+        .quote-card {
+            padding: 25px 25px;
+        }
+
+        .quote-text {
+            font-size: 1.1rem;
+        }
+
+        .quote-author {
+            font-size: 0.9rem;
+        }
+
+        .quote-card::before {
+            font-size: 80px;
+            top: -10px;
+            left: 10px;
+        }
+    }
+
     .chart-card {
-        background: var(--bg-surface);
-        border: 1px solid rgba(179, 136, 255, 0.2);
+        background: var(--card-bg);
         border-radius: 15px;
         padding: 25px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.5), 0 0 15px var(--glow-purple);
+        box-shadow: 0 3px 15px var(--shadow-color);
         transition: all 0.3s ease;
     }
 
     .chart-card:hover {
-        box-shadow: 0 6px 25px rgba(0,0,0,0.6), 0 0 25px var(--glow-purple);
+        box-shadow: 0 5px 25px var(--shadow-color);
     }
 
     .chart-header {
@@ -276,25 +618,279 @@
         transform: translateY(-2px);
         box-shadow: 0 6px 16px rgba(255, 152, 0, 0.4);
     }
+
+    /* Why Section Styles */
+    .why-section {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-left: 4px solid #7c3aed;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 15px;
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .why-section:hover {
+        box-shadow: 0 2px 8px rgba(124, 58, 237, 0.15);
+    }
+
+    .why-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        color: #7c3aed;
+        margin-bottom: 10px;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .why-icon {
+        font-size: 1.2rem;
+    }
+
+    .why-toggle {
+        margin-left: auto;
+        font-size: 0.9rem;
+        transition: transform 0.3s ease;
+    }
+
+    .why-toggle.collapsed {
+        transform: rotate(-90deg);
+    }
+
+    .why-content {
+        color: var(--text-primary);
+        line-height: 1.6;
+        font-size: 0.95rem;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+
+    .why-empty {
+        color: var(--text-muted);
+        font-style: italic;
+        font-size: 0.9rem;
+    }
+
+    /* Enhanced Swipe Gesture Visual Feedback */
+    .habit-card.swiping {
+        transition: none !important;
+    }
+
+    .habit-card.swipe-right {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, var(--card-bg) 100%);
+        border-left: 4px solid #10b981;
+    }
+
+    .habit-card.swipe-left {
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.25) 0%, var(--card-bg) 100%);
+        border-right: 4px solid #ef4444;
+    }
+
+    .swipe-indicator {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 3.5rem;
+        opacity: 0;
+        transition: all 0.3s ease;
+        pointer-events: none;
+        filter: drop-shadow(0 2px 8px rgba(0,0,0,0.2));
+    }
+
+    .swipe-indicator-right {
+        left: 30px;
+    }
+
+    .swipe-indicator-left {
+        right: 30px;
+    }
+
+    .habit-card.swipe-right .swipe-indicator-right {
+        opacity: 1;
+        animation: swipePulse 0.6s ease-in-out infinite;
+    }
+
+    .habit-card.swipe-left .swipe-indicator-left {
+        opacity: 1;
+        animation: swipePulse 0.6s ease-in-out infinite;
+    }
+
+    @keyframes swipePulse {
+        0%, 100% { transform: translateY(-50%) scale(1); }
+        50% { transform: translateY(-50%) scale(1.1); }
+    }
+
+    /* Swipe Tutorial Overlay */
+    .swipe-tutorial-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.85);
+        z-index: 9999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        animation: fadeIn 0.3s ease;
+        /* iOS Safari overlay fixes */
+        -webkit-backdrop-filter: blur(5px);
+        backdrop-filter: blur(5px);
+        /* Prevent scroll on iOS when overlay is active */
+        overflow: hidden;
+        /* Fix iOS safe areas */
+        padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0) env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0);
+    }
+
+    .swipe-tutorial-overlay.active {
+        display: flex;
+    }
+
+    .swipe-tutorial-content {
+        background: var(--card-bg);
+        border-radius: 20px;
+        padding: 40px 30px;
+        max-width: 400px;
+        margin: 20px;
+        text-align: center;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    }
+
+    .swipe-tutorial-content h3 {
+        color: #7c3aed;
+        font-size: 1.8rem;
+        margin-bottom: 20px;
+        font-weight: 700;
+    }
+
+    .swipe-demo {
+        display: flex;
+        justify-content: space-around;
+        margin: 30px 0;
+        gap: 20px;
+    }
+
+    .swipe-demo-item {
+        flex: 1;
+        padding: 20px;
+        border-radius: 12px;
+        background: rgba(124, 58, 237, 0.1);
+        border: 2px solid rgba(124, 58, 237, 0.3);
+    }
+
+    .swipe-demo-icon {
+        font-size: 3rem;
+        margin-bottom: 10px;
+        display: block;
+    }
+
+    .swipe-demo-text {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        font-weight: 600;
+    }
+
+    .swipe-demo-arrow {
+        font-size: 2rem;
+        color: #7c3aed;
+        margin-bottom: 5px;
+    }
+
+    .tutorial-close-btn {
+        background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 1rem;
+        margin-top: 20px;
+        cursor: pointer;
+        min-height: 44px;
+        transition: all 0.3s ease;
+    }
+
+    .tutorial-close-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
+    }
+
+    /* Mobile-specific swipe enhancements */
+    @media (max-width: 768px) {
+        .swipe-indicator {
+            font-size: 4rem;
+        }
+
+        .habit-card.swipe-right,
+        .habit-card.swipe-left {
+            border-width: 5px;
+        }
+    }
+
+    @media (max-width: 575px) {
+        .why-section {
+            padding: 12px;
+        }
+
+        .why-content {
+            font-size: 0.9rem;
+        }
+    }
 </style>
 {% endblock %}
 
 {% block content %}
+<!-- Swipe Tutorial Overlay -->
+<div class="swipe-tutorial-overlay" id="swipeTutorial">
+    <div class="swipe-tutorial-content">
+        <h3>Quick Tip: Swipe to Complete! 👆</h3>
+        <p style="color: var(--text-secondary); margin-bottom: 20px;">
+            You can swipe habit cards to quickly complete or undo them
+        </p>
+
+        <div class="swipe-demo">
+            <div class="swipe-demo-item">
+                <div class="swipe-demo-arrow">→</div>
+                <span class="swipe-demo-icon">✓</span>
+                <div class="swipe-demo-text">Swipe Right<br>to Complete</div>
+            </div>
+
+            <div class="swipe-demo-item">
+                <div class="swipe-demo-arrow">←</div>
+                <span class="swipe-demo-icon">↶</span>
+                <div class="swipe-demo-text">Swipe Left<br>to Undo</div>
+            </div>
+        </div>
+
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">
+            Or use the buttons if you prefer!
+        </p>
+
+        <button class="tutorial-close-btn" onclick="closeSwipeTutorial()">Got it!</button>
+    </div>
+</div>
+
 <div class="container mt-4">
     <div class="row mb-4">
         <div class="col-md-12">
-            <h1>Welcome back, {{ current_user.email }}! 👋</h1>
+            <h1>Welcome back, {{ current_user.email }}! <span aria-hidden="true">👋</span></h1>
             <p class="text-muted">
                 Track your habits and build consistency
-                {% if current_user.is_premium_active() %}
+                {% if current_user.subscription_tier == 'premium' %}
                     <span class="badge bg-success ms-2">💎 Premium Member</span>
                 {% else %}
-                    <span class="badge bg-secondary ms-2">Free Tier ({{ current_user.get_habit_limit() }} habits max)</span>
-                    <a href="{{ url_for('subscription.pricing') }}" class="btn btn-sm btn-outline-light ms-2">
-                        Upgrade for Unlimited
-                    </a>
+                    <span class="badge bg-secondary ms-2">Free Tier (3 habits max)</span>
                 {% endif %}
             </p>
+
+            <!-- Inline Help Banner (Mobile) -->
+            {% if habits %}
+            <div class="alert alert-info d-md-none mt-3" role="alert" style="border-left: 4px solid #7c3aed; background: rgba(124, 58, 237, 0.1); border-radius: 8px;">
+                <strong>💡 Quick Tip:</strong> Swipe right on any habit card to complete it instantly! Swipe left to undo.
+            </div>
+            {% endif %}
         </div>
     </div>
 
@@ -305,7 +901,7 @@
             <div class="over-limit-banner">
                 <h4>⚠️ You've exceeded your habit limit</h4>
                 <p>
-                    Your premium subscription has ended, and you're currently on the free tier with a limit of <strong>{{ current_user.habit_limit }} habits</strong>.
+                    Your premium subscription has ended, and you're currently on the free tier with a limit of <strong>3 habits</strong>.
                     You have <strong>{{ stats.total_habits }} active habits</strong>, which means you need to archive <strong>{{ habits_to_archive }}</strong> habit{% if habits_to_archive != 1 %}s{% endif %} to continue.
                 </p>
                 <p class="mb-3">
@@ -321,132 +917,242 @@
         </div>
     </div>
     {% endif %}
-    
-    <!-- Statistics Cards -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="stats-card">
-                <div class="stats-number">{{ stats.total_habits }}</div>
-                <div class="stats-label">Total Habits</div>
+
+    <!-- Enhanced Statistics Cards with Tooltips -->
+    <div class="row mb-4" role="region" aria-label="Statistics overview">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stats-card stats-card-habits" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="The total number of habits you're currently tracking. Start with 2-3 habits and gradually add more as they become automatic." role="article" aria-label="Total habits: {{ stats.total_habits }}">
+                <span class="stats-icon" aria-hidden="true">🎯</span>
+                <div class="stats-number" aria-label="{{ stats.total_habits }} habits">{{ stats.total_habits }}</div>
+                <div class="stats-label">Total Habits <span style="font-size: 0.7rem;" aria-hidden="true">ℹ️</span></div>
+                <div class="stats-sublabel">
+                    {% if stats.total_habits == 0 %}
+                        Get started!
+                    {% elif stats.total_habits == 1 %}
+                        Great start!
+                    {% else %}
+                        Building momentum
+                    {% endif %}
+                </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="stats-card">
-                <div class="stats-number">{{ stats.active_streaks }}</div>
-                <div class="stats-label">Active Streaks</div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stats-card stats-card-streaks" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="A streak starts when you complete a habit. Complete it again the next day to keep the streak growing. Miss a day and it resets to 0!" role="article" aria-label="Active streaks: {{ stats.active_streaks }}">
+                <span class="stats-icon" aria-hidden="true">🔥</span>
+                <div class="stats-number" aria-label="{{ stats.active_streaks }} active streaks">{{ stats.active_streaks }}</div>
+                <div class="stats-label">Active Streaks <span style="font-size: 0.7rem;" aria-hidden="true">ℹ️</span></div>
+                <div class="stats-sublabel">
+                    {% if stats.active_streaks == 0 %}
+                        Start one today
+                    {% elif stats.active_streaks == stats.total_habits %}
+                        All on fire!
+                    {% else %}
+                        Keep it going
+                    {% endif %}
+                </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="stats-card">
-                <div class="stats-number">{{ stats.longest_streak }}</div>
-                <div class="stats-label">Longest Streak</div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stats-card stats-card-longest" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Your best streak ever across all habits. This is your personal record! Even if a streak breaks, this number stays to remind you of what you've achieved." role="article" aria-label="Longest streak: {{ stats.longest_streak }} days">
+                <span class="stats-icon" aria-hidden="true">🏆</span>
+                <div class="stats-number" aria-label="{{ stats.longest_streak }} days">{{ stats.longest_streak }}</div>
+                <div class="stats-label">Longest Streak <span style="font-size: 0.7rem;" aria-hidden="true">ℹ️</span></div>
+                <div class="stats-sublabel">
+                    {% if stats.longest_streak == 0 %}
+                        Your record awaits
+                    {% elif stats.longest_streak < 7 %}
+                        Building up
+                    {% elif stats.longest_streak < 30 %}
+                        Impressive!
+                    {% else %}
+                        Legendary!
+                    {% endif %}
+                </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="stats-card">
-                <div class="stats-number">{{ stats.completion_rate }}%</div>
-                <div class="stats-label">Today's Progress</div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stats-card stats-card-progress" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Percentage of your habits completed today. Aim for 100% to build strong momentum and consistency!" role="article" aria-label="Today's progress: {{ stats.completion_rate }} percent">
+                <span class="stats-icon" aria-hidden="true">
+                    {% if stats.completion_rate == 100 %}
+                        ✅
+                    {% elif stats.completion_rate >= 50 %}
+                        📊
+                    {% else %}
+                        ⏳
+                    {% endif %}
+                </span>
+                <div class="stats-number" aria-label="{{ stats.completion_rate }} percent complete">{{ stats.completion_rate }}%</div>
+                <div class="stats-label">Today's Progress <span style="font-size: 0.7rem;" aria-hidden="true">ℹ️</span></div>
+                <div class="stats-sublabel">
+                    {% if stats.completion_rate == 100 %}
+                        Perfect day!
+                    {% elif stats.completion_rate >= 75 %}
+                        Almost there
+                    {% elif stats.completion_rate >= 50 %}
+                        Halfway done
+                    {% elif stats.completion_rate > 0 %}
+                        Keep going
+                    {% else %}
+                        Let's start
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
-    
+
+    <!-- Motivational Quote Card -->
+    {% if daily_quote %}
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="quote-card">
+                <div class="quote-label">
+                    <span>💭 Daily Inspiration</span>
+                    <span class="quote-refresh-icon" title="Quote changes daily">🔄</span>
+                </div>
+                <div class="quote-icon">✨</div>
+                <div class="quote-text">{{ daily_quote.quote }}</div>
+                <div class="quote-author">{{ daily_quote.author }}</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     <!-- 30-Day Completion Chart -->
     <div class="row mb-4">
         <div class="col-md-12">
             <div class="chart-card">
                 <div class="chart-header">
-                    <h5 class="chart-title">📈 30-Day Progress</h5>
+                    <h2 class="chart-title"><span aria-hidden="true">📈</span> 30-Day Progress</h2>
                     <p class="chart-subtitle">Total habits completed per day</p>
                 </div>
                 <div class="chart-container">
-                    <div id="chartLoading" class="chart-loading">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading chart...</span>
-                        </div>
-                        <p class="mt-3 text-muted">Loading your progress...</p>
+                    <!-- Skeleton loader for chart -->
+                    <div id="chartLoading" aria-live="polite" aria-label="Loading chart">
+                        <div class="skeleton skeleton-chart"></div>
                     </div>
-                    <canvas id="completionTrendChart" style="display: none;"></canvas>
+                    <canvas id="completionTrendChart" style="display: none;" role="img" aria-label="Line chart showing total habits completed per day over the last 30 days"></canvas>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Habit Limit Indicator (Free Tier Only) -->
+    {% if current_user.subscription_tier == 'free' %}
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <div class="alert" style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(167, 139, 250, 0.1) 100%); border: 2px solid #7c3aed; border-radius: 12px;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong style="color: #7c3aed;">Free Tier:</strong>
+                        <span class="ms-2">{{ habits|selectattr('archived', 'equalto', False)|list|length }}/3 habits used</span>
+                        {% if habits|selectattr('archived', 'equalto', False)|list|length >= 3 %}
+                        <span class="badge bg-warning text-dark ms-2">Limit Reached</span>
+                        {% endif %}
+                    </div>
+                    <a href="{{ url_for('subscription.pricing') }}" class="btn btn-sm" style="background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%); color: white; border-radius: 50px; padding: 8px 20px; font-weight: 600; box-shadow: 0 2px 10px rgba(124, 58, 237, 0.3);">
+                        ⬆️ Upgrade for Unlimited
+                    </a>
+                </div>
+                {% if habits|selectattr('archived', 'equalto', False)|list|length >= 3 %}
+                <p class="mb-0 mt-2 small text-muted">
+                    You've reached the free tier limit. Upgrade to create unlimited habits!
+                </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     <!-- Add New Habit Button -->
     <div class="row mb-4">
         <div class="col-md-12">
-            <a href="{{ url_for('habits.add_habit') }}" class="btn btn-primary btn-lg">
-                ➕ Add New Habit
+            <a href="{{ url_for('habits.add_habit') }}" class="btn btn-primary btn-lg" aria-label="Create a new habit">
+                <span aria-hidden="true">➕</span> Add New Habit
             </a>
-            <a href="{{ url_for('habits.archived') }}" class="btn btn-outline-secondary btn-lg ms-2">
-                📦 View Archived
+            <a href="{{ url_for('habits.archived') }}" class="btn btn-outline-secondary btn-lg ms-2" aria-label="View your archived habits">
+                <span aria-hidden="true">📦</span> View Archived
             </a>
         </div>
     </div>
-    
+
     <!-- Habits List -->
     {% if habits %}
         <div class="row" id="habits-list">
             <div class="col-md-12">
-                <h3 class="mb-3">Your Habits</h3>
+                <h2 class="mb-3">Your Habits</h2>
             </div>
         </div>
-        
+
         <div class="row">
             {% for habit in habits %}
             <div class="col-md-6">
-                <div class="habit-card">
-                    <div class="habit-name">{{ habit.name }}</div>
-                    
+                <article class="habit-card" aria-labelledby="habit-{{ habit.id }}-name">
+                    <h3 class="habit-name" id="habit-{{ habit.id }}-name">{{ habit.name }}</h3>
+
                     {% if habit.description %}
                     <div class="habit-description">{{ habit.description }}</div>
                     {% endif %}
-                    
+
+                    <!-- Why Section (Motivation) -->
+                    {% if habit.why %}
+                    <div class="why-section">
+                        <button type="button" class="why-header" onclick="toggleWhy(this)" aria-expanded="true" aria-controls="why-{{ habit.id }}" style="background: none; border: none; padding: 0; width: 100%; text-align: left;">
+                            <span class="why-icon" aria-hidden="true">💡</span>
+                            <span>Why track this habit?</span>
+                            <span class="why-toggle" aria-hidden="true">▼</span>
+                        </button>
+                        <div class="why-content" id="why-{{ habit.id }}">
+                            {{ habit.why }}
+                        </div>
+                    </div>
+                    {% endif %}
+
                     <div class="mb-3">
-                        <span class="streak-badge">
-                            🔥 {{ habit.streak_count }} day{% if habit.streak_count != 1 %}s{% endif %} streak
+                        <span class="streak-badge" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Current streak: Complete this habit daily to keep your streak growing. Miss a day and it resets to 0!" aria-label="Current streak: {{ habit.current_streak }} days">
+                            <span aria-hidden="true">🔥</span> {{ habit.current_streak }} day{% if habit.current_streak != 1 %}s{% endif %} streak
                         </span>
                         {% if habit.longest_streak > 0 %}
-                        <span class="longest-streak-badge">
-                            <span class="trophy-icon">🏆</span>{{ habit.longest_streak }} day{% if habit.longest_streak != 1 %}s{% endif %} best
+                        <span class="longest-streak-badge" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Your personal best for this habit! This record stays even if your current streak breaks. Keep going to beat it!" aria-label="Personal best: {{ habit.longest_streak }} days">
+                            <span class="trophy-icon" aria-hidden="true">🏆</span>{{ habit.longest_streak }} day{% if habit.longest_streak != 1 %}s{% endif %} best
                         </span>
                         {% endif %}
                     </div>
-                    
+
                     {% if habit.last_completed %}
                     <div class="text-muted small mb-2">
                         Last completed: {{ habit.last_completed.strftime('%B %d, %Y') }}
                     </div>
                     {% endif %}
-                    
+
                     <div class="habit-actions">
                         {% if habit.last_completed == current_user.get_user_date() %}
-                            <form action="{{ url_for('habits.undo_completion', habit_id=habit.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Undo today\\'s completion for &quot;{{ habit.name }}&quot;? This will decrease your streak.');">
+                            <form action="{{ url_for('habits.undo_completion', habit_id=habit.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Undo today\\'s completion for &quot;{{ habit.name }}&quot;? This will decrease your streak.');" aria-label="Undo completion for {{ habit.name }}">
                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                                <button type="submit" class="btn btn-warning">
-                                    ↶ Undo
+                                <button type="submit" class="btn btn-warning" aria-label="Undo today's completion for {{ habit.name }}">
+                                    <span aria-hidden="true">↶</span> Undo
                                 </button>
                             </form>
                         {% else %}
-                            <form action="{{ url_for('habits.complete_habit', habit_id=habit.id) }}" method="POST" style="display: inline;">
+                            <form action="{{ url_for('habits.complete_habit', habit_id=habit.id) }}" method="POST" style="display: inline;" aria-label="Complete {{ habit.name }} for today">
                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                                <button type="submit" class="btn btn-complete">
-                                    ✓ Complete Today
+                                <button type="submit" class="btn btn-complete btn-complete" aria-label="Mark {{ habit.name }} as completed for today">
+                                    <span aria-hidden="true">✓</span> Complete Today
                                 </button>
                             </form>
                         {% endif %}
 
-                        <a href="{{ url_for('habits.edit_habit', habit_id=habit.id) }}" class="btn btn-outline-secondary">
-                            ✏️ Edit
+                        <a href="{{ url_for('habits.edit_habit', habit_id=habit.id) }}" class="btn btn-outline-secondary" aria-label="Edit {{ habit.name }}">
+                            <span aria-hidden="true">✏️</span> Edit
                         </a>
 
-                        <form action="{{ url_for('habits.archive_habit', habit_id=habit.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to archive &quot;{{ habit.name }}&quot;? You can restore it later from the archived habits page.');">
+                        <form action="{{ url_for('habits.archive_habit', habit_id=habit.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to archive &quot;{{ habit.name }}&quot;? You can restore it later from the archived habits page.');" aria-label="Archive {{ habit.name }}">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                            <button type="submit" class="btn btn-outline-warning">
-                                📦 Archive
+                            <button type="submit" class="btn btn-outline-warning" aria-label="Archive {{ habit.name }}">
+                                <span aria-hidden="true">📦</span> Archive
                             </button>
                         </form>
                     </div>
-                </div>
+                </article>
             </div>
             {% endfor %}
         </div>
@@ -468,7 +1174,7 @@
                         {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
                             {% if page_num %}
                                 <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
-                                    <a class="page-link" href="{{ url_for('habits.dashboard', page=page_num) }}">
+                                    <a class="page-link" href="{{ url_for('habits.dashboard', page=page_num) }}" {% if page_num == pagination.page %}aria-current="page"{% endif %} aria-label="Page {{ page_num }}">
                                         {{ page_num }}
                                     </a>
                                 </li>
@@ -496,25 +1202,226 @@
         </div>
         {% endif %}
     {% else %}
-        <!-- Empty State -->
+        <!-- Enhanced Empty State -->
         <div class="row">
             <div class="col-md-12">
                 <div class="empty-state">
-                    <div class="empty-state-icon">🎯</div>
-                    <h3>No habits yet!</h3>
-                    <p>Start building better habits by creating your first one.</p>
-                    <a href="{{ url_for('habits.add_habit') }}" class="btn btn-primary btn-lg mt-3">
-                        ➕ Create Your First Habit
-                    </a>
+                    <div class="empty-state-card">
+                        <div class="empty-state-illustration">🎯</div>
+                        <h2 class="empty-state-title">Let's Build Your First Habit!</h2>
+                        <p class="empty-state-subtitle">Start your journey to better habits today. It only takes a minute to get started.</p>
+
+                        <!-- Quick Tips Grid -->
+                        <div class="tips-grid">
+                            <div class="tip-card">
+                                <span class="tip-icon">💪</span>
+                                <div class="tip-title">Start Small</div>
+                                <p class="tip-text">Begin with simple habits like drinking water or a 5-minute walk</p>
+                            </div>
+
+                            <div class="tip-card">
+                                <span class="tip-icon">🔥</span>
+                                <div class="tip-title">Build Streaks</div>
+                                <p class="tip-text">Complete habits daily to build momentum and track your progress</p>
+                            </div>
+
+                            <div class="tip-card">
+                                <span class="tip-icon">📊</span>
+                                <div class="tip-title">Track Progress</div>
+                                <p class="tip-text">View your stats and charts to see how far you've come</p>
+                            </div>
+
+                            <div class="tip-card">
+                                <span class="tip-icon">🏆</span>
+                                <div class="tip-title">Stay Consistent</div>
+                                <p class="tip-text">Consistency is key! Even small daily actions lead to big results</p>
+                            </div>
+                        </div>
+
+                        <!-- Call to Action -->
+                        <a href="{{ url_for('habits.add_habit') }}" class="btn btn-primary btn-lg mt-3" style="padding: 15px 40px; font-size: 1.1rem;">
+                            ➕ Create Your First Habit
+                        </a>
+                        <p class="text-muted mt-3 mb-0">
+                            <small>✨ Need ideas? Try: Exercise, Read, Meditate, Drink Water, or Journal</small>
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
     {% endif %}
+
+    <!-- Welcome Modal for New Users -->
+    <div class="modal fade" id="welcomeModal" tabindex="-1" aria-labelledby="welcomeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <h4 class="modal-title" id="welcomeModalLabel">🎉 Welcome to HabitFlow!</h4>
+                        <p class="mb-0" style="font-size: 0.95rem; opacity: 0.95;">Your journey to better habits starts here</p>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h5 class="mb-4" style="color: #7c3aed; font-weight: 600;">Quick Start Guide</h5>
+
+                    <div class="welcome-step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h5>Create Your First Habit</h5>
+                            <p>Click the "Add New Habit" button to create habits you want to track. Start with 1-3 simple habits.</p>
+                        </div>
+                    </div>
+
+                    <div class="welcome-step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h5>Complete Daily</h5>
+                            <p>Mark habits as complete each day by clicking the "✓ Complete Today" button. Build your streak!</p>
+                        </div>
+                    </div>
+
+                    <div class="welcome-step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h5>Track Your Progress</h5>
+                            <p>View charts and statistics to see your progress over time. Watch your streaks grow!</p>
+                        </div>
+                    </div>
+
+                    <div class="welcome-step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h5>Stay Consistent</h5>
+                            <p>The key to building habits is consistency. Come back daily to maintain your streaks.</p>
+                        </div>
+                    </div>
+
+                    <hr style="margin: 30px 0; border-color: rgba(124, 58, 237, 0.2);">
+
+                    <h5 class="mb-3" style="color: #7c3aed; font-weight: 600;">🧠 Proven Habit-Building Strategies</h5>
+
+                    <div class="alert alert-light mb-3" style="border-left: 4px solid #7c3aed; border-radius: 8px;">
+                        <h6 style="color: #333; font-weight: 600; margin-bottom: 8px;">🔗 Habit Stacking</h6>
+                        <p style="color: #666; font-size: 0.9rem; margin-bottom: 8px;">
+                            Link new habits to existing routines. Example: "After I brush my teeth, I will do 5 pushups" or "After I pour my morning coffee, I will meditate for 2 minutes."
+                        </p>
+                        <a href="https://jamesclear.com/habit-stacking" target="_blank" rel="noopener noreferrer" style="font-size: 0.85rem; color: #7c3aed; text-decoration: none; font-weight: 600;">
+                            📖 Learn More →
+                        </a>
+                    </div>
+
+                    <div class="alert alert-light mb-3" style="border-left: 4px solid #10b981; border-radius: 8px;">
+                        <h6 style="color: #333; font-weight: 600; margin-bottom: 8px;">🌱 Start Tiny</h6>
+                        <p style="color: #666; font-size: 0.9rem; margin-bottom: 8px;">
+                            Make it ridiculously easy to start. One pushup, one page, one minute. Once you start, you'll often do more. The goal is to show up, not to be perfect.
+                        </p>
+                        <a href="https://tinyhabits.com/start/" target="_blank" rel="noopener noreferrer" style="font-size: 0.85rem; color: #10b981; text-decoration: none; font-weight: 600;">
+                            📖 Learn More →
+                        </a>
+                    </div>
+
+                    <div class="alert alert-light mb-3" style="border-left: 4px solid #f59e0b; border-radius: 8px;">
+                        <h6 style="color: #333; font-weight: 600; margin-bottom: 8px;">🎯 If-Then Plans</h6>
+                        <p style="color: #666; font-size: 0.9rem; margin-bottom: 8px;">
+                            Plan for obstacles in advance. "If I'm too tired to exercise, then I'll do just 5 minutes." "If I miss a day, then I'll get back on track tomorrow." Decide ahead, act automatically.
+                        </p>
+                        <a href="https://jamesclear.com/implementation-intentions" target="_blank" rel="noopener noreferrer" style="font-size: 0.85rem; color: #f59e0b; text-decoration: none; font-weight: 600;">
+                            📖 Learn More →
+                        </a>
+                    </div>
+
+                    <div class="alert alert-light" style="border-left: 4px solid #3b82f6; border-radius: 8px;">
+                        <h6 style="color: #333; font-weight: 600; margin-bottom: 8px;">🔁 Consistent Repetition</h6>
+                        <p style="color: #666; font-size: 0.9rem; margin-bottom: 8px;">
+                            Habits form through repetition, not perfection. Do it daily for 66 days on average to make it automatic. Miss a day? No problem—just don't miss twice in a row.
+                        </p>
+                        <a href="https://jamesclear.com/new-habit" target="_blank" rel="noopener noreferrer" style="font-size: 0.85rem; color: #3b82f6; text-decoration: none; font-weight: 600;">
+                            📖 Learn More →
+                        </a>
+                    </div>
+
+                    <div class="alert alert-info mt-4" style="background: linear-gradient(135deg, #e0e7ff 0%, #ddd6fe 100%); border: none; border-radius: 12px;">
+                        <h6 style="color: #6d28d9; font-weight: 600; margin-bottom: 10px;">💡 Remember</h6>
+                        <p class="mb-0" style="color: #6d28d9; font-size: 0.95rem;">
+                            You don't rise to the level of your goals, you fall to the level of your systems. Focus on building the system, not just the outcome!
+                        </p>
+                    </div>
+
+                    <!-- Newsletter Subscription -->
+                    <div class="mt-4 p-3" style="background: #f8f9fa; border-radius: 12px; border: 2px dashed rgba(124, 58, 237, 0.3);">
+                        <div class="d-flex align-items-start">
+                            <input type="checkbox" id="newsletterCheckbox" class="form-check-input mt-1" style="cursor: pointer; width: 20px; height: 20px; border-color: #7c3aed;">
+                            <label for="newsletterCheckbox" style="cursor: pointer; margin-left: 12px; flex: 1;">
+                                <h6 style="color: #333; font-weight: 600; margin-bottom: 5px;">📧 Get Habit-Building Tips & Motivation</h6>
+                                <p style="color: #666; font-size: 0.85rem; margin-bottom: 0;">
+                                    Receive weekly emails with proven strategies, success stories, and science-backed insights to help you build better habits. Unsubscribe anytime.
+                                </p>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border: none; padding: 20px 30px;">
+                    <button type="button" class="btn btn-primary btn-lg w-100" data-bs-dismiss="modal" style="padding: 12px;" onclick="saveNewsletterPreference()">
+                        Let's Get Started! 🚀
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
+// Initialize Bootstrap tooltips
+document.addEventListener('DOMContentLoaded', function() {
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+});
+
+// Save newsletter preference
+function saveNewsletterPreference() {
+    const checkbox = document.getElementById('newsletterCheckbox');
+    if (checkbox && checkbox.checked) {
+        // Send to backend to update user preference
+        fetch('/habits/newsletter-subscribe', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ subscribed: true })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log('Newsletter subscription saved');
+            }
+        })
+        .catch(error => console.error('Error saving newsletter preference:', error));
+    }
+}
+
+// Show welcome modal for new users (no habits)
+{% if not habits %}
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if user has seen welcome modal before (using sessionStorage)
+    const hasSeenWelcome = sessionStorage.getItem('hasSeenWelcome');
+
+    if (!hasSeenWelcome) {
+        // Show modal after a short delay for better UX
+        setTimeout(function() {
+            const welcomeModal = new bootstrap.Modal(document.getElementById('welcomeModal'));
+            welcomeModal.show();
+
+            // Mark as seen in session
+            sessionStorage.setItem('hasSeenWelcome', 'true');
+        }, 800);
+    }
+});
+{% endif %}
+
 // Fetch 30-day completion data and render chart
 fetch('/api/30-day-completions')
     .then(response => response.json())
@@ -624,5 +1531,274 @@ fetch('/api/30-day-completions')
         const loadingEl = document.getElementById('chartLoading');
         loadingEl.innerHTML = '<p class="text-center text-muted">Unable to load chart data. Please refresh the page.</p>';
     });
+
+// Toggle "Why" section visibility (collapse/expand)
+function toggleWhy(header) {
+    // Get the content div (next sibling of header)
+    const content = header.nextElementSibling;
+    const toggle = header.querySelector('.why-toggle');
+
+    // Toggle visibility
+    if (content.style.display === 'none') {
+        content.style.display = 'block';
+        toggle.classList.remove('collapsed');
+        toggle.textContent = '▼';
+    } else {
+        content.style.display = 'none';
+        toggle.classList.add('collapsed');
+        toggle.textContent = '▶';
+    }
+}
+
+// Enhanced button interactions with visual feedback
+document.addEventListener('DOMContentLoaded', function() {
+    // Add visual feedback when completing a habit
+    document.querySelectorAll('.btn-complete').forEach(button => {
+        button.addEventListener('click', function(e) {
+            // Add celebrate animation to the habit card
+            const habitCard = this.closest('.habit-card');
+            if (habitCard) {
+                habitCard.classList.add('celebrate');
+                setTimeout(() => {
+                    habitCard.classList.remove('celebrate');
+                }, 600);
+            }
+        });
+    });
+
+    // Add subtle animation to archive buttons
+    document.querySelectorAll('form[action*="archive"]').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            const habitCard = this.closest('.habit-card');
+            if (habitCard) {
+                habitCard.style.transition = 'all 0.5s ease';
+                habitCard.style.opacity = '0.5';
+                habitCard.style.transform = 'scale(0.95)';
+            }
+        });
+    });
+
+    // Add loading state to edit buttons when clicked
+    document.querySelectorAll('a.btn[href*="edit"]').forEach(link => {
+        link.addEventListener('click', function(e) {
+            const originalText = this.innerHTML;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>' + originalText;
+            this.style.opacity = '0.7';
+            this.style.pointerEvents = 'none';
+        });
+    });
+
+    // Swipe Tutorial Management
+    function closeSwipeTutorial() {
+        const tutorial = document.getElementById('swipeTutorial');
+        if (tutorial) {
+            tutorial.classList.remove('active');
+            // Re-enable body scroll (iOS Safari fix)
+            document.body.style.overflow = '';
+            document.body.style.position = '';
+            document.body.style.top = '';
+            document.body.style.width = '';
+            // Save to localStorage that user has seen the tutorial
+            localStorage.setItem('habitflow_swipe_tutorial_seen', 'true');
+        }
+    }
+
+    function showSwipeTutorial() {
+        const tutorial = document.getElementById('swipeTutorial');
+        if (tutorial) {
+            tutorial.classList.add('active');
+            // Prevent body scroll on iOS Safari
+            const scrollY = window.scrollY;
+            document.body.style.position = 'fixed';
+            document.body.style.top = `-${scrollY}px`;
+            document.body.style.width = '100%';
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    // Make closeSwipeTutorial globally available
+    window.closeSwipeTutorial = closeSwipeTutorial;
+
+    // Show tutorial on first visit (if user has habits)
+    {% if habits %}
+    const hasSeenTutorial = localStorage.getItem('habitflow_swipe_tutorial_seen');
+
+    if (!hasSeenTutorial && window.innerWidth <= 768) {
+        // Show tutorial after a brief delay for better UX
+        setTimeout(() => {
+            showSwipeTutorial();
+        }, 1000);
+    }
+    {% endif %}
+
+    // Enhanced Swipe Gesture Detection for Habit Cards
+    const habitCards = document.querySelectorAll('.habit-card');
+
+    habitCards.forEach(card => {
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchEndX = 0;
+        let touchEndY = 0;
+        let touchStartTime = 0;
+        let swipeIndicatorRight = null;
+        let swipeIndicatorLeft = null;
+        let isSwiping = false;
+
+        // Create swipe indicators
+        swipeIndicatorRight = document.createElement('div');
+        swipeIndicatorRight.className = 'swipe-indicator swipe-indicator-right';
+        swipeIndicatorRight.textContent = '✓';
+        swipeIndicatorRight.setAttribute('aria-hidden', 'true');
+
+        swipeIndicatorLeft = document.createElement('div');
+        swipeIndicatorLeft.className = 'swipe-indicator swipe-indicator-left';
+        swipeIndicatorLeft.textContent = '↶';
+        swipeIndicatorLeft.setAttribute('aria-hidden', 'true');
+
+        card.appendChild(swipeIndicatorRight);
+        card.appendChild(swipeIndicatorLeft);
+
+        // Touch start
+        card.addEventListener('touchstart', function(e) {
+            touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
+            touchStartTime = Date.now();
+            isSwiping = false;
+            card.classList.add('swiping');
+        }, { passive: true });
+
+        // Touch move (for visual feedback)
+        card.addEventListener('touchmove', function(e) {
+            const currentX = e.changedTouches[0].screenX;
+            const currentY = e.changedTouches[0].screenY;
+            const diffX = currentX - touchStartX;
+            const diffY = currentY - touchStartY;
+
+            // Only show swipe feedback if horizontal swipe is dominant
+            // Lower threshold (20px) for quicker visual feedback
+            if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 20) {
+                isSwiping = true;
+
+                // iOS Safari: Prevent default only when horizontal swipe detected
+                // This prevents page scroll during horizontal swipe
+                if (e.cancelable && Math.abs(diffX) > Math.abs(diffY)) {
+                    e.preventDefault();
+                }
+
+                if (diffX > 0) {
+                    // Swiping right
+                    card.classList.add('swipe-right');
+                    card.classList.remove('swipe-left');
+
+                    // Scale indicator opacity based on swipe distance
+                    const opacity = Math.min(Math.abs(diffX) / 100, 1);
+                    swipeIndicatorRight.style.opacity = opacity;
+                } else {
+                    // Swiping left
+                    card.classList.add('swipe-left');
+                    card.classList.remove('swipe-right');
+
+                    // Scale indicator opacity based on swipe distance
+                    const opacity = Math.min(Math.abs(diffX) / 100, 1);
+                    swipeIndicatorLeft.style.opacity = opacity;
+                }
+            }
+        }, { passive: false }); // Changed to passive: false for iOS Safari
+
+        // Touch end
+        card.addEventListener('touchend', function(e) {
+            touchEndX = e.changedTouches[0].screenX;
+            touchEndY = e.changedTouches[0].screenY;
+            const touchDuration = Date.now() - touchStartTime;
+
+            // Reset visual feedback
+            card.classList.remove('swiping');
+            setTimeout(() => {
+                card.classList.remove('swipe-right');
+                card.classList.remove('swipe-left');
+                swipeIndicatorRight.style.opacity = '';
+                swipeIndicatorLeft.style.opacity = '';
+            }, 200);
+
+            // Only trigger swipe if it was a quick gesture (< 500ms)
+            if (isSwiping && touchDuration < 500) {
+                handleSwipe(card);
+            }
+        }, { passive: false });
+
+        function handleSwipe(card) {
+            const diffX = touchEndX - touchStartX;
+            const diffY = touchEndY - touchStartY;
+            const threshold = 80; // Reduced threshold for easier swipes (was 100)
+
+            // Check if horizontal swipe is dominant
+            if (Math.abs(diffX) > Math.abs(diffY)) {
+                if (diffX > threshold) {
+                    // Swipe right - Complete habit
+                    handleSwipeRight(card);
+                } else if (diffX < -threshold) {
+                    // Swipe left - Undo completion (if already completed today)
+                    handleSwipeLeft(card);
+                }
+            }
+        }
+
+        function handleSwipeRight(card) {
+            // Find the complete button and click it
+            const completeBtn = card.querySelector('.btn-complete');
+            if (completeBtn) {
+                // Enhanced visual feedback with pulse animation
+                card.style.transition = 'all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+                card.style.transform = 'scale(1.02) translateX(10px)';
+                card.style.boxShadow = '0 8px 30px rgba(16, 185, 129, 0.4)';
+
+                // Trigger haptic-like visual feedback
+                card.classList.add('swipe-right');
+
+                setTimeout(() => {
+                    // Create success flash
+                    card.style.background = 'linear-gradient(135deg, rgba(16, 185, 129, 0.3) 0%, var(--card-bg) 100%)';
+
+                    setTimeout(() => {
+                        completeBtn.click();
+                    }, 100);
+                }, 150);
+            }
+        }
+
+        function handleSwipeLeft(card) {
+            // Find the undo button (if habit is completed today)
+            const undoBtn = card.querySelector('button[type="submit"]');
+            const undoForm = card.querySelector('form[action*="undo"]');
+
+            if (undoBtn && undoForm && undoBtn.textContent.includes('Undo')) {
+                // Enhanced visual feedback with pulse animation
+                card.style.transition = 'all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+                card.style.transform = 'scale(1.02) translateX(-10px)';
+                card.style.boxShadow = '0 8px 30px rgba(239, 68, 68, 0.4)';
+
+                // Trigger haptic-like visual feedback
+                card.classList.add('swipe-left');
+
+                setTimeout(() => {
+                    // Create undo flash
+                    card.style.background = 'linear-gradient(135deg, rgba(239, 68, 68, 0.3) 0%, var(--card-bg) 100%)';
+
+                    setTimeout(() => {
+                        undoBtn.click();
+                    }, 100);
+                }, 150);
+            } else {
+                // Visual feedback that undo is not available
+                card.style.transition = 'all 0.2s ease';
+                card.style.transform = 'translateX(-5px)';
+
+                setTimeout(() => {
+                    card.style.transform = '';
+                }, 100);
+            }
+        }
+    });
+});
 </script>
 {% endblock %}

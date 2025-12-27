@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}Settings - HabitFlow{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h1 class="mb-2">⚙️ Settings</h1>
+            <p class="text-muted">Manage your preferences and notification settings</p>
+            <a href="{{ url_for('profile.view') }}" class="btn btn-outline-secondary btn-sm">← Back to Profile</a>
+        </div>
+    </div>
+
+    <!-- Settings Form -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="mb-0 h5">Account Settings</h2>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('profile.settings') }}">
+                        {{ form.csrf_token }}
+
+                        <!-- Timezone Setting -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">{{ form.timezone.label }}</label>
+                            {{ form.timezone(class="form-select") }}
+                            {% if form.timezone.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.timezone.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">
+                                Your timezone is used to track daily completions accurately.
+                                Current time in your timezone: {{ current_user.get_user_date().strftime('%B %d, %Y at %I:%M %p') }}
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <!-- Dark Mode Setting -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Appearance</label>
+                            <div class="form-check form-switch">
+                                {{ form.dark_mode(class="form-check-input", style="cursor: pointer;", role="switch") }}
+                                <label class="form-check-label" for="{{ form.dark_mode.id }}" style="cursor: pointer;">
+                                    {{ form.dark_mode.label.text }}
+                                </label>
+                            </div>
+                            <div class="form-text">
+                                Enable dark mode for a more comfortable viewing experience in low-light environments.
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <!-- Newsletter Setting -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Email Notifications</label>
+                            <div class="form-check">
+                                {{ form.newsletter_subscribed(class="form-check-input", style="cursor: pointer;") }}
+                                <label class="form-check-label" for="{{ form.newsletter_subscribed.id }}" style="cursor: pointer;">
+                                    {{ form.newsletter_subscribed.label.text }}
+                                </label>
+                            </div>
+                            <div class="form-text">
+                                Receive tips, updates, and habit-building advice via email (we'll never spam you).
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid">
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Info Sidebar -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0 h6">💡 About Settings</h3>
+                </div>
+                <div class="card-body">
+                    <p class="small mb-3">
+                        <strong>Timezone:</strong> Ensures your daily habit tracking aligns with your local time,
+                        not UTC. This affects when your "day" starts and ends.
+                    </p>
+                    <p class="small mb-3">
+                        <strong>Dark Mode:</strong> Reduces eye strain and saves battery on OLED screens.
+                        Your preference is saved and synced across devices.
+                    </p>
+                    <p class="small mb-0">
+                        <strong>Newsletter:</strong> We send occasional emails with productivity tips,
+                        new features, and habit-building strategies. You can unsubscribe anytime.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

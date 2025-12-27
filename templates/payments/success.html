@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Payment Successful - HabitFlow{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <!-- Success Card -->
+            <div class="card text-center" style="border-radius: 20px; box-shadow: 0 10px 40px rgba(124, 58, 237, 0.2);">
+                <div class="card-body p-5">
+                    <!-- Success Icon -->
+                    <div class="mb-4">
+                        <div style="font-size: 80px; color: #10b981;">✓</div>
+                    </div>
+
+                    <!-- Success Message -->
+                    <h1 class="mb-3" style="color: #7c3aed; font-weight: 700;">Payment Successful!</h1>
+                    <p class="lead mb-4" style="color: #666;">
+                        Thank you for upgrading to <strong style="color: #7c3aed;">{{ tier.capitalize() }} Plan</strong>!
+                    </p>
+
+                    <!-- Payment Details -->
+                    <div class="alert" style="background: rgba(124, 58, 237, 0.1); border: 1px solid #7c3aed; border-radius: 12px;">
+                        <div class="row">
+                            <div class="col-6 text-start">
+                                <strong style="color: #7c3aed;">Amount Paid:</strong>
+                            </div>
+                            <div class="col-6 text-end">
+                                <strong>${{ '%.2f'|format(amount) }} {{ currency }}</strong>
+                            </div>
+                        </div>
+                        <hr style="border-color: #7c3aed; opacity: 0.3;">
+                        <div class="row">
+                            <div class="col-6 text-start">
+                                <strong style="color: #7c3aed;">Plan:</strong>
+                            </div>
+                            <div class="col-6 text-end">
+                                <strong>{{ tier.capitalize() }}</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Benefits Reminder -->
+                    <div class="mt-4 p-4" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 12px;">
+                        <h5 style="color: #7c3aed; font-weight: 600; margin-bottom: 20px;">Your Premium Benefits:</h5>
+                        <ul class="list-unstyled mb-0 text-start">
+                            <li class="mb-2">✓ <strong>Unlimited habits</strong> - No more 3-habit limit!</li>
+                            <li class="mb-2">✓ <strong>Advanced statistics</strong> - Deep insights into your progress</li>
+                            <li class="mb-2">✓ <strong>Export data</strong> - Download PDF & CSV reports</li>
+                            <li class="mb-2">✓ <strong>Priority support</strong> - Get help faster</li>
+                            <li class="mb-2">✓ <strong>Dark mode</strong> - Easy on the eyes</li>
+                            <li class="mb-0">✓ <strong>Early access</strong> - New features first</li>
+                        </ul>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="mt-5">
+                        <a href="{{ url_for('habits.dashboard') }}" class="btn btn-primary btn-lg mb-2" style="background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%); border: none; border-radius: 50px; padding: 15px 40px; font-weight: 600; box-shadow: 0 5px 20px rgba(124, 58, 237, 0.3);">
+                            Start Building Habits →
+                        </a>
+                        <br>
+                        <a href="{{ url_for('profile.subscription') }}" class="btn btn-outline-secondary mt-2" style="border-radius: 50px; padding: 10px 30px;">
+                            View Subscription Details
+                        </a>
+                    </div>
+
+                    <!-- Receipt Info -->
+                    <div class="mt-4">
+                        <p class="text-muted small mb-0">
+                            A receipt has been sent to your email address.
+                            <br>
+                            You can view your billing history in your <a href="{{ url_for('profile.billing') }}">profile</a>.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Celebration Confetti (Optional) -->
+            <script>
+                // Add confetti animation on page load
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Simple confetti effect (optional - can be enhanced)
+                    console.log('Payment successful! 🎉');
+                });
+            </script>
+        </div>
+    </div>
+</div>
+{% endblock %}

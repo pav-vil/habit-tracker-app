@@ -26,5 +26,8 @@ psycopg2-binary>=2.9.9
 # Environment variables
 python-dotenv>=1.0.0
 
+# Payment processing
+stripe>=7.0.0
+
 # Security headers (optional, recommended for production)
 # Flask-Talisman>=1.1.0

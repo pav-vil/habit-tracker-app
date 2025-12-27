@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Subscription - HabitFlow{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Manage Subscription</h1>
+
+    <!-- Current Subscription Status -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title">Current Plan</h3>
+
+                    {% if current_user.subscription_status == 'free' %}
+                        <div class="alert alert-info">
+                            <h4>Free Plan</h4>
+                            <p>You are currently on the free plan with up to {{ current_user.habit_limit }} habits.</p>
+                            <a href="{{ url_for('subscription.pricing') }}" class="btn btn-primary">
+                                Upgrade to Premium
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-success">
+                            <h4>{{ current_user.subscription_status|title }} Plan</h4>
+                            <p><strong>Status:</strong> Active</p>
+
+                            {% if current_user.subscription_end_date %}
+                                <p><strong>Renews on:</strong> {{ current_user.subscription_end_date.strftime('%B %d, %Y') }}</p>
+                            {% else %}
+                                <p><strong>Lifetime Access</strong> - No expiration</p>
+                            {% endif %}
+
+                            <p><strong>Habits:</strong> Unlimited</p>
+
+                            {% if current_user.subscription_status != 'lifetime' %}
+                                <form action="{{ url_for('subscription.cancel_subscription_route') }}" method="POST"
+                                      onsubmit="return confirm('Are you sure you want to cancel your subscription? You will retain access until the end of your billing period.');">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                    <button type="submit" class="btn btn-outline-danger">
+                                        Cancel Subscription
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Billing History Link -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <a href="{{ url_for('subscription.billing_history') }}" class="btn btn-outline-primary">
+                View Billing History
+            </a>
+        </div>
+    </div>
+
+    <!-- Subscription History -->
+    {% if history %}
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title">Subscription History</h3>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Plan</th>
+                                    <th>Status</th>
+                                    <th>Started</th>
+                                    <th>Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in history %}
+                                <tr>
+                                    <td>{{ record.subscription_type|title }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ 'success' if record.status == 'active' else 'secondary' }}">
+                                            {{ record.status|title }}
+                                        </span>
+                                    </td>
+                                    <td>{{ record.started_at.strftime('%B %d, %Y') }}</td>
+                                    <td>${{ "%.2f"|format(record.amount) if record.amount else '-' }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

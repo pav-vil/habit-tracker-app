@@ -16,7 +16,7 @@ def auto_migrate_database(app, db):
 
             # Check if habit table exists first
             if 'habit' not in inspector.get_table_names():
-                print("[AUTO-MIGRATE] ✓ Fresh database - no migrations needed")
+                print("[AUTO-MIGRATE] OK Fresh database - no migrations needed")
                 return
 
             # Check if longest_streak column exists in habit table
@@ -38,11 +38,33 @@ def auto_migrate_database(app, db):
                         ))
                         conn.commit()
 
-                    print("[AUTO-MIGRATE] ✓ Successfully added longest_streak column")
+                    print("[AUTO-MIGRATE] OK Successfully added longest_streak column")
                 except Exception as e:
                     print(f"[AUTO-MIGRATE] Error adding column: {e}")
-            else:
-                print("[AUTO-MIGRATE] ✓ Database schema is up to date")
+
+            # Check and add subscription fields to user table
+            if 'user' in inspector.get_table_names():
+                user_columns = [col['name'] for col in inspector.get_columns('user')]
+
+                subscription_migrations = [
+                    ('subscription_status', "ALTER TABLE user ADD COLUMN subscription_status VARCHAR(20) NOT NULL DEFAULT 'free'"),
+                    ('stripe_customer_id', "ALTER TABLE user ADD COLUMN stripe_customer_id VARCHAR(100)"),
+                    ('subscription_end_date', "ALTER TABLE user ADD COLUMN subscription_end_date TIMESTAMP"),
+                    ('habit_limit', "ALTER TABLE user ADD COLUMN habit_limit INTEGER NOT NULL DEFAULT 3"),
+                ]
+
+                for column_name, sql in subscription_migrations:
+                    if column_name not in user_columns:
+                        print(f"[AUTO-MIGRATE] Adding {column_name} to user table...")
+                        try:
+                            with db.engine.connect() as conn:
+                                conn.execute(text(sql))
+                                conn.commit()
+                            print(f"[AUTO-MIGRATE] OK Successfully added {column_name}")
+                        except Exception as e:
+                            print(f"[AUTO-MIGRATE] Error adding {column_name}: {e}")
+
+            print("[AUTO-MIGRATE] OK Database schema is up to date")
         except Exception as e:
             print(f"[AUTO-MIGRATE] Error during migration check: {e}")
             # Don't crash the app if migration fails

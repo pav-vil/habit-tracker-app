@@ -196,7 +196,17 @@
     <div class="row mb-4">
         <div class="col-md-12">
             <h1>Welcome back, {{ current_user.email }}! 👋</h1>
-            <p class="text-muted">Track your habits and build consistency</p>
+            <p class="text-muted">
+                Track your habits and build consistency
+                {% if current_user.is_premium_active() %}
+                    <span class="badge bg-success ms-2">💎 Premium Member</span>
+                {% else %}
+                    <span class="badge bg-secondary ms-2">Free Tier ({{ current_user.get_habit_limit() }} habits max)</span>
+                    <a href="{{ url_for('subscription.pricing') }}" class="btn btn-sm btn-outline-light ms-2">
+                        Upgrade for Unlimited
+                    </a>
+                {% endif %}
+            </p>
         </div>
     </div>
     

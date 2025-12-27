@@ -65,9 +65,23 @@ def add_habit():
     GET: Show form
     POST: Process form and create habit
     """
+    # Check if user can add more habits
+    if not current_user.can_add_more_habits():
+        flash(
+            f'You have reached your habit limit ({current_user.habit_limit} habits). '
+            f'Upgrade to premium for unlimited habits!',
+            'warning'
+        )
+        return redirect(url_for('subscription.pricing'))
+
     form = HabitForm()
-    
+
     if form.validate_on_submit():
+        # Double-check limit before creating (race condition protection)
+        if not current_user.can_add_more_habits():
+            flash('Habit limit reached. Please upgrade to premium.', 'danger')
+            return redirect(url_for('subscription.pricing'))
+
         # Create new habit
         new_habit = Habit(
             user_id=current_user.id,
@@ -75,14 +89,14 @@ def add_habit():
             description=form.description.data,
             streak_count=0
         )
-        
+
         # Save to database
         db.session.add(new_habit)
         db.session.commit()
-        
+
         flash(f'Habit "{new_habit.name}" created successfully!', 'success')
         return redirect(url_for('habits.dashboard'))
-    
+
     return render_template('habit_form.html', form=form, title='Add New Habit')
 
 

@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+
+{% block title %}Pricing - HabitFlow{% endblock %}
+
+{% block extra_css %}
+<style>
+    .pricing-container {
+        padding: 60px 0;
+    }
+
+    .pricing-header {
+        text-align: center;
+        margin-bottom: 50px;
+        color: white;
+    }
+
+    .pricing-header h1 {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+    }
+
+    .pricing-header p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+    }
+
+    .pricing-card {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        margin-bottom: 30px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+        height: 100%;
+    }
+
+    .pricing-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+    }
+
+    .pricing-card.featured {
+        border: 3px solid #667eea;
+        transform: scale(1.05);
+    }
+
+    .pricing-badge {
+        position: absolute;
+        top: -15px;
+        right: 30px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 8px 20px;
+        border-radius: 25px;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .plan-name {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 10px;
+    }
+
+    .plan-price {
+        font-size: 3rem;
+        font-weight: 700;
+        color: #667eea;
+        margin-bottom: 5px;
+    }
+
+    .plan-period {
+        color: #666;
+        font-size: 1rem;
+        margin-bottom: 20px;
+    }
+
+    .plan-savings {
+        background: #28a745;
+        color: white;
+        padding: 5px 15px;
+        border-radius: 15px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        display: inline-block;
+    }
+
+    .plan-features {
+        list-style: none;
+        padding: 0;
+        margin: 30px 0;
+    }
+
+    .plan-features li {
+        padding: 12px 0;
+        color: #555;
+        border-bottom: 1px solid #eee;
+    }
+
+    .plan-features li:before {
+        content: "✓";
+        color: #28a745;
+        font-weight: 700;
+        margin-right: 10px;
+    }
+
+    .btn-subscribe {
+        width: 100%;
+        padding: 15px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        transition: all 0.3s ease;
+    }
+
+    .btn-subscribe:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        color: white;
+    }
+
+    .free-tier-info {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        margin-top: 40px;
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="pricing-container">
+    <div class="container">
+        <div class="pricing-header">
+            <h1>Choose Your Plan</h1>
+            <p>Start building better habits today. Upgrade anytime.</p>
+        </div>
+
+        <div class="row">
+            <!-- Monthly Plan -->
+            <div class="col-md-4">
+                <div class="pricing-card">
+                    <div class="plan-name">{{ plans.monthly.name }}</div>
+                    <div class="plan-price">{{ plans.monthly.price }}</div>
+                    <div class="plan-period">{{ plans.monthly.period }}</div>
+
+                    <ul class="plan-features">
+                        {% for feature in plans.monthly.features %}
+                        <li>{{ feature }}</li>
+                        {% endfor %}
+                    </ul>
+
+                    {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('subscription.checkout', plan_type='monthly') }}" class="btn btn-subscribe">
+                            Subscribe Now
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-subscribe">
+                            Get Started
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Annual Plan (Featured) -->
+            <div class="col-md-4">
+                <div class="pricing-card featured">
+                    <div class="pricing-badge">{{ plans.annual.savings }}</div>
+                    <div class="plan-name">{{ plans.annual.name }}</div>
+                    <div class="plan-price">{{ plans.annual.price }}</div>
+                    <div class="plan-period">{{ plans.annual.period }}</div>
+
+                    <ul class="plan-features">
+                        {% for feature in plans.annual.features %}
+                        <li>{{ feature }}</li>
+                        {% endfor %}
+                    </ul>
+
+                    {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('subscription.checkout', plan_type='annual') }}" class="btn btn-subscribe">
+                            Subscribe Now
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-subscribe">
+                            Get Started
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Lifetime Plan -->
+            <div class="col-md-4">
+                <div class="pricing-card">
+                    <div class="pricing-badge">{{ plans.lifetime.badge }}</div>
+                    <div class="plan-name">{{ plans.lifetime.name }}</div>
+                    <div class="plan-price">{{ plans.lifetime.price }}</div>
+                    <div class="plan-period">{{ plans.lifetime.period }}</div>
+
+                    <ul class="plan-features">
+                        {% for feature in plans.lifetime.features %}
+                        <li>{{ feature }}</li>
+                        {% endfor %}
+                    </ul>
+
+                    {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('subscription.checkout', plan_type='lifetime') }}" class="btn btn-subscribe">
+                            Buy Now
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-subscribe">
+                            Get Started
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Free Tier Info -->
+        <div class="free-tier-info">
+            <h3>Free Tier</h3>
+            <p class="mb-0">
+                Start with up to <strong>3 habits</strong> for free.
+                No credit card required. Upgrade anytime to unlock unlimited habits.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends 'emails/base.html' %}
+
+{% block content %}
+<h2>Your Daily Habit Reminder</h2>
+
+<p>Hi {{ user.email }},</p>
+
+<p>Don't forget to work on your habits today! You have <strong>{{ habits|length }}</strong> habit{% if habits|length != 1 %}s{% endif %} waiting for you.</p>
+
+<p><strong>{{ date }}</strong></p>
+
+<div style="background: #1E1E1E; padding: 20px; border-radius: 10px; margin: 20px 0;">
+    <h3 style="margin-top: 0;">Today's Habits:</h3>
+    <ul style="list-style: none; padding: 0;">
+        {% for habit in habits %}
+        <li style="padding: 10px 0; border-bottom: 1px solid rgba(179, 136, 255, 0.2);">
+            <strong style="color: #B388FF;">{{ habit.name }}</strong>
+            {% if habit.description %}
+            <br><span style="color: #9E9E9E; font-size: 14px;">{{ habit.description }}</span>
+            {% endif %}
+            {% if habit.streak_count > 0 %}
+            <br><span style="color: #4caf50; font-size: 14px;">🔥 Current streak: {{ habit.streak_count }} day{% if habit.streak_count != 1 %}s{% endif %}</span>
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+
+<a href="{{ url_for('habits.dashboard', _external=True) }}" class="btn">Complete Your Habits</a>
+
+<p style="color: #9E9E9E; font-size: 14px; font-style: italic;">
+    Consistency is key to building lasting habits. You've got this!
+</p>
+
+<p>Keep up the great work!<br>The HabitFlow Team</p>
+{% endblock %}

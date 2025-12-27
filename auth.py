@@ -112,3 +112,33 @@ def logout():
     logout_user()  # Clear the session
     flash('You have been logged out successfully.', 'info')
     return redirect(url_for('home'))
+
+
+@auth_bp.route('/settings', methods=['GET', 'POST'])
+@login_required
+def settings():
+    """
+    User settings page.
+    Allows users to configure email notification preferences.
+    """
+    if request.method == 'POST':
+        try:
+            # Update email notification preferences
+            current_user.email_notifications_enabled = request.form.get('email_notifications_enabled') == 'on'
+            current_user.reminder_time = request.form.get('reminder_time', '09:00')
+            current_user.reminder_days = request.form.get('reminder_days', 'all')
+
+            db.session.commit()
+            flash('Settings updated successfully!', 'success')
+            return redirect(url_for('auth.settings'))
+
+        except Exception as e:
+            db.session.rollback()
+            print(f"[AUTH] Settings update error: {e}")
+            import traceback
+            traceback.print_exc()
+            flash('An error occurred while updating settings. Please try again.', 'danger')
+            return redirect(url_for('auth.settings'))
+
+    # GET request - show settings form
+    return render_template('settings.html')

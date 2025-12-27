@@ -1,0 +1,28 @@
+{% extends 'emails/base.html' %}
+
+{% block content %}
+<h2 style="color: #f44336;">Payment Failed</h2>
+
+<p>Hi {{ user.email }},</p>
+
+<p>We were unable to process your payment of <strong>${{ "%.2f"|format(amount) }}</strong>.</p>
+
+<div style="background: #1E1E1E; padding: 20px; border-radius: 10px; margin: 20px 0;">
+    <h3>This may have happened because:</h3>
+    <ul>
+        <li>Your card was declined</li>
+        <li>Insufficient funds</li>
+        <li>Your card has expired</li>
+        <li>Your bank flagged the transaction</li>
+    </ul>
+</div>
+
+<p><strong>What happens next?</strong></p>
+<p>Please update your payment method to continue enjoying HabitFlow premium features.</p>
+
+<a href="{{ url_for('subscription.manage', _external=True) }}" class="btn">Update Payment Method</a>
+
+<p>If you need assistance, please contact our support team.</p>
+
+<p>Best regards,<br>The HabitFlow Team</p>
+{% endblock %}

@@ -31,6 +31,12 @@ class User(UserMixin, db.Model):
     subscription_end_date = db.Column(db.DateTime, nullable=True)
     habit_limit = db.Column(db.Integer, default=3, nullable=False)
 
+    # Email notification settings
+    email_notifications_enabled = db.Column(db.Boolean, default=True, nullable=False)
+    reminder_time = db.Column(db.String(5), default='09:00', nullable=False)
+    reminder_days = db.Column(db.String(20), default='all', nullable=False)
+    last_reminder_sent = db.Column(db.Date, nullable=True)
+
     habits = db.relationship(
         "Habit",
         backref="user",

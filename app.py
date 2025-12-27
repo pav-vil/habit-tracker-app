@@ -68,6 +68,11 @@ def load_user(user_id):
 # CSRF Protection Setup
 csrf = CSRFProtect(app)
 
+# Email Setup (Flask-Mail)
+from flask_mail import Mail
+mail = Mail(app)
+print(f"[INIT] OK Flask-Mail initialized (server: {app.config.get('MAIL_SERVER')})")
+
 # Rate Limiting Setup
 limiter = Limiter(
     app=app,

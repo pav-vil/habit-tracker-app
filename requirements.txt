@@ -29,5 +29,8 @@ python-dotenv>=1.0.0
 # Payment processing
 stripe>=7.0.0
 
+# Email sending
+Flask-Mail>=0.9.1
+
 # Security headers (optional, recommended for production)
 # Flask-Talisman>=1.1.0

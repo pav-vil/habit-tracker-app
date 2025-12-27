@@ -1,0 +1,33 @@
+{% extends 'emails/base.html' %}
+
+{% block content %}
+<h2 style="color: #ff9800;">Your Subscription Has Expired</h2>
+
+<p>Hi {{ user.email }},</p>
+
+<p>Your HabitFlow premium subscription has expired and your account has been downgraded to the free plan.</p>
+
+<div style="background: #1E1E1E; padding: 20px; border-radius: 10px; margin: 20px 0;">
+    <h3>What this means:</h3>
+    <ul>
+        <li>You're now limited to <strong>3 active habits</strong></li>
+        {% if habits_to_archive > 0 %}
+        <li style="color: #f44336;">You currently have <strong>{{ habits_to_archive }} habit{% if habits_to_archive != 1 %}s{% endif %}</strong> over the limit that need to be archived</li>
+        {% endif %}
+        <li>Premium features are no longer available</li>
+    </ul>
+</div>
+
+<p><strong>Want to continue with unlimited habits?</strong></p>
+<p>Renew your subscription to regain access to all your habits and premium features!</p>
+
+<a href="{{ url_for('subscription.pricing', _external=True) }}" class="btn">Renew Subscription</a>
+
+{% if habits_to_archive > 0 %}
+<p style="margin-top: 20px;">
+    <a href="{{ url_for('habits.dashboard', _external=True) }}">Manage your habits</a> to stay within the free tier limit.
+</p>
+{% endif %}
+
+<p>Thank you for being part of HabitFlow!<br>The HabitFlow Team</p>
+{% endblock %}

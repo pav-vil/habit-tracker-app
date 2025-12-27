@@ -26,6 +26,16 @@ class Config:
     STRIPE_PRICE_ID_ANNUAL = os.environ.get('STRIPE_PRICE_ID_ANNUAL')
     STRIPE_PRICE_ID_LIFETIME = os.environ.get('STRIPE_PRICE_ID_LIFETIME')
 
+    # Email configuration (Flask-Mail)
+    MAIL_SERVER = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
+    MAIL_PORT = int(os.environ.get('MAIL_PORT', '587'))
+    MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', 'True').lower() == 'true'
+    MAIL_USE_SSL = os.environ.get('MAIL_USE_SSL', 'False').lower() == 'true'
+    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
+    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER', 'noreply@habitflow.app')
+    MAIL_MAX_EMAILS = int(os.environ.get('MAIL_MAX_EMAILS', '100'))
+
 
 class DevelopmentConfig(Config):
     """Development configuration"""

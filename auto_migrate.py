@@ -51,6 +51,10 @@ def auto_migrate_database(app, db):
                     ('stripe_customer_id', "ALTER TABLE user ADD COLUMN stripe_customer_id VARCHAR(100)"),
                     ('subscription_end_date', "ALTER TABLE user ADD COLUMN subscription_end_date TIMESTAMP"),
                     ('habit_limit', "ALTER TABLE user ADD COLUMN habit_limit INTEGER NOT NULL DEFAULT 3"),
+                    ('email_notifications_enabled', "ALTER TABLE user ADD COLUMN email_notifications_enabled BOOLEAN NOT NULL DEFAULT 1"),
+                    ('reminder_time', "ALTER TABLE user ADD COLUMN reminder_time VARCHAR(5) NOT NULL DEFAULT '09:00'"),
+                    ('reminder_days', "ALTER TABLE user ADD COLUMN reminder_days VARCHAR(20) NOT NULL DEFAULT 'all'"),
+                    ('last_reminder_sent', "ALTER TABLE user ADD COLUMN last_reminder_sent DATE"),
                 ]
 
                 for column_name, sql in subscription_migrations:

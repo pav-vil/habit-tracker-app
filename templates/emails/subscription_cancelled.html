@@ -1,0 +1,23 @@
+{% extends 'emails/base.html' %}
+
+{% block content %}
+<h2>Subscription Cancelled</h2>
+
+<p>Hi {{ user.email }},</p>
+
+<p>We've received your request to cancel your HabitFlow subscription.</p>
+
+<div style="background: #1E1E1E; padding: 20px; border-radius: 10px; margin: 20px 0;">
+    <p><strong>Your subscription will remain active until {{ end_date }}.</strong></p>
+    <p>After this date, you'll be downgraded to the free plan (3 habits limit).</p>
+</div>
+
+<p><strong>Changed your mind?</strong></p>
+<p>You can reactivate your subscription at any time before it expires.</p>
+
+<a href="{{ url_for('subscription.manage', _external=True) }}" class="btn">Manage Subscription</a>
+
+<p>We're sorry to see you go. If there's anything we can do to improve, please let us know!</p>
+
+<p>Best regards,<br>The HabitFlow Team</p>
+{% endblock %}

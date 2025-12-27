@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}Settings - HabitFlow{% endblock %}
+
+{% block content %}
+<div class="container content-container">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Page Header -->
+            <div class="text-center mb-5">
+                <h1 class="display-5 mb-3">
+                    <span style="background: linear-gradient(135deg, var(--purple-vibrant), var(--purple-light));
+                                 -webkit-background-clip: text;
+                                 -webkit-text-fill-color: transparent;
+                                 background-clip: text;">
+                        ⚙️ Settings
+                    </span>
+                </h1>
+                <p class="text-muted">Manage your notification preferences</p>
+            </div>
+
+            <!-- Settings Card -->
+            <div class="card">
+                <div class="card-body p-4">
+                    <form method="POST" action="{{ url_for('auth.settings') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+                        <!-- Email Notifications Section -->
+                        <div class="mb-5">
+                            <h4 class="mb-4" style="color: var(--text-secondary);">
+                                📧 Email Notifications
+                            </h4>
+
+                            <!-- Enable/Disable Notifications -->
+                            <div class="mb-4">
+                                <div class="form-check form-switch">
+                                    <input
+                                        class="form-check-input"
+                                        type="checkbox"
+                                        id="email_notifications_enabled"
+                                        name="email_notifications_enabled"
+                                        {% if current_user.email_notifications_enabled %}checked{% endif %}
+                                    >
+                                    <label class="form-check-label" for="email_notifications_enabled" style="color: var(--text-primary);">
+                                        <strong>Enable Email Notifications</strong>
+                                        <br>
+                                        <small class="text-muted">Receive daily habit reminders and payment notifications</small>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <hr class="my-4" style="border-color: rgba(179, 136, 255, 0.2);">
+
+                            <!-- Reminder Time -->
+                            <div class="mb-4">
+                                <label for="reminder_time" class="form-label">
+                                    ⏰ Daily Reminder Time
+                                </label>
+                                <input
+                                    type="time"
+                                    class="form-control"
+                                    id="reminder_time"
+                                    name="reminder_time"
+                                    value="{{ current_user.reminder_time }}"
+                                >
+                                <small class="text-muted">Choose what time you'd like to receive daily habit reminders</small>
+                            </div>
+
+                            <!-- Reminder Days -->
+                            <div class="mb-4">
+                                <label for="reminder_days" class="form-label">
+                                    📅 Reminder Days
+                                </label>
+                                <select class="form-select" id="reminder_days" name="reminder_days">
+                                    <option value="all" {% if current_user.reminder_days == 'all' %}selected{% endif %}>
+                                        Every Day
+                                    </option>
+                                    <option value="weekdays" {% if current_user.reminder_days == 'weekdays' %}selected{% endif %}>
+                                        Weekdays Only (Monday - Friday)
+                                    </option>
+                                    <option value="weekends" {% if current_user.reminder_days == 'weekends' %}selected{% endif %}>
+                                        Weekends Only (Saturday - Sunday)
+                                    </option>
+                                </select>
+                                <small class="text-muted">Choose when you'd like to receive reminders</small>
+                            </div>
+                        </div>
+
+                        <!-- Account Information Section -->
+                        <div class="mb-4">
+                            <h4 class="mb-3" style="color: var(--text-secondary);">
+                                👤 Account Information
+                            </h4>
+                            <div class="p-3" style="background: var(--bg-main); border-radius: 10px;">
+                                <p class="mb-2"><strong>Email:</strong> {{ current_user.email }}</p>
+                                <p class="mb-2"><strong>Timezone:</strong> {{ current_user.timezone }}</p>
+                                <p class="mb-2">
+                                    <strong>Subscription:</strong>
+                                    {% if current_user.subscription_status == 'lifetime' %}
+                                        <span class="badge bg-success">Lifetime Premium</span>
+                                    {% elif current_user.subscription_status in ['monthly', 'annual'] %}
+                                        <span class="badge bg-success">{{ current_user.subscription_status|title }} Premium</span>
+                                    {% else %}
+                                        <span class="badge" style="background: var(--purple-medium);">Free Plan</span>
+                                    {% endif %}
+                                </p>
+                                <p class="mb-0">
+                                    <strong>Habit Limit:</strong>
+                                    {% if current_user.is_premium_active() %}
+                                        <span style="color: var(--text-secondary);">Unlimited</span>
+                                    {% else %}
+                                        {{ current_user.habit_limit }} habits
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Save Button -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                💾 Save Settings
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Additional Information -->
+            <div class="text-center mt-4">
+                <p class="text-muted">
+                    <small>
+                        Payment notifications (receipts, failures, subscription changes) are sent regardless of daily reminder settings.
+                    </small>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-check-input {
+        background-color: var(--bg-main);
+        border-color: rgba(179, 136, 255, 0.3);
+    }
+
+    .form-check-input:checked {
+        background-color: var(--purple-vibrant);
+        border-color: var(--purple-vibrant);
+    }
+
+    .form-check-input:focus {
+        box-shadow: 0 0 15px var(--glow-purple);
+        border-color: var(--text-secondary);
+    }
+</style>
+{% endblock %}

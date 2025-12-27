@@ -1,0 +1,24 @@
+Your Daily Habit Reminder
+
+Hi {{ user.email }},
+
+Don't forget to work on your habits today! You have {{ habits|length }} habit{% if habits|length != 1 %}s{% endif %} waiting for you.
+
+{{ date }}
+
+Today's Habits:
+{% for habit in habits %}
+- {{ habit.name }}{% if habit.description %} ({{ habit.description }}){% endif %}{% if habit.streak_count > 0 %} - Current streak: {{ habit.streak_count }} day{% if habit.streak_count != 1 %}s{% endif %}{% endif %}
+{% endfor %}
+
+Complete your habits: {{ url_for('habits.dashboard', _external=True) }}
+
+Consistency is key to building lasting habits. You've got this!
+
+Keep up the great work!
+The HabitFlow Team
+
+---
+You're receiving this email because you have an account with HabitFlow.
+Manage your notification preferences: {{ url_for('subscription.notifications', _external=True) }}
+© 2025 HabitFlow. All rights reserved.

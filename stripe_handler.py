@@ -7,6 +7,12 @@ import os
 from datetime import datetime, timedelta
 from flask import current_app, url_for
 from models import db, User, SubscriptionHistory, PaymentTransaction
+from email_service import (
+    send_payment_success_email,
+    send_payment_failed_email,
+    send_subscription_cancelled_email,
+    send_subscription_expired_email
+)
 
 
 def init_stripe():
@@ -152,6 +158,13 @@ def handle_checkout_completed(session):
 
     print(f"[STRIPE] ✓ Subscription activated for user {user.id}: {plan_type}")
 
+    # Send payment success email
+    send_payment_success_email(
+        user=user,
+        amount=session.amount_total / 100,
+        subscription_type=plan_type
+    )
+
 
 def handle_subscription_updated(subscription):
     """
@@ -254,7 +267,12 @@ def handle_payment_failed(invoice):
     db.session.commit()
 
     print(f"[STRIPE] WARNING: Payment failed for user {user.id}")
-    # TODO: Send email notification to user
+
+    # Send payment failed email
+    send_payment_failed_email(
+        user=user,
+        amount=invoice.amount_due / 100
+    )
 
 
 def cancel_subscription(user):
@@ -286,6 +304,12 @@ def cancel_subscription(user):
                 cancel_at_period_end=True
             )
             print(f"[STRIPE] Subscription {subscription.id} set to cancel at period end")
+
+        # Send cancellation confirmation email
+        send_subscription_cancelled_email(
+            user=user,
+            end_date=user.subscription_end_date
+        )
 
         return True
 
@@ -364,7 +388,12 @@ def check_expired_subscriptions():
 
         if downgrade_info['over_limit']:
             print(f"[DOWNGRADE] User {user.id} needs to archive {downgrade_info['habits_to_archive']} habits")
-            # TODO: Send email notification
+
+        # Send subscription expired email
+        send_subscription_expired_email(
+            user=user,
+            habits_to_archive=downgrade_info['habits_to_archive']
+        )
 
     print(f"[DOWNGRADE] Processed {downgraded_count} expired subscriptions")
     return downgraded_count

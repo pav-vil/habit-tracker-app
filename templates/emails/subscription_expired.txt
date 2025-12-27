@@ -1,0 +1,25 @@
+Your Subscription Has Expired
+
+Hi {{ user.email }},
+
+Your HabitFlow premium subscription has expired and your account has been downgraded to the free plan.
+
+What this means:
+- You're now limited to 3 active habits
+{% if habits_to_archive > 0 %}- You currently have {{ habits_to_archive }} habit{% if habits_to_archive != 1 %}s{% endif %} over the limit that need to be archived{% endif %}
+- Premium features are no longer available
+
+Want to continue with unlimited habits?
+Renew your subscription to regain access to all your habits and premium features!
+
+Renew your subscription: {{ url_for('subscription.pricing', _external=True) }}
+
+{% if habits_to_archive > 0 %}Manage your habits: {{ url_for('habits.dashboard', _external=True) }}{% endif %}
+
+Thank you for being part of HabitFlow!
+The HabitFlow Team
+
+---
+You're receiving this email because you have an account with HabitFlow.
+Manage your notification preferences: {{ url_for('subscription.notifications', _external=True) }}
+© 2025 HabitFlow. All rights reserved.

@@ -1,0 +1,24 @@
+{% extends 'emails/base.html' %}
+
+{% block content %}
+<h2 style="color: #4caf50;">Payment Successful!</h2>
+
+<p>Hi {{ user.email }},</p>
+
+<p>Thank you for your payment! Your subscription has been activated.</p>
+
+<div style="background: #1E1E1E; padding: 20px; border-radius: 10px; margin: 20px 0;">
+    <h3>Payment Details:</h3>
+    <p><strong>Plan:</strong> {{ subscription_type|title }}</p>
+    <p><strong>Amount:</strong> ${{ "%.2f"|format(amount) }}</p>
+    <p><strong>Date:</strong> {{ date }}</p>
+</div>
+
+<p>You now have <strong>unlimited access</strong> to create habits and track your progress!</p>
+
+<a href="{{ url_for('habits.dashboard', _external=True) }}" class="btn">Go to Dashboard</a>
+
+<p>If you have any questions, please don't hesitate to contact us.</p>
+
+<p>Happy habit tracking!<br>The HabitFlow Team</p>
+{% endblock %}

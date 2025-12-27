@@ -1,0 +1,24 @@
+Payment Successful!
+
+Hi {{ user.email }},
+
+Thank you for your payment! Your subscription has been activated.
+
+Payment Details:
+- Plan: {{ subscription_type|title }}
+- Amount: ${{ "%.2f"|format(amount) }}
+- Date: {{ date }}
+
+You now have unlimited access to create habits and track your progress!
+
+Go to your dashboard: {{ url_for('habits.dashboard', _external=True) }}
+
+If you have any questions, please don't hesitate to contact us.
+
+Happy habit tracking!
+The HabitFlow Team
+
+---
+You're receiving this email because you have an account with HabitFlow.
+Manage your notification preferences: {{ url_for('subscription.notifications', _external=True) }}
+© 2025 HabitFlow. All rights reserved.

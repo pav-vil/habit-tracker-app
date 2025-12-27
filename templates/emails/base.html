@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: #FAF9FA;
+            margin: 0;
+            padding: 0;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: linear-gradient(135deg, #1E1E1E, #2a1560);
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1px solid rgba(179, 136, 255, 0.2);
+        }
+        .email-header {
+            background: linear-gradient(135deg, #6A1B9A, #9575CD);
+            padding: 30px;
+            text-align: center;
+        }
+        .email-header h1 {
+            margin: 0;
+            font-size: 28px;
+            color: #FAF9FA;
+        }
+        .email-body {
+            padding: 40px 30px;
+        }
+        .email-footer {
+            background: #1E1E1E;
+            padding: 20px 30px;
+            text-align: center;
+            font-size: 14px;
+            color: #9E9E9E;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #6A1B9A, #9575CD);
+            color: #FAF9FA !important;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            margin: 20px 0;
+        }
+        .btn:hover {
+            opacity: 0.9;
+        }
+        a {
+            color: #B388FF;
+        }
+        h2, h3, h4 {
+            color: #FAF9FA;
+        }
+        p {
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="email-header">
+            <h1>🎯 HabitFlow</h1>
+        </div>
+        <div class="email-body">
+            {% block content %}{% endblock %}
+        </div>
+        <div class="email-footer">
+            <p>You're receiving this email because you have an account with HabitFlow.</p>
+            <p><a href="{{ url_for('subscription.notifications', _external=True) }}">Manage your notification preferences</a></p>
+            <p>&copy; 2025 HabitFlow. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

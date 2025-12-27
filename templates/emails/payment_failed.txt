@@ -1,0 +1,26 @@
+Payment Failed
+
+Hi {{ user.email }},
+
+We were unable to process your payment of ${{ "%.2f"|format(amount) }}.
+
+This may have happened because:
+- Your card was declined
+- Insufficient funds
+- Your card has expired
+- Your bank flagged the transaction
+
+What happens next?
+Please update your payment method to continue enjoying HabitFlow premium features.
+
+Update your payment method: {{ url_for('subscription.manage', _external=True) }}
+
+If you need assistance, please contact our support team.
+
+Best regards,
+The HabitFlow Team
+
+---
+You're receiving this email because you have an account with HabitFlow.
+Manage your notification preferences: {{ url_for('subscription.notifications', _external=True) }}
+© 2025 HabitFlow. All rights reserved.

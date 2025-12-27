@@ -240,6 +240,42 @@
         border-color: rgba(179, 136, 255, 0.1);
         color: var(--text-muted);
     }
+
+    .over-limit-banner {
+        background: linear-gradient(135deg, rgba(255, 152, 0, 0.15), rgba(255, 193, 7, 0.15));
+        border: 2px solid rgba(255, 152, 0, 0.5);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 20px rgba(255, 152, 0, 0.2), 0 0 20px rgba(255, 152, 0, 0.1);
+    }
+
+    .over-limit-banner h4 {
+        color: #FFA726;
+        font-weight: 600;
+        margin-bottom: 15px;
+    }
+
+    .over-limit-banner p {
+        color: var(--text-primary);
+        margin-bottom: 15px;
+        font-size: 1.05rem;
+    }
+
+    .over-limit-banner .btn-warning {
+        background: linear-gradient(135deg, #FF9800, #FFC107);
+        border: none;
+        color: #000;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .over-limit-banner .btn-warning:hover {
+        background: linear-gradient(135deg, #F57C00, #FFB300);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(255, 152, 0, 0.4);
+    }
 </style>
 {% endblock %}
 
@@ -261,6 +297,30 @@
             </p>
         </div>
     </div>
+
+    <!-- Over Limit Warning Banner -->
+    {% if over_limit %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="over-limit-banner">
+                <h4>⚠️ You've exceeded your habit limit</h4>
+                <p>
+                    Your premium subscription has ended, and you're currently on the free tier with a limit of <strong>{{ current_user.habit_limit }} habits</strong>.
+                    You have <strong>{{ stats.total_habits }} active habits</strong>, which means you need to archive <strong>{{ habits_to_archive }}</strong> habit{% if habits_to_archive != 1 %}s{% endif %} to continue.
+                </p>
+                <p class="mb-3">
+                    <strong>Don't worry!</strong> Archiving habits preserves all your progress and streaks. You can restore them anytime if you upgrade to premium.
+                </p>
+                <a href="{{ url_for('habits.dashboard') }}#habits-list" class="btn btn-warning me-2">
+                    Choose Habits to Archive
+                </a>
+                <a href="{{ url_for('subscription.pricing') }}" class="btn btn-outline-light">
+                    Upgrade to Premium
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
     
     <!-- Statistics Cards -->
     <div class="row mb-4">
@@ -325,7 +385,7 @@
     
     <!-- Habits List -->
     {% if habits %}
-        <div class="row">
+        <div class="row" id="habits-list">
             <div class="col-md-12">
                 <h3 class="mb-3">Your Habits</h3>
             </div>

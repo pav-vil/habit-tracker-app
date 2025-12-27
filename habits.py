@@ -54,7 +54,22 @@ def dashboard():
         'completion_rate': completion_rate
     }
 
-    return render_template('dashboard.html', habits=user_habits, stats=stats, pagination=pagination)
+    # Check if user is over habit limit (for free users after downgrade)
+    over_limit = False
+    habits_to_archive = 0
+    if not current_user.is_premium_active():
+        if total_habits > current_user.habit_limit:
+            over_limit = True
+            habits_to_archive = total_habits - current_user.habit_limit
+
+    return render_template(
+        'dashboard.html',
+        habits=user_habits,
+        stats=stats,
+        pagination=pagination,
+        over_limit=over_limit,
+        habits_to_archive=habits_to_archive
+    )
 
 
 @habits_bp.route('/add', methods=['GET', 'POST'])

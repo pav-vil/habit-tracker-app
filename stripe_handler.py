@@ -292,3 +292,79 @@ def cancel_subscription(user):
     except stripe.error.StripeError as e:
         print(f"[STRIPE] Error cancelling subscription: {e}")
         return False
+
+
+def downgrade_user_to_free(user, reason="subscription_expired"):
+    """
+    Downgrade a user from premium to free tier.
+    Handles users who have more than 3 habits.
+
+    Args:
+        user: User model instance
+        reason: Reason for downgrade (subscription_expired, cancelled, payment_failed)
+
+    Returns:
+        dict with downgrade info
+    """
+    from models import Habit
+
+    old_status = user.subscription_status
+    active_habit_count = Habit.query.filter_by(
+        user_id=user.id,
+        archived=False
+    ).count()
+
+    # Record in subscription history
+    subscription_history = SubscriptionHistory(
+        user_id=user.id,
+        subscription_type=old_status,
+        status='downgraded',
+        started_at=datetime.utcnow(),
+        notes=f'Downgraded to free tier: {reason}'
+    )
+    db.session.add(subscription_history)
+
+    # Downgrade user
+    user.subscription_status = 'free'
+    user.subscription_end_date = None
+    user.habit_limit = 3
+
+    db.session.commit()
+
+    print(f"[DOWNGRADE] User {user.id} downgraded from {old_status} to free")
+    print(f"[DOWNGRADE] User has {active_habit_count} active habits (limit: 3)")
+
+    return {
+        'old_status': old_status,
+        'active_habits': active_habit_count,
+        'over_limit': active_habit_count > 3,
+        'habits_to_archive': max(0, active_habit_count - 3)
+    }
+
+
+def check_expired_subscriptions():
+    """
+    Check for expired subscriptions and downgrade users.
+    This should be run as a scheduled task (e.g., daily cron job).
+
+    Returns:
+        Number of users downgraded
+    """
+    downgraded_count = 0
+
+    # Find users with expired subscriptions
+    expired_users = User.query.filter(
+        User.subscription_status.in_(['monthly', 'annual']),
+        User.subscription_end_date <= datetime.utcnow()
+    ).all()
+
+    for user in expired_users:
+        downgrade_info = downgrade_user_to_free(user, reason="subscription_expired")
+        downgraded_count += 1
+
+        if downgrade_info['over_limit']:
+            print(f"[DOWNGRADE] User {user.id} needs to archive {downgrade_info['habits_to_archive']} habits")
+            # TODO: Send email notification
+
+    print(f"[DOWNGRADE] Processed {downgraded_count} expired subscriptions")
+    return downgraded_count

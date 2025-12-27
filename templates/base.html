@@ -10,42 +10,176 @@
     
     <!-- Custom Styles -->
     <style>
+        :root {
+            /* Dark theme colors */
+            --bg-main: #121212;
+            --bg-surface: #1E1E1E;
+            --bg-card: #29126b;
+
+            /* Text colors */
+            --text-primary: #FAF9FA;
+            --text-secondary: #B388FF;
+            --text-muted: #a69cc3;
+
+            /* Purple accents */
+            --purple-vibrant: #5225cc;
+            --purple-light: #b49ce4;
+            --purple-dark: #29126b;
+            --purple-medium: #6850b0;
+            --purple-gradient-start: #6A1B9A;
+            --purple-gradient-end: #9575CD;
+
+            /* Semantic colors */
+            --success: #4caf50;
+            --success-glow: rgba(76, 175, 80, 0.3);
+            --glow-purple: rgba(179, 136, 255, 0.4);
+            --border-color: #000000;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--bg-main);
+            color: var(--text-primary);
             min-height: 100vh;
             padding-top: 70px;
         }
-        
+
         .navbar {
-            background: rgba(255, 255, 255, 0.95) !important;
+            background: rgba(30, 30, 30, 0.98) !important;
             backdrop-filter: blur(10px);
-            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 20px rgba(179, 136, 255, 0.2);
+            border-bottom: 1px solid rgba(179, 136, 255, 0.1);
         }
-        
+
+        .navbar-light .navbar-nav .nav-link {
+            color: var(--text-primary) !important;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-light .navbar-nav .nav-link:hover {
+            color: var(--text-secondary) !important;
+            text-shadow: 0 0 10px var(--glow-purple);
+        }
+
         .brand-name {
             font-weight: 700;
-            color: #667eea;
+            background: linear-gradient(135deg, var(--purple-vibrant), var(--purple-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             font-size: 1.5rem;
         }
-        
+
         .content-container {
             margin-top: 30px;
             margin-bottom: 50px;
         }
-        
-        .auth-card {
-            background: white;
+
+        .auth-card, .card {
+            background: var(--bg-surface);
+            border: 1px solid rgba(179, 136, 255, 0.1);
             border-radius: 15px;
             padding: 40px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5), 0 0 20px var(--glow-purple);
             max-width: 500px;
             margin: 0 auto;
+            color: var(--text-primary);
         }
-        
+
         .alert {
             border-radius: 10px;
             margin-bottom: 20px;
+            background: var(--bg-surface);
+            border: 1px solid rgba(179, 136, 255, 0.2);
+            color: var(--text-primary);
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(106, 27, 154, 0.2));
+            border-color: var(--text-secondary);
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, rgba(244, 67, 54, 0.2), rgba(106, 27, 154, 0.2));
+            border-color: #f44336;
+        }
+
+        .alert-warning {
+            background: linear-gradient(135deg, rgba(255, 152, 0, 0.2), rgba(106, 27, 154, 0.2));
+            border-color: #ff9800;
+        }
+
+        .alert-info {
+            background: linear-gradient(135deg, rgba(33, 150, 243, 0.2), rgba(106, 27, 154, 0.2));
+            border-color: var(--text-secondary);
+        }
+
+        /* Button styles */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--purple-gradient-start), var(--purple-gradient-end));
+            border: none;
+            box-shadow: 0 4px 15px var(--glow-purple);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px var(--glow-purple);
+        }
+
+        .btn-outline-primary {
+            border-color: var(--purple-vibrant);
+            color: var(--text-secondary);
+        }
+
+        .btn-outline-primary:hover {
+            background: linear-gradient(135deg, var(--purple-gradient-start), var(--purple-gradient-end));
+            border-color: var(--purple-vibrant);
+            box-shadow: 0 4px 15px var(--glow-purple);
+        }
+
+        .btn-outline-danger {
+            border-color: #f44336;
+            color: #ff5252;
+        }
+
+        .btn-outline-danger:hover {
+            background: #f44336;
+            border-color: #f44336;
+        }
+
+        /* Form controls */
+        .form-control, .form-select {
+            background: var(--bg-main);
+            border: 1px solid rgba(179, 136, 255, 0.3);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background: var(--bg-surface);
+            border-color: var(--text-secondary);
+            box-shadow: 0 0 15px var(--glow-purple);
+            color: var(--text-primary);
+        }
+
+        .form-label {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* Badge styles */
+        .badge {
+            font-weight: 500;
+            padding: 0.5em 1em;
+        }
+
+        .bg-success {
+            background: linear-gradient(135deg, #4caf50, var(--purple-medium)) !important;
+        }
+
+        .bg-secondary {
+            background: linear-gradient(135deg, var(--bg-surface), var(--purple-dark)) !important;
         }
     </style>
     

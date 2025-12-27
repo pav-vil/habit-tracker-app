@@ -2,6 +2,31 @@
 
 {% block title %}Manage Subscription - HabitFlow{% endblock %}
 
+{% block extra_css %}
+<style>
+    h1, h3, h4 {
+        color: var(--text-primary);
+    }
+
+    .table {
+        color: var(--text-primary);
+    }
+
+    .table-striped > tbody > tr:nth-of-type(odd) > * {
+        background-color: rgba(179, 136, 255, 0.05);
+        color: var(--text-primary);
+    }
+
+    .table > :not(caption) > * > * {
+        border-bottom-color: rgba(179, 136, 255, 0.2);
+    }
+
+    thead {
+        color: var(--text-secondary);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container mt-4">
     <h1 class="mb-4">Manage Subscription</h1>

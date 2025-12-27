@@ -2,6 +2,35 @@
 
 {% block title %}Billing History - HabitFlow{% endblock %}
 
+{% block extra_css %}
+<style>
+    h1, h4 {
+        color: var(--text-primary);
+    }
+
+    .table {
+        color: var(--text-primary);
+    }
+
+    .table-striped > tbody > tr:nth-of-type(odd) > * {
+        background-color: rgba(179, 136, 255, 0.05);
+        color: var(--text-primary);
+    }
+
+    .table > :not(caption) > * > * {
+        border-bottom-color: rgba(179, 136, 255, 0.2);
+    }
+
+    thead {
+        color: var(--text-secondary);
+    }
+
+    .small.text-muted {
+        color: var(--text-muted) !important;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container mt-4">
     <h1 class="mb-4">Billing History</h1>

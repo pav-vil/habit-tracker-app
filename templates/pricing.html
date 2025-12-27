@@ -11,75 +11,85 @@
     .pricing-header {
         text-align: center;
         margin-bottom: 50px;
-        color: white;
     }
 
     .pricing-header h1 {
         font-size: 3rem;
         font-weight: 700;
         margin-bottom: 20px;
+        background: linear-gradient(135deg, var(--purple-vibrant), var(--purple-light));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
 
     .pricing-header p {
         font-size: 1.2rem;
-        opacity: 0.9;
+        color: var(--text-muted);
     }
 
     .pricing-card {
-        background: white;
+        background: var(--bg-surface);
+        border: 1px solid rgba(179, 136, 255, 0.2);
         border-radius: 20px;
         padding: 40px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        box-shadow: 0 10px 40px rgba(0,0,0,0.5), 0 0 20px var(--glow-purple);
         margin-bottom: 30px;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        transition: all 0.3s ease;
         position: relative;
         height: 100%;
     }
 
     .pricing-card:hover {
         transform: translateY(-10px);
-        box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+        box-shadow: 0 15px 50px rgba(0,0,0,0.6), 0 0 30px var(--glow-purple);
+        border-color: var(--text-secondary);
     }
 
     .pricing-card.featured {
-        border: 3px solid #667eea;
+        border: 2px solid var(--text-secondary);
         transform: scale(1.05);
+        box-shadow: 0 15px 50px rgba(0,0,0,0.6), 0 0 40px var(--glow-purple);
     }
 
     .pricing-badge {
         position: absolute;
         top: -15px;
         right: 30px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, var(--purple-gradient-start), var(--purple-gradient-end));
         color: white;
         padding: 8px 20px;
         border-radius: 25px;
         font-weight: 600;
         font-size: 0.9rem;
+        box-shadow: 0 4px 15px var(--glow-purple);
     }
 
     .plan-name {
         font-size: 2rem;
         font-weight: 700;
-        color: #333;
+        color: var(--text-primary);
         margin-bottom: 10px;
     }
 
     .plan-price {
         font-size: 3rem;
         font-weight: 700;
-        color: #667eea;
+        background: linear-gradient(135deg, var(--purple-vibrant), var(--purple-light));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
         margin-bottom: 5px;
     }
 
     .plan-period {
-        color: #666;
+        color: var(--text-secondary);
         font-size: 1rem;
         margin-bottom: 20px;
     }
 
     .plan-savings {
-        background: #28a745;
+        background: linear-gradient(135deg, #4caf50, var(--purple-medium));
         color: white;
         padding: 5px 15px;
         border-radius: 15px;
@@ -87,6 +97,7 @@
         font-weight: 600;
         margin-bottom: 20px;
         display: inline-block;
+        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
     }
 
     .plan-features {
@@ -97,13 +108,16 @@
 
     .plan-features li {
         padding: 12px 0;
-        color: #555;
-        border-bottom: 1px solid #eee;
+        color: var(--text-muted);
+        border-bottom: 1px solid rgba(179, 136, 255, 0.1);
     }
 
     .plan-features li:before {
         content: "✓";
-        color: #28a745;
+        background: linear-gradient(135deg, #4caf50, var(--purple-medium));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
         font-weight: 700;
         margin-right: 10px;
     }
@@ -114,25 +128,36 @@
         font-size: 1.1rem;
         font-weight: 600;
         border-radius: 10px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, var(--purple-gradient-start), var(--purple-gradient-end));
         border: none;
         color: white;
         transition: all 0.3s ease;
+        box-shadow: 0 4px 15px var(--glow-purple);
     }
 
     .btn-subscribe:hover {
         transform: translateY(-2px);
-        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        box-shadow: 0 6px 25px var(--glow-purple);
         color: white;
     }
 
     .free-tier-info {
-        background: white;
+        background: var(--bg-surface);
+        border: 1px solid rgba(179, 136, 255, 0.2);
         border-radius: 20px;
         padding: 30px;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        box-shadow: 0 5px 20px rgba(0,0,0,0.5), 0 0 15px var(--glow-purple);
         margin-top: 40px;
         text-align: center;
+    }
+
+    .free-tier-info h3 {
+        color: var(--text-primary);
+        margin-bottom: 15px;
+    }
+
+    .free-tier-info p {
+        color: var(--text-muted);
     }
 </style>
 {% endblock %}

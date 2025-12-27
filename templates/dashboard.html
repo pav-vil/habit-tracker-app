@@ -5,80 +5,97 @@
 {% block extra_css %}
 <style>
     .stats-card {
-        background: white;
+        background: var(--bg-surface);
+        border: 1px solid rgba(179, 136, 255, 0.2);
         border-radius: 10px;
         padding: 20px;
         text-align: center;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.5), 0 0 15px var(--glow-purple);
         margin-bottom: 20px;
+        transition: all 0.3s ease;
     }
-    
+
+    .stats-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.6), 0 0 25px var(--glow-purple);
+    }
+
     .stats-number {
         font-size: 2.5rem;
         font-weight: 700;
-        color: #667eea;
+        background: linear-gradient(135deg, var(--purple-vibrant), var(--purple-light));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
-    
+
     .stats-label {
-        color: #666;
+        color: var(--text-secondary);
         font-size: 0.9rem;
         text-transform: uppercase;
         letter-spacing: 1px;
     }
-    
+
     .habit-card {
-        background: white;
+        background: var(--bg-surface);
+        border: 1px solid rgba(179, 136, 255, 0.15);
         border-radius: 15px;
         padding: 25px;
         margin-bottom: 20px;
-        box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         transition: all 0.3s ease;
     }
-    
+
     .habit-card:hover {
         transform: translateY(-3px);
-        box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+        box-shadow: 0 6px 25px rgba(0,0,0,0.6), 0 0 20px var(--glow-purple);
+        border-color: var(--text-secondary);
     }
-    
+
+    .habit-card.active-habit {
+        box-shadow: 0 4px 15px rgba(0,0,0,0.5), 0 0 15px var(--glow-purple);
+    }
+
     .habit-name {
         font-size: 1.4rem;
         font-weight: 600;
-        color: #333;
+        color: var(--text-primary);
         margin-bottom: 10px;
     }
-    
+
     .habit-description {
-        color: #666;
+        color: var(--text-muted);
         margin-bottom: 15px;
     }
-    
+
     .streak-badge {
         display: inline-block;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, var(--purple-gradient-start), var(--purple-gradient-end));
         color: white;
         padding: 8px 20px;
         border-radius: 25px;
         font-weight: 600;
         font-size: 1.1rem;
+        box-shadow: 0 4px 15px rgba(106, 27, 154, 0.4);
     }
 
     .longest-streak-badge {
         display: inline-block;
-        background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+        background: linear-gradient(135deg, var(--purple-vibrant), var(--purple-light));
         color: white;
         padding: 8px 20px;
         border-radius: 25px;
         font-weight: 600;
         font-size: 1.1rem;
         margin-left: 10px;
-        border: 2px solid #ffd700;  /* Gold border for trophy effect */
-        box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+        border: 2px solid #ffd700;
+        box-shadow: 0 4px 15px rgba(179, 136, 255, 0.5);
     }
 
     .trophy-icon {
         font-size: 1.2rem;
         margin-right: 5px;
-        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        filter: drop-shadow(0 2px 4px rgba(255, 215, 0, 0.5));
     }
 
     /* Mobile responsive adjustments */
@@ -90,28 +107,32 @@
             width: fit-content;
         }
     }
-    
+
     .habit-actions {
         margin-top: 15px;
     }
-    
+
     .btn-complete {
-        background: #28a745;
+        background: linear-gradient(135deg, #4caf50, var(--purple-medium));
         color: white;
         border: none;
+        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        transition: all 0.3s ease;
     }
-    
+
     .btn-complete:hover {
-        background: #218838;
+        background: linear-gradient(135deg, #45a049, var(--purple-vibrant));
         color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
     }
-    
+
     .empty-state {
         text-align: center;
         padding: 60px 20px;
-        color: #666;
+        color: var(--text-muted);
     }
-    
+
     .empty-state-icon {
         font-size: 5rem;
         margin-bottom: 20px;
@@ -119,15 +140,16 @@
     }
 
     .chart-card {
-        background: white;
+        background: var(--bg-surface);
+        border: 1px solid rgba(179, 136, 255, 0.2);
         border-radius: 15px;
         padding: 25px;
-        box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.5), 0 0 15px var(--glow-purple);
         transition: all 0.3s ease;
     }
 
     .chart-card:hover {
-        box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+        box-shadow: 0 6px 25px rgba(0,0,0,0.6), 0 0 25px var(--glow-purple);
     }
 
     .chart-header {
@@ -137,12 +159,12 @@
     .chart-title {
         font-size: 1.5rem;
         font-weight: 600;
-        color: #333;
+        color: var(--text-primary);
         margin-bottom: 5px;
     }
 
     .chart-subtitle {
-        color: #666;
+        color: var(--text-secondary);
         font-size: 0.9rem;
         margin-bottom: 0;
     }
@@ -150,7 +172,6 @@
     .chart-container {
         position: relative;
         width: 100%;
-        /* Responsive height - smaller on mobile */
         height: 300px;
     }
 
@@ -160,18 +181,20 @@
         align-items: center;
         justify-content: center;
         height: 100%;
-        color: #7c3aed;
+        color: var(--text-secondary);
     }
 
     .chart-loading .spinner-border {
         width: 3rem;
         height: 3rem;
         border-width: 0.3rem;
+        border-color: var(--text-secondary);
+        border-right-color: transparent;
     }
 
     .text-primary {
-        color: #7c3aed !important;
-        border-color: #7c3aed !important;
+        color: var(--text-secondary) !important;
+        border-color: var(--text-secondary) !important;
     }
 
     /* Mobile responsive adjustments */
@@ -187,6 +210,35 @@
         .chart-title {
             font-size: 1.3rem;
         }
+    }
+
+    /* Text color override for muted text */
+    .text-muted {
+        color: var(--text-muted) !important;
+    }
+
+    /* Pagination styles */
+    .pagination .page-link {
+        background: var(--bg-surface);
+        border-color: rgba(179, 136, 255, 0.3);
+        color: var(--text-primary);
+    }
+
+    .pagination .page-link:hover {
+        background: var(--purple-dark);
+        border-color: var(--text-secondary);
+        color: var(--text-primary);
+    }
+
+    .pagination .page-item.active .page-link {
+        background: linear-gradient(135deg, var(--purple-gradient-start), var(--purple-gradient-end));
+        border-color: var(--text-secondary);
+    }
+
+    .pagination .page-item.disabled .page-link {
+        background: var(--bg-main);
+        border-color: rgba(179, 136, 255, 0.1);
+        color: var(--text-muted);
     }
 </style>
 {% endblock %}

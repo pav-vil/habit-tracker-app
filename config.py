@@ -39,6 +39,13 @@ class Config:
     PAYPAL_PLAN_ID_MONTHLY = os.environ.get('PAYPAL_PLAN_ID_MONTHLY')
     PAYPAL_PLAN_ID_ANNUAL = os.environ.get('PAYPAL_PLAN_ID_ANNUAL')
 
+    # Coinbase Commerce Configuration (Phase 6)
+    COINBASE_COMMERCE_API_KEY = os.environ.get('COINBASE_COMMERCE_API_KEY')
+    COINBASE_COMMERCE_WEBHOOK_SECRET = os.environ.get('COINBASE_COMMERCE_WEBHOOK_SECRET')
+
+    # Coinbase Commerce Pricing
+    COINBASE_LIFETIME_PRICE = float(os.environ.get('COINBASE_LIFETIME_PRICE', '59.99'))
+
     # Email Configuration (Flask-Mail - Phase 5)
     MAIL_SERVER = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
     MAIL_PORT = int(os.environ.get('MAIL_PORT', '587'))

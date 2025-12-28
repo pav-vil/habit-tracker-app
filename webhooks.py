@@ -643,13 +643,218 @@ def handle_paypal_payment_completed(resource):
 
 
 # ==========================================
-# COINBASE COMMERCE WEBHOOKS (Phase 6 - Placeholder)
+# COINBASE COMMERCE WEBHOOKS (Phase 6)
 # ==========================================
+
+from coinbase_commerce.webhook import Webhook
+
 
 @webhooks_bp.route('/coinbase', methods=['POST'])
 def coinbase_webhook():
     """
     Handle Coinbase Commerce webhook events.
-    TODO: Implement in Phase 6
+    Must be registered in Coinbase Commerce Settings.
+
+    Processes async payment notifications for Bitcoin/crypto payments.
+
+    Critical events handled:
+    - charge:confirmed: Payment confirmed on blockchain (subscription activated)
+    - charge:failed: Payment failed or expired
+    - charge:pending: Payment initiated but not confirmed yet
+
+    Security:
+    - Verifies webhook signature using Coinbase Commerce SDK
+    - Rejects unsigned or invalid requests
+
+    Returns:
+        JSON response with status
     """
-    return jsonify({'status': 'not implemented'}), 501
+    # Get webhook data
+    request_data = request.data
+    request_sig = request.headers.get('X-CC-Webhook-Signature', '')
+    webhook_secret = current_app.config.get('COINBASE_COMMERCE_WEBHOOK_SECRET')
+
+    if not webhook_secret:
+        print("[COINBASE WEBHOOK] Error: COINBASE_COMMERCE_WEBHOOK_SECRET not configured")
+        return jsonify({'error': 'Webhook not configured'}), 500
+
+    try:
+        # Verify webhook signature
+        event = Webhook.construct_event(request_data, request_sig, webhook_secret)
+
+    except Exception as e:
+        # Invalid signature or payload
+        print(f"[COINBASE WEBHOOK] Signature verification failed: {e}")
+        return jsonify({'error': 'Invalid signature'}), 400
+
+    # Get event type and data
+    event_type = event.get('type')
+    event_data = event.get('data', {})
+
+    print(f"[COINBASE WEBHOOK] Received event: {event_type}")
+
+    # Handle the event
+    try:
+        if event_type == 'charge:confirmed':
+            handle_coinbase_charge_confirmed(event_data)
+
+        elif event_type == 'charge:failed':
+            handle_coinbase_charge_failed(event_data)
+
+        elif event_type == 'charge:pending':
+            handle_coinbase_charge_pending(event_data)
+
+        else:
+            print(f"[COINBASE WEBHOOK] Unhandled event type: {event_type}")
+
+    except Exception as e:
+        print(f"[COINBASE WEBHOOK] Error processing event {event_type}: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': 'Processing error'}), 500
+
+    return jsonify({'success': True}), 200
+
+
+def handle_coinbase_charge_confirmed(charge):
+    """
+    Handle charge:confirmed event.
+    Called when Bitcoin payment is confirmed on the blockchain.
+
+    This activates the lifetime subscription for the user.
+
+    Args:
+        charge (dict): Coinbase Commerce charge object
+    """
+    try:
+        charge_code = charge.get('code')
+        charge_id = charge.get('id')
+        metadata = charge.get('metadata', {})
+        pricing = charge.get('pricing', {})
+
+        user_id = metadata.get('user_id')
+        tier = metadata.get('tier')
+
+        if not user_id or tier != 'lifetime':
+            print(f"[COINBASE WEBHOOK] Invalid metadata in charge {charge_code}")
+            return
+
+        user = db.session.get(User, int(user_id))
+        if not user:
+            print(f"[COINBASE WEBHOOK] User {user_id} not found")
+            return
+
+        # Only activate if not already activated (idempotency)
+        if user.subscription_tier != 'lifetime':
+            # Activate lifetime subscription
+            user.subscription_tier = 'lifetime'
+            user.subscription_status = 'active'
+            user.subscription_start_date = datetime.utcnow()
+            user.subscription_end_date = None  # Lifetime = no end date
+            user.coinbase_charge_code = charge_code
+            user.last_payment_date = datetime.utcnow()
+            user.payment_failures = 0
+            user.habit_limit = 999999  # Unlimited
+
+            # Extract payment amount
+            local_amount = pricing.get('local', {}).get('amount', '59.99')
+            local_currency = pricing.get('local', {}).get('currency', 'USD')
+
+            # Create Subscription record
+            subscription = Subscription(
+                user_id=user.id,
+                tier='lifetime',
+                status='active',
+                payment_provider='coinbase',
+                provider_subscription_id=charge_code,
+                start_date=datetime.utcnow(),
+                end_date=None,  # Lifetime
+                next_billing_date=None,  # No recurring billing
+                amount_paid=float(local_amount),
+                currency=local_currency
+            )
+            db.session.add(subscription)
+
+            # Create Payment record
+            payment = Payment(
+                user_id=user.id,
+                subscription_id=subscription.id,
+                payment_provider='coinbase',
+                provider_transaction_id=charge_id,
+                amount=float(local_amount),
+                currency=local_currency,
+                status='completed',
+                payment_type='lifetime',
+                payment_date=datetime.utcnow(),
+                notes=f'Bitcoin payment confirmed - Charge: {charge_code}'
+            )
+            db.session.add(payment)
+
+            db.session.commit()
+
+            print(f"[COINBASE WEBHOOK] User {user.id} upgraded to lifetime tier via Bitcoin payment")
+
+            # TODO: Send confirmation email (Phase 5 email integration)
+
+    except Exception as e:
+        db.session.rollback()
+        print(f"[COINBASE WEBHOOK ERROR] charge_confirmed: {e}")
+        import traceback
+        traceback.print_exc()
+
+
+def handle_coinbase_charge_failed(charge):
+    """
+    Handle charge:failed event.
+    Called when Bitcoin payment fails or expires.
+
+    Args:
+        charge (dict): Coinbase Commerce charge object
+    """
+    try:
+        charge_code = charge.get('code')
+        charge_id = charge.get('id')
+        metadata = charge.get('metadata', {})
+
+        user_id = metadata.get('user_id')
+        user_email = metadata.get('user_email')
+
+        print(f"[COINBASE WEBHOOK] Charge {charge_code} failed for user {user_id} ({user_email})")
+
+        # Create Payment record for failed payment
+        if user_id:
+            payment = Payment(
+                user_id=int(user_id),
+                subscription_id=None,
+                payment_provider='coinbase',
+                provider_transaction_id=charge_id,
+                amount=59.99,  # Default lifetime price
+                currency='USD',
+                status='failed',
+                payment_type='lifetime',
+                payment_date=datetime.utcnow(),
+                notes=f'Bitcoin payment failed or expired - Charge: {charge_code}'
+            )
+            db.session.add(payment)
+            db.session.commit()
+
+            # TODO: Send failure notification email (Phase 5 email integration)
+
+    except Exception as e:
+        db.session.rollback()
+        print(f"[COINBASE WEBHOOK ERROR] charge_failed: {e}")
+
+
+def handle_coinbase_charge_pending(charge):
+    """
+    Handle charge:pending event.
+    Called when Bitcoin payment is initiated but not yet confirmed.
+
+    Args:
+        charge (dict): Coinbase Commerce charge object
+    """
+    charge_code = charge.get('code')
+    metadata = charge.get('metadata', {})
+    user_id = metadata.get('user_id')
+
+    print(f"[COINBASE WEBHOOK] Charge {charge_code} pending for user {user_id}")

@@ -32,6 +32,9 @@ stripe>=7.0.0,<8.0.0
 # PayPal Integration (Phase 5)
 paypalrestsdk>=1.13.1
 
+# Coinbase Commerce Integration (Phase 6)
+coinbase-commerce>=1.0.1
+
 # Email Notifications (Phase 5)
 Flask-Mail>=0.9.1
 

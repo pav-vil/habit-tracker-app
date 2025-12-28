@@ -49,8 +49,7 @@ def checkout():
     elif provider == 'paypal':
         return create_paypal_subscription(current_user, tier)
     elif provider == 'coinbase':
-        flash('Bitcoin integration coming in Phase 6!', 'info')
-        return redirect(url_for('profile.subscription'))
+        return create_coinbase_charge(current_user, tier)
     else:
         flash('Invalid payment provider selected.', 'danger')
         return redirect(url_for('profile.subscription'))
@@ -542,4 +541,92 @@ def cancel_paypal_subscription(subscription_id):
 # ==========================================
 # COINBASE COMMERCE (Phase 6)
 # ==========================================
-# TODO: Implement Coinbase Commerce integration in Phase 6
+
+from coinbase_commerce.client import Client
+from coinbase_commerce.error import SignatureVerificationError, WebhookInvalidPayload
+
+
+def init_coinbase():
+    """Initialize Coinbase Commerce client with API key from config."""
+    Client.api_key = current_app.config['COINBASE_COMMERCE_API_KEY']
+
+
+def create_coinbase_charge(user, tier):
+    """
+    Create a Coinbase Commerce charge for Bitcoin/crypto payment.
+    Only supports lifetime tier (one-time payment).
+
+    Args:
+        user (User): The user object making the purchase
+        tier (str): Subscription tier - must be 'lifetime'
+
+    Returns:
+        Redirect to Coinbase Commerce hosted checkout or error page
+    """
+    try:
+        # Coinbase Commerce only supports one-time payments (perfect for lifetime tier)
+        if tier != 'lifetime':
+            flash('Bitcoin payments are only available for lifetime tier. Please use Stripe or PayPal for subscriptions.', 'info')
+            return redirect(url_for('profile.subscription'))
+
+        # Initialize Coinbase Commerce
+        init_coinbase()
+
+        # Get price from configuration
+        price = current_app.config['COINBASE_LIFETIME_PRICE']
+
+        # Create charge
+        charge = Client().charge.create(
+            name='HabitFlow Lifetime Access',
+            description='Unlimited habits forever - one-time payment',
+            pricing_type='fixed_price',
+            local_price={
+                'amount': str(price),
+                'currency': 'USD'
+            },
+            metadata={
+                'user_id': user.id,
+                'user_email': user.email,
+                'tier': 'lifetime'
+            },
+            redirect_url=current_app.config['APP_URL'] + url_for('payments.coinbase_success'),
+            cancel_url=current_app.config['APP_URL'] + url_for('payments.cancel')
+        )
+
+        # Store charge code temporarily for verification
+        # In production, consider storing this in a session or temporary database table
+        # For now, we'll rely on webhook verification
+
+        # Redirect to Coinbase Commerce hosted checkout page
+        return redirect(charge.hosted_url, code=303)
+
+    except Exception as e:
+        flash('An unexpected error occurred with Coinbase Commerce. Please try again or contact support.', 'danger')
+        print(f"[COINBASE ERROR] {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return redirect(url_for('profile.subscription'))
+
+
+@payments_bp.route('/coinbase-success')
+@login_required
+def coinbase_success():
+    """
+    Coinbase Commerce payment redirect page.
+    User is redirected here after completing crypto payment.
+
+    Note: Actual subscription activation happens via webhook (webhooks.py)
+    This page just shows a pending confirmation message.
+
+    Returns:
+        Rendered success template with pending status
+    """
+    # The webhook will handle the actual subscription activation
+    # This page just confirms the user completed the checkout flow
+
+    flash('Bitcoin payment submitted! Your lifetime subscription will be activated once the payment is confirmed on the blockchain (usually 10-30 minutes).', 'info')
+
+    return render_template('payments/coinbase_pending.html',
+                           tier='lifetime',
+                           amount=current_app.config['COINBASE_LIFETIME_PRICE'],
+                           currency='USD')

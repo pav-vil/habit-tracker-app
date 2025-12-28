@@ -135,13 +135,24 @@
     .habit-name {
         font-size: 1.4rem;
         font-weight: 600;
-        color: var(--text-primary);
+        color: #1a1a2e;
         margin-bottom: 10px;
     }
 
+    /* Dark mode override */
+    [data-theme="dark"] .habit-name {
+        color: #e5e7eb;
+    }
+
     .habit-description {
-        color: var(--text-secondary);
+        color: #4a5568;
         margin-bottom: 15px;
+        font-weight: 500;
+    }
+
+    /* Dark mode override */
+    [data-theme="dark"] .habit-description {
+        color: #b3b3b3;
     }
 
     .streak-badge {
@@ -1119,7 +1130,7 @@
                     </div>
 
                     {% if habit.last_completed %}
-                    <div class="text-muted small mb-2">
+                    <div class="small mb-2" style="color: #6b7280; font-weight: 500;">
                         Last completed: {{ habit.last_completed.strftime('%B %d, %Y') }}
                     </div>
                     {% endif %}

@@ -1040,11 +1040,11 @@
     {% if current_user.subscription_tier == 'free' %}
     <div class="row mb-3">
         <div class="col-md-12">
-            <div class="alert" style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(167, 139, 250, 0.1) 100%); border: 2px solid #7c3aed; border-radius: 12px;">
+            <div class="alert mb-0" style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.15) 0%, rgba(167, 139, 250, 0.15) 100%); border: 2px solid #7c3aed; border-radius: 12px;">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <strong style="color: #7c3aed;">Free Tier:</strong>
-                        <span class="ms-2">{{ habits|selectattr('archived', 'equalto', False)|list|length }}/3 habits used</span>
+                        <strong style="color: #6d28d9;">Free Tier:</strong>
+                        <span class="ms-2" style="color: #2d3748; font-weight: 500;">{{ habits|selectattr('archived', 'equalto', False)|list|length }}/3 habits used</span>
                         {% if habits|selectattr('archived', 'equalto', False)|list|length >= 3 %}
                         <span class="badge bg-warning text-dark ms-2">Limit Reached</span>
                         {% endif %}
@@ -1054,7 +1054,7 @@
                     </a>
                 </div>
                 {% if habits|selectattr('archived', 'equalto', False)|list|length >= 3 %}
-                <p class="mb-0 mt-2 small text-muted">
+                <p class="mb-0 mt-2 small" style="color: #4a5568;">
                     You've reached the free tier limit. Upgrade to create unlimited habits!
                 </p>
                 {% endif %}

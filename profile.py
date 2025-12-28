@@ -362,6 +362,142 @@ def billing():
                            end_date=end_date_str)
 
 
+@profile_bp.route('/export-data')
+@login_required
+def export_data():
+    """
+    GDPR Data Export - Download all user data as JSON.
+    Includes profile info, habits, completion logs, subscriptions, and payments.
+    """
+    import json
+    from flask import make_response
+    from models import Habit, CompletionLog, AuditLog
+
+    # Gather all user data
+    user_data = {
+        'profile': {
+            'id': current_user.id,
+            'email': current_user.email,
+            'member_since': current_user.created_at.isoformat() if current_user.created_at else None,
+            'timezone': current_user.timezone,
+            'dark_mode': current_user.dark_mode,
+            'newsletter_subscribed': current_user.newsletter_subscribed,
+            'email_notifications_enabled': current_user.email_notifications_enabled,
+            'reminder_time': current_user.reminder_time,
+            'reminder_days': current_user.reminder_days,
+        },
+        'subscription': {
+            'tier': current_user.subscription_tier,
+            'status': current_user.subscription_status,
+            'start_date': current_user.subscription_start_date.isoformat() if current_user.subscription_start_date else None,
+            'end_date': current_user.subscription_end_date.isoformat() if current_user.subscription_end_date else None,
+            'habit_limit': current_user.habit_limit,
+        },
+        'habits': [],
+        'completion_logs': [],
+        'subscriptions': [],
+        'payments': [],
+        'audit_logs': []
+    }
+
+    # Export habits
+    habits = Habit.query.filter_by(user_id=current_user.id).all()
+    for habit in habits:
+        user_data['habits'].append({
+            'id': habit.id,
+            'name': habit.name,
+            'description': habit.description,
+            'why': habit.why,
+            'created_at': habit.created_at.isoformat() if habit.created_at else None,
+            'frequency': habit.frequency,
+            'target_days': habit.target_days,
+            'color': habit.color,
+        })
+
+    # Export completion logs
+    logs = CompletionLog.query.join(Habit).filter(Habit.user_id == current_user.id).all()
+    for log in logs:
+        user_data['completion_logs'].append({
+            'habit_id': log.habit_id,
+            'date': log.date.isoformat() if log.date else None,
+            'completed_at': log.completed_at.isoformat() if log.completed_at else None,
+        })
+
+    # Export subscriptions
+    subscriptions = Subscription.query.filter_by(user_id=current_user.id).all()
+    for sub in subscriptions:
+        user_data['subscriptions'].append({
+            'tier': sub.tier,
+            'status': sub.status,
+            'payment_provider': sub.payment_provider,
+            'start_date': sub.start_date.isoformat() if sub.start_date else None,
+            'end_date': sub.end_date.isoformat() if sub.end_date else None,
+            'amount_paid': float(sub.amount_paid) if sub.amount_paid else None,
+            'currency': sub.currency,
+        })
+
+    # Export payments
+    payments = Payment.query.filter_by(user_id=current_user.id).all()
+    for payment in payments:
+        user_data['payments'].append({
+            'amount': float(payment.amount),
+            'currency': payment.currency,
+            'payment_provider': payment.payment_provider,
+            'status': payment.status,
+            'payment_type': payment.payment_type,
+            'payment_date': payment.payment_date.isoformat() if payment.payment_date else None,
+        })
+
+    # Export audit logs (security events)
+    audit_logs = AuditLog.query.filter_by(user_id=current_user.id).order_by(AuditLog.created_at.desc()).limit(100).all()
+    for log in audit_logs:
+        user_data['audit_logs'].append({
+            'event_type': log.event_type,
+            'description': log.event_description,
+            'success': log.success,
+            'created_at': log.created_at.isoformat() if log.created_at else None,
+            'ip_address': log.ip_address,
+        })
+
+    # Create JSON response
+    json_data = json.dumps(user_data, indent=2, ensure_ascii=False)
+
+    # Create downloadable file response
+    response = make_response(json_data)
+    response.headers['Content-Type'] = 'application/json'
+    response.headers['Content-Disposition'] = f'attachment; filename=habitflow_data_{current_user.id}_{datetime.now().strftime("%Y%m%d")}.json'
+
+    # Log the data export event
+    from models import log_security_event
+    log_security_event(
+        user_id=current_user.id,
+        event_type='data_export',
+        description=f'User {current_user.email} exported their data (GDPR)',
+        success=True
+    )
+
+    flash('Your data has been exported successfully!', 'success')
+    return response
+
+
+@profile_bp.route('/privacy')
+def privacy():
+    """
+    Privacy Policy page - GDPR compliant privacy policy.
+    Public route - no login required.
+    """
+    return render_template('profile/privacy.html')
+
+
+@profile_bp.route('/terms')
+def terms():
+    """
+    Terms of Service page - Legal terms and conditions.
+    Public route - no login required.
+    """
+    return render_template('profile/terms.html')
+
+
 @profile_bp.route('/about')
 def about():
     """

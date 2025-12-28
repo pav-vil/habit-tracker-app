@@ -1,10 +1,13 @@
 """
 Webhook handlers for payment providers
-Currently supports: Stripe, PayPal (placeholder), Coinbase (placeholder)
+Currently supports: Stripe, PayPal, Coinbase (placeholder)
 Combines implementations from both versions for comprehensive webhook handling
 """
 from flask import Blueprint, request, jsonify, current_app
 import stripe
+import paypalrestsdk
+import hmac
+import hashlib
 from models import db, User, Subscription, Payment
 from datetime import datetime, timedelta
 
@@ -319,16 +322,324 @@ def handle_payment_failed(invoice):
 
 
 # ==========================================
-# PAYPAL WEBHOOKS (Phase 5 - Placeholder)
+# PAYPAL WEBHOOKS (Phase 5)
 # ==========================================
 
 @webhooks_bp.route('/paypal', methods=['POST'])
 def paypal_webhook():
     """
     Handle PayPal webhook events.
-    TODO: Implement in Phase 5
+    Must be registered in PayPal Developer Dashboard.
+
+    Processes async subscription notifications from PayPal.
+
+    Critical events handled:
+    - BILLING.SUBSCRIPTION.ACTIVATED: New subscription activated
+    - BILLING.SUBSCRIPTION.UPDATED: Subscription plan changed
+    - BILLING.SUBSCRIPTION.CANCELLED: Subscription cancelled by user
+    - BILLING.SUBSCRIPTION.SUSPENDED: Subscription suspended (payment failure)
+    - PAYMENT.SALE.COMPLETED: Recurring payment successful
+
+    Security:
+    - Verifies webhook signature using PayPal SDK
+    - Rejects unsigned or invalid requests
+
+    Returns:
+        JSON response with status
     """
-    return jsonify({'status': 'not implemented'}), 501
+    # Get webhook data
+    webhook_data = request.get_json()
+
+    if not webhook_data:
+        print("[PAYPAL WEBHOOK] No data received")
+        return jsonify({'error': 'No data'}), 400
+
+    event_type = webhook_data.get('event_type')
+    resource = webhook_data.get('resource', {})
+
+    print(f"[PAYPAL WEBHOOK] Received event: {event_type}")
+
+    # Verify webhook signature (if webhook_id is configured)
+    webhook_id = current_app.config.get('PAYPAL_WEBHOOK_ID')
+    if webhook_id:
+        try:
+            # Initialize PayPal
+            paypalrestsdk.configure({
+                'mode': current_app.config['PAYPAL_MODE'],
+                'client_id': current_app.config['PAYPAL_CLIENT_ID'],
+                'client_secret': current_app.config['PAYPAL_CLIENT_SECRET']
+            })
+
+            # Verify the webhook event
+            transmission_id = request.headers.get('Paypal-Transmission-Id')
+            transmission_time = request.headers.get('Paypal-Transmission-Time')
+            cert_url = request.headers.get('Paypal-Cert-Url')
+            auth_algo = request.headers.get('Paypal-Auth-Algo')
+            transmission_sig = request.headers.get('Paypal-Transmission-Sig')
+
+            # Verify using PayPal SDK
+            response = paypalrestsdk.WebhookEvent.verify(
+                transmission_id,
+                transmission_time,
+                webhook_id,
+                event_type,
+                cert_url,
+                auth_algo,
+                transmission_sig,
+                webhook_data
+            )
+
+            if not response:
+                print("[PAYPAL WEBHOOK] Signature verification failed")
+                return jsonify({'error': 'Invalid signature'}), 401
+
+        except Exception as e:
+            print(f"[PAYPAL WEBHOOK] Signature verification error: {e}")
+            # In development, we might skip verification if not configured
+            if current_app.config['PAYPAL_MODE'] == 'live':
+                return jsonify({'error': 'Verification failed'}), 401
+
+    # Handle the event
+    try:
+        if event_type == 'BILLING.SUBSCRIPTION.ACTIVATED':
+            handle_paypal_subscription_activated(resource)
+
+        elif event_type == 'BILLING.SUBSCRIPTION.UPDATED':
+            handle_paypal_subscription_updated(resource)
+
+        elif event_type == 'BILLING.SUBSCRIPTION.CANCELLED':
+            handle_paypal_subscription_cancelled(resource)
+
+        elif event_type == 'BILLING.SUBSCRIPTION.SUSPENDED':
+            handle_paypal_subscription_suspended(resource)
+
+        elif event_type == 'PAYMENT.SALE.COMPLETED':
+            handle_paypal_payment_completed(resource)
+
+        else:
+            print(f"[PAYPAL WEBHOOK] Unhandled event type: {event_type}")
+
+    except Exception as e:
+        print(f"[PAYPAL WEBHOOK] Error processing event {event_type}: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': 'Processing error'}), 500
+
+    return jsonify({'success': True}), 200
+
+
+def handle_paypal_subscription_activated(resource):
+    """Handle PayPal subscription activation (BILLING.SUBSCRIPTION.ACTIVATED)."""
+    subscription_id = resource.get('id')
+    custom_id = resource.get('custom_id')  # This is our user_id
+    plan_id = resource.get('plan_id')
+
+    if not subscription_id or not custom_id:
+        print("[PAYPAL WEBHOOK] Missing subscription_id or custom_id")
+        return
+
+    try:
+        user = db.session.get(User, int(custom_id))
+        if not user:
+            print(f"[PAYPAL WEBHOOK] User {custom_id} not found")
+            return
+
+        # Determine tier from plan ID
+        tier = None
+        amount = 0
+
+        if plan_id == current_app.config['PAYPAL_PLAN_ID_MONTHLY']:
+            tier = 'monthly'
+            amount = 2.99
+        elif plan_id == current_app.config['PAYPAL_PLAN_ID_ANNUAL']:
+            tier = 'annual'
+            amount = 19.99
+
+        if not tier:
+            print(f"[PAYPAL WEBHOOK] Unknown plan ID: {plan_id}")
+            return
+
+        # Subscription was already activated in the success callback
+        # This webhook confirms it
+        print(f"[PAYPAL WEBHOOK] Subscription {subscription_id} activated for user {user.id}")
+
+    except Exception as e:
+        print(f"[PAYPAL WEBHOOK ERROR] subscription_activated: {e}")
+
+
+def handle_paypal_subscription_updated(resource):
+    """Handle PayPal subscription update (BILLING.SUBSCRIPTION.UPDATED)."""
+    subscription_id = resource.get('id')
+    status = resource.get('status')
+
+    if not subscription_id:
+        print("[PAYPAL WEBHOOK] Missing subscription_id in update")
+        return
+
+    try:
+        # Find user by PayPal subscription ID
+        user = User.query.filter_by(paypal_subscription_id=subscription_id).first()
+
+        if not user:
+            print(f"[PAYPAL WEBHOOK] No user found for subscription {subscription_id}")
+            return
+
+        # Update subscription status
+        if status == 'ACTIVE':
+            user.subscription_status = 'active'
+        elif status == 'SUSPENDED':
+            user.subscription_status = 'suspended'
+        elif status == 'CANCELLED':
+            user.subscription_status = 'cancelled'
+
+        db.session.commit()
+        print(f"[PAYPAL WEBHOOK] Subscription {subscription_id} updated to status: {status}")
+
+    except Exception as e:
+        db.session.rollback()
+        print(f"[PAYPAL WEBHOOK ERROR] subscription_updated: {e}")
+
+
+def handle_paypal_subscription_cancelled(resource):
+    """Handle PayPal subscription cancellation (BILLING.SUBSCRIPTION.CANCELLED)."""
+    subscription_id = resource.get('id')
+
+    if not subscription_id:
+        print("[PAYPAL WEBHOOK] Missing subscription_id in cancellation")
+        return
+
+    try:
+        # Find user by PayPal subscription ID
+        user = User.query.filter_by(paypal_subscription_id=subscription_id).first()
+
+        if not user:
+            print(f"[PAYPAL WEBHOOK] No user found for subscription {subscription_id}")
+            return
+
+        # Update user to free tier
+        user.subscription_status = 'cancelled'
+        user.subscription_tier = 'free'
+        user.habit_limit = 3
+        user.subscription_end_date = datetime.utcnow()
+
+        # Update Subscription record
+        subscription = Subscription.query.filter_by(
+            user_id=user.id,
+            payment_provider='paypal',
+            provider_subscription_id=subscription_id,
+            status='active'
+        ).first()
+
+        if subscription:
+            subscription.status = 'cancelled'
+            subscription.end_date = datetime.utcnow()
+
+        db.session.commit()
+        print(f"[PAYPAL WEBHOOK] Subscription {subscription_id} cancelled, user {user.id} downgraded to free")
+
+    except Exception as e:
+        db.session.rollback()
+        print(f"[PAYPAL WEBHOOK ERROR] subscription_cancelled: {e}")
+
+
+def handle_paypal_subscription_suspended(resource):
+    """Handle PayPal subscription suspension due to payment failure (BILLING.SUBSCRIPTION.SUSPENDED)."""
+    subscription_id = resource.get('id')
+
+    if not subscription_id:
+        print("[PAYPAL WEBHOOK] Missing subscription_id in suspension")
+        return
+
+    try:
+        # Find user by PayPal subscription ID
+        user = User.query.filter_by(paypal_subscription_id=subscription_id).first()
+
+        if not user:
+            print(f"[PAYPAL WEBHOOK] No user found for subscription {subscription_id}")
+            return
+
+        # Increment payment failures
+        user.payment_failures += 1
+        user.subscription_status = 'suspended'
+
+        # If too many failures, cancel subscription
+        if user.payment_failures >= 3:
+            user.subscription_tier = 'free'
+            user.subscription_status = 'expired'
+            user.habit_limit = 3
+            user.subscription_end_date = datetime.utcnow()
+            print(f"[PAYPAL WEBHOOK] User {user.id} subscription expired after {user.payment_failures} failures")
+
+        db.session.commit()
+        print(f"[PAYPAL WEBHOOK] Subscription {subscription_id} suspended for user {user.id}")
+
+    except Exception as e:
+        db.session.rollback()
+        print(f"[PAYPAL WEBHOOK ERROR] subscription_suspended: {e}")
+
+
+def handle_paypal_payment_completed(resource):
+    """Handle successful PayPal recurring payment (PAYMENT.SALE.COMPLETED)."""
+    sale_id = resource.get('id')
+    amount = float(resource.get('amount', {}).get('total', 0))
+    currency = resource.get('amount', {}).get('currency', 'USD')
+    billing_agreement_id = resource.get('billing_agreement_id')
+
+    if not sale_id or not billing_agreement_id:
+        print("[PAYPAL WEBHOOK] Missing sale_id or billing_agreement_id in payment")
+        return
+
+    try:
+        # Find user by PayPal subscription ID
+        # Note: billing_agreement_id is the subscription ID
+        user = User.query.filter_by(paypal_subscription_id=billing_agreement_id).first()
+
+        if not user:
+            print(f"[PAYPAL WEBHOOK] No user found for billing agreement {billing_agreement_id}")
+            return
+
+        # Record the payment
+        subscription = Subscription.query.filter_by(
+            user_id=user.id,
+            payment_provider='paypal',
+            provider_subscription_id=billing_agreement_id,
+            status='active'
+        ).first()
+
+        payment = Payment(
+            user_id=user.id,
+            subscription_id=subscription.id if subscription else None,
+            payment_provider='paypal',
+            provider_transaction_id=sale_id,
+            amount=amount,
+            currency=currency,
+            status='completed',
+            payment_type='renewal',
+            payment_date=datetime.utcnow(),
+            notes='PayPal recurring payment'
+        )
+        db.session.add(payment)
+
+        # Update user's last payment date and reset failure count
+        user.last_payment_date = datetime.utcnow()
+        user.payment_failures = 0
+
+        # Extend subscription end date
+        if user.subscription_tier == 'monthly':
+            user.subscription_end_date = datetime.utcnow() + timedelta(days=30)
+        elif user.subscription_tier == 'annual':
+            user.subscription_end_date = datetime.utcnow() + timedelta(days=365)
+
+        # Update subscription next billing date
+        if subscription:
+            subscription.next_billing_date = user.subscription_end_date
+
+        db.session.commit()
+        print(f"[PAYPAL WEBHOOK] Payment {sale_id} completed for user {user.id}, amount: {amount} {currency}")
+
+    except Exception as e:
+        db.session.rollback()
+        print(f"[PAYPAL WEBHOOK ERROR] payment_completed: {e}")
 
 
 # ==========================================

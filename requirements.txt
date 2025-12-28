@@ -29,6 +29,9 @@ python-dotenv>=1.0.0
 # Payment Processing (Phase 3+)
 stripe>=7.0.0,<8.0.0
 
+# PayPal Integration (Phase 5)
+paypalrestsdk>=1.13.1
+
 # Email Notifications (Phase 5)
 Flask-Mail>=0.9.1
 

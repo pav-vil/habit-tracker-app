@@ -47,8 +47,7 @@ def checkout():
     if provider == 'stripe':
         return create_stripe_checkout_session(current_user, tier)
     elif provider == 'paypal':
-        flash('PayPal integration coming in Phase 5!', 'info')
-        return redirect(url_for('profile.subscription'))
+        return create_paypal_subscription(current_user, tier)
     elif provider == 'coinbase':
         flash('Bitcoin integration coming in Phase 6!', 'info')
         return redirect(url_for('profile.subscription'))
@@ -297,7 +296,247 @@ def cancel_stripe_subscription(subscription_id):
 # ==========================================
 # PAYPAL PAYMENT PROCESSING (Phase 5)
 # ==========================================
-# TODO: Implement PayPal integration in Phase 5
+
+import paypalrestsdk
+
+
+def init_paypal():
+    """Initialize PayPal SDK with credentials from config."""
+    paypalrestsdk.configure({
+        'mode': current_app.config['PAYPAL_MODE'],  # 'sandbox' or 'live'
+        'client_id': current_app.config['PAYPAL_CLIENT_ID'],
+        'client_secret': current_app.config['PAYPAL_CLIENT_SECRET']
+    })
+
+
+def create_paypal_subscription(user, tier):
+    """
+    Create a PayPal subscription for the specified tier.
+
+    Args:
+        user (User): The user object making the purchase
+        tier (str): Subscription tier - 'monthly' or 'annual'
+
+    Returns:
+        Redirect to PayPal approval URL or error page
+    """
+    try:
+        # Initialize PayPal
+        init_paypal()
+
+        # Get the appropriate plan ID from configuration
+        plan_mapping = {
+            'monthly': current_app.config['PAYPAL_PLAN_ID_MONTHLY'],
+            'annual': current_app.config['PAYPAL_PLAN_ID_ANNUAL']
+        }
+
+        plan_id = plan_mapping.get(tier)
+
+        if not plan_id:
+            flash(f'PayPal Plan ID not configured for {tier} tier. Please contact support.', 'danger')
+            return redirect(url_for('profile.subscription'))
+
+        # PayPal doesn't support lifetime subscriptions - redirect to Stripe
+        if tier == 'lifetime':
+            flash('Please use Stripe or Coinbase for lifetime purchases.', 'info')
+            return redirect(url_for('profile.subscription'))
+
+        # Create PayPal subscription
+        subscription = paypalrestsdk.Subscription({
+            'plan_id': plan_id,
+            'subscriber': {
+                'name': {
+                    'given_name': user.email.split('@')[0],  # Use email prefix as first name
+                    'surname': 'User'
+                },
+                'email_address': user.email
+            },
+            'application_context': {
+                'brand_name': 'HabitFlow',
+                'locale': 'en-US',
+                'shipping_preference': 'NO_SHIPPING',
+                'user_action': 'SUBSCRIBE_NOW',
+                'return_url': current_app.config['APP_URL'] + url_for('payments.paypal_success'),
+                'cancel_url': current_app.config['APP_URL'] + url_for('payments.cancel')
+            },
+            'custom_id': str(user.id)  # Track user ID for webhook processing
+        })
+
+        if subscription.create():
+            # Get approval URL
+            for link in subscription.links:
+                if link.rel == 'approve':
+                    approval_url = link.href
+                    # Store subscription ID temporarily for verification
+                    # (In production, consider using a more secure method)
+                    return redirect(approval_url, code=303)
+
+            flash('Error creating PayPal subscription. Please try again.', 'danger')
+            return redirect(url_for('profile.subscription'))
+
+        else:
+            error_msg = subscription.error.get('message', 'Unknown error') if hasattr(subscription, 'error') else 'Unknown error'
+            flash(f'PayPal error: {error_msg}', 'danger')
+            print(f"[PAYPAL ERROR] {subscription.error}")
+            return redirect(url_for('profile.subscription'))
+
+    except Exception as e:
+        flash('An unexpected error occurred with PayPal. Please try again or contact support.', 'danger')
+        print(f"[PAYPAL ERROR] {str(e)}")
+        return redirect(url_for('profile.subscription'))
+
+
+@payments_bp.route('/paypal-success')
+@login_required
+def paypal_success():
+    """
+    PayPal subscription approval callback.
+    User is redirected here after approving PayPal subscription.
+
+    Query Parameters:
+        subscription_id (str): PayPal Subscription ID
+        ba_token (str): Billing agreement token
+
+    Returns:
+        Redirect to success page or profile
+    """
+    subscription_id = request.args.get('subscription_id')
+    ba_token = request.args.get('ba_token')
+
+    if not subscription_id:
+        flash('Invalid PayPal subscription.', 'danger')
+        return redirect(url_for('profile.subscription'))
+
+    try:
+        # Initialize PayPal
+        init_paypal()
+
+        # Retrieve subscription details from PayPal
+        paypal_subscription = paypalrestsdk.Subscription.find(subscription_id)
+
+        if not paypal_subscription:
+            flash('Could not verify PayPal subscription.', 'danger')
+            return redirect(url_for('profile.subscription'))
+
+        # Verify this subscription belongs to current user
+        if paypal_subscription.custom_id != str(current_user.id):
+            flash('Invalid PayPal subscription.', 'danger')
+            return redirect(url_for('profile.subscription'))
+
+        # Determine tier from plan ID
+        plan_id = paypal_subscription.plan_id
+        tier = None
+        amount = 0
+
+        if plan_id == current_app.config['PAYPAL_PLAN_ID_MONTHLY']:
+            tier = 'monthly'
+            amount = 2.99
+        elif plan_id == current_app.config['PAYPAL_PLAN_ID_ANNUAL']:
+            tier = 'annual'
+            amount = 19.99
+
+        if not tier:
+            flash('Unknown PayPal plan.', 'danger')
+            return redirect(url_for('profile.subscription'))
+
+        # Update user subscription
+        current_user.subscription_tier = tier
+        current_user.subscription_status = 'active'
+        current_user.subscription_start_date = datetime.utcnow()
+        current_user.paypal_subscription_id = subscription_id
+
+        # Set subscription end date
+        if tier == 'monthly':
+            current_user.subscription_end_date = datetime.utcnow() + timedelta(days=30)
+        elif tier == 'annual':
+            current_user.subscription_end_date = datetime.utcnow() + timedelta(days=365)
+
+        current_user.last_payment_date = datetime.utcnow()
+        current_user.payment_failures = 0
+
+        # Create Subscription record
+        subscription_record = Subscription(
+            user_id=current_user.id,
+            tier=tier,
+            status='active',
+            payment_provider='paypal',
+            provider_subscription_id=subscription_id,
+            start_date=datetime.utcnow(),
+            end_date=current_user.subscription_end_date,
+            next_billing_date=current_user.subscription_end_date,
+            amount_paid=amount,
+            currency='USD'
+        )
+        db.session.add(subscription_record)
+
+        # Create Payment record
+        payment_record = Payment(
+            user_id=current_user.id,
+            subscription_id=subscription_record.id,
+            payment_provider='paypal',
+            provider_transaction_id=subscription_id,  # Use subscription ID as transaction ID
+            amount=amount,
+            currency='USD',
+            status='completed',
+            payment_type='subscription',
+            payment_date=datetime.utcnow(),
+            notes=f'PayPal {tier} subscription activated'
+        )
+        db.session.add(payment_record)
+
+        db.session.commit()
+
+        flash(f'Payment successful! You now have the {tier} subscription with unlimited habits!', 'success')
+
+        return render_template('payments/success.html',
+                               tier=tier,
+                               amount=amount,
+                               currency='USD',
+                               provider='PayPal')
+
+    except Exception as e:
+        db.session.rollback()
+        flash('An error occurred while processing your PayPal subscription. Please contact support.', 'danger')
+        print(f"[PAYPAL SUCCESS ERROR] {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return redirect(url_for('profile.subscription'))
+
+
+def cancel_paypal_subscription(subscription_id):
+    """
+    Cancel a PayPal subscription.
+    Called when user cancels their recurring subscription.
+
+    Args:
+        subscription_id (str): PayPal subscription ID
+
+    Returns:
+        bool: True if cancellation successful, False otherwise
+    """
+    try:
+        init_paypal()
+
+        # Find the subscription
+        subscription = paypalrestsdk.Subscription.find(subscription_id)
+
+        if not subscription:
+            print(f"[PAYPAL] Subscription {subscription_id} not found")
+            return False
+
+        # Cancel the subscription
+        if subscription.cancel({'reason': 'User requested cancellation'}):
+            print(f"[PAYPAL] Subscription {subscription_id} cancelled successfully")
+            return True
+        else:
+            print(f"[PAYPAL] Failed to cancel subscription: {subscription.error}")
+            return False
+
+    except Exception as e:
+        print(f"[PAYPAL CANCEL ERROR] {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return False
 
 
 # ==========================================

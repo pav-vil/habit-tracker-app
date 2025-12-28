@@ -29,6 +29,16 @@ class Config:
     # App URL (for payment redirects)
     APP_URL = os.environ.get('APP_URL') or 'http://localhost:5000'
 
+    # PayPal Configuration (Phase 5)
+    PAYPAL_MODE = os.environ.get('PAYPAL_MODE', 'sandbox')  # 'sandbox' or 'live'
+    PAYPAL_CLIENT_ID = os.environ.get('PAYPAL_CLIENT_ID')
+    PAYPAL_CLIENT_SECRET = os.environ.get('PAYPAL_CLIENT_SECRET')
+    PAYPAL_WEBHOOK_ID = os.environ.get('PAYPAL_WEBHOOK_ID')  # For webhook signature verification
+
+    # PayPal Plan IDs (set these after creating subscription plans in PayPal Dashboard)
+    PAYPAL_PLAN_ID_MONTHLY = os.environ.get('PAYPAL_PLAN_ID_MONTHLY')
+    PAYPAL_PLAN_ID_ANNUAL = os.environ.get('PAYPAL_PLAN_ID_ANNUAL')
+
     # Email Configuration (Flask-Mail - Phase 5)
     MAIL_SERVER = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
     MAIL_PORT = int(os.environ.get('MAIL_PORT', '587'))

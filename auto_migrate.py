@@ -107,26 +107,27 @@ def auto_migrate_database(app, db):
                 user_columns = [col['name'] for col in inspector.get_columns('user')]
 
                 # Combined subscription field migrations from both versions
+                # Use quoted table name "user" for PostgreSQL compatibility (user is a reserved word)
                 subscription_migrations = [
-                    ('subscription_tier', "ALTER TABLE user ADD COLUMN subscription_tier VARCHAR(20) NOT NULL DEFAULT 'free'"),
-                    ('subscription_status', "ALTER TABLE user ADD COLUMN subscription_status VARCHAR(20) NOT NULL DEFAULT 'active'"),
-                    ('subscription_start_date', "ALTER TABLE user ADD COLUMN subscription_start_date TIMESTAMP"),
-                    ('subscription_end_date', "ALTER TABLE user ADD COLUMN subscription_end_date TIMESTAMP"),
-                    ('trial_end_date', "ALTER TABLE user ADD COLUMN trial_end_date TIMESTAMP"),
-                    ('habit_limit', "ALTER TABLE user ADD COLUMN habit_limit INTEGER NOT NULL DEFAULT 3"),
-                    ('stripe_customer_id', "ALTER TABLE user ADD COLUMN stripe_customer_id VARCHAR(255)"),
-                    ('stripe_subscription_id', "ALTER TABLE user ADD COLUMN stripe_subscription_id VARCHAR(255)"),
-                    ('paypal_subscription_id', "ALTER TABLE user ADD COLUMN paypal_subscription_id VARCHAR(255)"),
-                    ('coinbase_charge_code', "ALTER TABLE user ADD COLUMN coinbase_charge_code VARCHAR(255)"),
-                    ('billing_email', "ALTER TABLE user ADD COLUMN billing_email VARCHAR(120)"),
-                    ('last_payment_date', "ALTER TABLE user ADD COLUMN last_payment_date TIMESTAMP"),
-                    ('payment_failures', "ALTER TABLE user ADD COLUMN payment_failures INTEGER NOT NULL DEFAULT 0"),
-                    ('email_notifications_enabled', "ALTER TABLE user ADD COLUMN email_notifications_enabled BOOLEAN NOT NULL DEFAULT 1"),
-                    ('reminder_time', "ALTER TABLE user ADD COLUMN reminder_time VARCHAR(5) NOT NULL DEFAULT '09:00'"),
-                    ('reminder_days', "ALTER TABLE user ADD COLUMN reminder_days VARCHAR(20) NOT NULL DEFAULT 'all'"),
-                    ('last_reminder_sent', "ALTER TABLE user ADD COLUMN last_reminder_sent DATE"),
-                    ('account_deleted', "ALTER TABLE user ADD COLUMN account_deleted BOOLEAN NOT NULL DEFAULT FALSE"),
-                    ('deletion_scheduled_date', "ALTER TABLE user ADD COLUMN deletion_scheduled_date TIMESTAMP"),
+                    ('subscription_tier', 'ALTER TABLE "user" ADD COLUMN subscription_tier VARCHAR(20) NOT NULL DEFAULT \'free\''),
+                    ('subscription_status', 'ALTER TABLE "user" ADD COLUMN subscription_status VARCHAR(20) NOT NULL DEFAULT \'active\''),
+                    ('subscription_start_date', 'ALTER TABLE "user" ADD COLUMN subscription_start_date TIMESTAMP'),
+                    ('subscription_end_date', 'ALTER TABLE "user" ADD COLUMN subscription_end_date TIMESTAMP'),
+                    ('trial_end_date', 'ALTER TABLE "user" ADD COLUMN trial_end_date TIMESTAMP'),
+                    ('habit_limit', 'ALTER TABLE "user" ADD COLUMN habit_limit INTEGER NOT NULL DEFAULT 3'),
+                    ('stripe_customer_id', 'ALTER TABLE "user" ADD COLUMN stripe_customer_id VARCHAR(255)'),
+                    ('stripe_subscription_id', 'ALTER TABLE "user" ADD COLUMN stripe_subscription_id VARCHAR(255)'),
+                    ('paypal_subscription_id', 'ALTER TABLE "user" ADD COLUMN paypal_subscription_id VARCHAR(255)'),
+                    ('coinbase_charge_code', 'ALTER TABLE "user" ADD COLUMN coinbase_charge_code VARCHAR(255)'),
+                    ('billing_email', 'ALTER TABLE "user" ADD COLUMN billing_email VARCHAR(120)'),
+                    ('last_payment_date', 'ALTER TABLE "user" ADD COLUMN last_payment_date TIMESTAMP'),
+                    ('payment_failures', 'ALTER TABLE "user" ADD COLUMN payment_failures INTEGER NOT NULL DEFAULT 0'),
+                    ('email_notifications_enabled', 'ALTER TABLE "user" ADD COLUMN email_notifications_enabled BOOLEAN NOT NULL DEFAULT TRUE'),
+                    ('reminder_time', 'ALTER TABLE "user" ADD COLUMN reminder_time VARCHAR(5) NOT NULL DEFAULT \'09:00\''),
+                    ('reminder_days', 'ALTER TABLE "user" ADD COLUMN reminder_days VARCHAR(20) NOT NULL DEFAULT \'all\''),
+                    ('last_reminder_sent', 'ALTER TABLE "user" ADD COLUMN last_reminder_sent DATE'),
+                    ('account_deleted', 'ALTER TABLE "user" ADD COLUMN account_deleted BOOLEAN NOT NULL DEFAULT FALSE'),
+                    ('deletion_scheduled_date', 'ALTER TABLE "user" ADD COLUMN deletion_scheduled_date TIMESTAMP'),
                 ]
 
                 for column_name, sql in subscription_migrations:

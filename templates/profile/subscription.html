@@ -61,6 +61,41 @@
                         </div>
                     </div>
 
+                    <!-- Payment Provider -->
+                    {% if payment_provider %}
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <strong>Payment Method:</strong>
+                        </div>
+                        <div class="col-sm-8">
+                            {% if payment_provider == 'stripe' %}
+                                <span class="text-muted">💳 Credit Card (Stripe)</span>
+                            {% elif payment_provider == 'paypal' %}
+                                <span class="text-muted">💰 PayPal</span>
+                            {% elif payment_provider == 'coinbase' %}
+                                <span class="text-muted">₿ Bitcoin (Coinbase)</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Next Billing Date -->
+                    {% if next_billing_date and subscription_tier in ['monthly', 'annual'] %}
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <strong>Next Billing Date:</strong>
+                        </div>
+                        <div class="col-sm-8">
+                            <span class="text-muted">{{ next_billing_date.strftime('%B %d, %Y') }}</span>
+                            {% if subscription_status == 'cancelled' %}
+                                <p class="text-warning small mt-1 mb-0">
+                                    Your access will continue until this date.
+                                </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+
                     <!-- Upgrade/Manage Buttons -->
                     <div class="row mt-4">
                         <div class="col-12">
@@ -72,12 +107,29 @@
                                     Get unlimited habits, advanced statistics, and priority support!
                                 </p>
                             {% elif subscription_tier in ['monthly', 'annual'] %}
-                                <button class="btn btn-outline-primary" disabled>
-                                    Cancel Subscription
-                                </button>
-                                <p class="text-muted small mt-2 mb-0">
-                                    Payment management will be available after Phase 3 implementation.
-                                </p>
+                                {% if subscription_status == 'active' %}
+                                    <!-- Cancel Subscription Form -->
+                                    <form method="POST" action="{{ url_for('profile.cancel_subscription') }}" style="display: inline;">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                        <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Are you sure you want to cancel your subscription? You will retain access until the end of your billing period.');">
+                                            Cancel Subscription
+                                        </button>
+                                    </form>
+                                    <p class="text-muted small mt-2 mb-0">
+                                        You can cancel anytime. Your access will continue until {{ next_billing_date.strftime('%B %d, %Y') if next_billing_date else 'the end of your billing period' }}.
+                                    </p>
+                                {% elif subscription_status == 'cancelled' %}
+                                    <!-- Resume Subscription Form -->
+                                    <form method="POST" action="{{ url_for('profile.resume_subscription') }}" style="display: inline;">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                        <button type="submit" class="btn btn-success">
+                                            Resume Subscription
+                                        </button>
+                                    </form>
+                                    <p class="text-warning small mt-2 mb-0">
+                                        Your subscription is cancelled. Click "Resume" to re-enable auto-renewal.
+                                    </p>
+                                {% endif %}
                             {% else %}
                                 <p class="text-success mb-0">
                                     ✓ You have lifetime access! No further action needed.

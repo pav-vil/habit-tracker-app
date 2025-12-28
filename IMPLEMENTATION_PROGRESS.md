@@ -1,8 +1,8 @@
 # HabitFlow Profile & Payment Infrastructure - Implementation Progress
 
-**Last Updated:** December 27, 2024
-**Current Phase:** Phase 7 - Subscription Management UI
-**Overall Progress:** 70% (7 of 10 phases complete)
+**Last Updated:** December 28, 2025
+**Current Phase:** Phase 8 - Security Hardening
+**Overall Progress:** 80% (8 of 10 phases complete)
 
 ---
 
@@ -429,28 +429,31 @@ COINBASE_LIFETIME_PRICE=59.99
 
 ---
 
-### ⏳ Phase 7: Subscription Management & Billing History (PARTIALLY COMPLETE)
-**Status:** Pending Phase 6 completion
+### ✅ Phase 7: Subscription Management & Billing History (COMPLETE)
+**Status:** Completed December 28, 2025
 **Estimated Time:** 1 day
 **Priority:** High
 
-**Already Built:**
+**What Was Built:**
 - ✅ Email notifications for all payment events
 - ✅ Subscription records tracked in database
 - ✅ Payment records tracked in database
 - ✅ Email service with templates
-
-**Remaining Tasks:**
-- [ ] Implement `/profile/subscription/cancel` - Cancel subscription
-- [ ] Implement `/profile/subscription/resume` - Resume cancelled subscription
-- [ ] Update `templates/profile/subscription.html` with real data:
-  - Current plan details
-  - Next billing date
-  - Payment method
-  - Cancel/Resume buttons
-- [ ] Implement billing history pagination (10 per page)
-- [ ] Add date range filtering to billing history
-- [ ] Display payment history in `templates/profile/billing.html`
+- ✅ Implemented `/profile/subscription/cancel` - Cancel subscription (Stripe & PayPal)
+- ✅ Implemented `/profile/subscription/resume` - Resume cancelled subscription
+- ✅ Updated `templates/profile/subscription.html` with real data:
+  - Current plan details with subscription tier badge
+  - Next billing date display
+  - Payment method (Stripe/PayPal/Bitcoin)
+  - Cancel/Resume buttons with proper forms
+  - Confirmation dialogs for cancellation
+- ✅ Implemented billing history pagination (10 per page)
+- ✅ Added date range filtering to billing history
+- ✅ Display payment history in `templates/profile/billing.html`
+  - Fully functional pagination with page numbers
+  - Date range filter (start date, end date)
+  - Payment details table (date, amount, method, status)
+  - Total payment count display
 
 **Email Notifications (Already Complete):**
 - ✅ Payment successful
@@ -458,6 +461,19 @@ COINBASE_LIFETIME_PRICE=59.99
 - ✅ Subscription cancelled
 - ✅ Downgrade warning (>3 habits)
 - ✅ Daily habit reminders
+
+**Routes Added:**
+- `POST /profile/subscription/cancel` - Cancel active subscription
+- `POST /profile/subscription/resume` - Resume cancelled subscription
+- `GET /profile/billing?page=X&start_date=YYYY-MM-DD&end_date=YYYY-MM-DD` - Paginated billing history with filters
+
+**Key Features:**
+- Lifetime subscriptions cannot be cancelled (one-time purchase)
+- Cancelled subscriptions retain access until end of billing period
+- Users can resume cancelled subscriptions before expiration
+- Pagination shows 10 payments per page
+- Date filters use YYYY-MM-DD format
+- Payment status badges (Completed, Pending, Failed, Refunded)
 
 ---
 

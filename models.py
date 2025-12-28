@@ -365,7 +365,7 @@ class AuditLog(db.Model):
     error_message = db.Column(db.Text, nullable=True)  # Error details if action failed
 
     # Additional metadata (JSON)
-    metadata = db.Column(db.Text, nullable=True)  # Store extra details as JSON string
+    event_metadata = db.Column(db.Text, nullable=True)  # Store extra details as JSON string
 
     # Timestamp
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False, index=True)
@@ -425,7 +425,7 @@ def log_security_event(user_id, event_type, description, success=True, error_mes
         event_description=description,
         success=success,
         error_message=error_message,
-        metadata=metadata_json,
+        event_metadata=metadata_json,
         ip_address=ip_address,
         user_agent=user_agent
     )

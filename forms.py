@@ -277,3 +277,130 @@ class DeleteAccountForm(FlaskForm):
     )
 
     submit = SubmitField('Delete My Account', render_kw={"class": "btn btn-danger"})
+
+
+# ============================================================================
+# PERIOD TRACKING FORMS
+# ============================================================================
+
+class PeriodCycleForm(FlaskForm):
+    """Form for starting or editing a period cycle"""
+
+    start_date = DateField(
+        'Period Start Date',
+        validators=[DataRequired(message='Start date is required')],
+        format='%Y-%m-%d',
+        render_kw={"class": "form-control", "type": "date"}
+    )
+
+    end_date = DateField(
+        'Period End Date (optional)',
+        validators=[Optional()],
+        format='%Y-%m-%d',
+        render_kw={"class": "form-control", "type": "date"}
+    )
+
+    submit = SubmitField('Save Period', render_kw={"class": "btn btn-primary"})
+
+
+class PeriodDailyLogForm(FlaskForm):
+    """Form for logging daily symptoms and mood"""
+
+    log_date = DateField(
+        'Date',
+        validators=[DataRequired()],
+        format='%Y-%m-%d',
+        render_kw={"class": "form-control", "type": "date"}
+    )
+
+    flow_intensity = SelectField(
+        'Flow Intensity',
+        choices=[
+            ('', 'No Flow'),
+            ('light', 'Light 💧'),
+            ('medium', 'Medium 💧💧'),
+            ('heavy', 'Heavy 💧💧💧')
+        ],
+        validators=[Optional()],
+        render_kw={"class": "form-select"}
+    )
+
+    symptoms = SelectMultipleField(
+        'Symptoms',
+        choices=[
+            ('cramps', 'Cramps'),
+            ('headache', 'Headache'),
+            ('fatigue', 'Fatigue'),
+            ('bloating', 'Bloating'),
+            ('nausea', 'Nausea'),
+            ('back_pain', 'Back Pain'),
+            ('breast_tenderness', 'Breast Tenderness'),
+            ('acne', 'Acne'),
+            ('mood_swings', 'Mood Swings')
+        ],
+        render_kw={"class": "form-select", "multiple": True, "size": "5"}
+    )
+
+    mood = SelectField(
+        'Mood',
+        choices=[
+            ('', 'Select Mood'),
+            ('happy', 'Happy 😊'),
+            ('normal', 'Normal 😐'),
+            ('sad', 'Sad 😢'),
+            ('irritable', 'Irritable 😠'),
+            ('anxious', 'Anxious 😰')
+        ],
+        validators=[Optional()],
+        render_kw={"class": "form-select"}
+    )
+
+    notes = TextAreaField(
+        'Notes',
+        validators=[Optional(), Length(max=500)],
+        render_kw={"class": "form-control", "rows": "3", "placeholder": "Any additional notes..."}
+    )
+
+    submit = SubmitField('Save Log', render_kw={"class": "btn btn-primary"})
+
+
+class PeriodSettingsForm(FlaskForm):
+    """Form for period tracking settings"""
+
+    period_tracking_enabled = BooleanField(
+        'Enable Period Tracking',
+        render_kw={"class": "form-check-input"}
+    )
+
+    average_cycle_length = IntegerField(
+        'Average Cycle Length (days)',
+        validators=[DataRequired(), NumberRange(min=20, max=45, message='Cycle length must be between 20-45 days')],
+        default=28,
+        render_kw={"class": "form-control", "min": "20", "max": "45"}
+    )
+
+    average_period_duration = IntegerField(
+        'Average Period Duration (days)',
+        validators=[DataRequired(), NumberRange(min=2, max=10, message='Period duration must be between 2-10 days')],
+        default=5,
+        render_kw={"class": "form-control", "min": "2", "max": "10"}
+    )
+
+    reminder_enabled = BooleanField(
+        'Email Reminders',
+        render_kw={"class": "form-check-input"}
+    )
+
+    reminder_days_before = IntegerField(
+        'Days Before Period to Send Reminder',
+        validators=[Optional(), NumberRange(min=1, max=7, message='Reminder must be 1-7 days before')],
+        default=2,
+        render_kw={"class": "form-control", "min": "1", "max": "7"}
+    )
+
+    show_on_dashboard = BooleanField(
+        'Show Widget on Dashboard',
+        render_kw={"class": "form-check-input"}
+    )
+
+    submit = SubmitField('Save Settings', render_kw={"class": "btn btn-primary"})

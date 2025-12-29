@@ -83,45 +83,55 @@
     <!-- Completion Heatmap -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="mb-0 h5"><span aria-hidden="true">🗓️</span> Activity - Last 12 Weeks</h2>
+            <div class="card" style="border: none; border-radius: 20px; box-shadow: 0 10px 40px rgba(124, 58, 237, 0.15); overflow: hidden;">
+                <div class="card-header" style="background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%); border: none; padding: 20px 25px;">
+                    <h2 class="mb-0 h5" style="color: white; font-weight: 600; font-size: 1.2rem;">
+                        <span aria-hidden="true" style="font-size: 1.5rem; margin-right: 8px;">🗓️</span>
+                        Activity - Last 12 Weeks
+                    </h2>
                 </div>
-                <div class="card-body">
+                <div class="card-body" style="background: linear-gradient(135deg, #faf5ff 0%, #ffffff 100%); padding: 30px 25px;">
                     <!-- Skeleton loader for heatmap -->
                     <div id="heatmapLoading" aria-live="polite" aria-label="Loading heatmap">
-                        <div class="skeleton" style="height: 120px; border-radius: 8px;"></div>
+                        <div class="skeleton" style="height: 160px; border-radius: 12px; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: skeleton-loading 1.5s infinite;"></div>
                     </div>
-                    <div id="heatmapContainer" style="overflow-x: auto; overflow-y: hidden; display: none;" role="img" aria-label="Heatmap showing daily habit completion activity for the last 12 weeks">
-                        <div style="display: inline-flex; align-items: flex-start; min-width: fit-content;">
+                    <div id="heatmapContainer" style="overflow-x: auto; overflow-y: hidden; display: none; padding: 10px 0;" role="img" aria-label="Heatmap showing daily habit completion activity for the last 12 weeks">
+                        <div style="display: inline-flex; align-items: flex-start; min-width: fit-content; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
                             <!-- Day labels -->
-                            <div style="display: flex; flex-direction: column; gap: 3px; margin-right: 8px; padding-top: 2px;">
-                                <div style="height: 12px; font-size: 10px; color: #666;">Mon</div>
-                                <div style="height: 12px; font-size: 10px; color: #666;">Tue</div>
-                                <div style="height: 12px; font-size: 10px; color: #666;">Wed</div>
-                                <div style="height: 12px; font-size: 10px; color: #666;">Thu</div>
-                                <div style="height: 12px; font-size: 10px; color: #666;">Fri</div>
-                                <div style="height: 12px; font-size: 10px; color: #666;">Sat</div>
-                                <div style="height: 12px; font-size: 10px; color: #666;">Sun</div>
+                            <div style="display: flex; flex-direction: column; gap: 4px; margin-right: 12px; padding-top: 4px;">
+                                <div style="height: 14px; font-size: 11px; color: #6b7280; font-weight: 600; display: flex; align-items: center;">Mon</div>
+                                <div style="height: 14px; font-size: 11px; color: #6b7280; font-weight: 600; display: flex; align-items: center;">Tue</div>
+                                <div style="height: 14px; font-size: 11px; color: #6b7280; font-weight: 600; display: flex; align-items: center;">Wed</div>
+                                <div style="height: 14px; font-size: 11px; color: #6b7280; font-weight: 600; display: flex; align-items: center;">Thu</div>
+                                <div style="height: 14px; font-size: 11px; color: #6b7280; font-weight: 600; display: flex; align-items: center;">Fri</div>
+                                <div style="height: 14px; font-size: 11px; color: #6b7280; font-weight: 600; display: flex; align-items: center;">Sat</div>
+                                <div style="height: 14px; font-size: 11px; color: #6b7280; font-weight: 600; display: flex; align-items: center;">Sun</div>
                             </div>
                             <!-- Heatmap grid -->
-                            <div id="heatmap" style="display: flex; gap: 3px;"></div>
+                            <div id="heatmap" style="display: flex; gap: 4px;"></div>
                         </div>
                     </div>
                     <!-- Legend with Purple Theme -->
-                    <div class="mt-3 d-flex align-items-center justify-content-end">
-                        <span class="text-muted small me-2">Less</span>
-                        <div style="width: 12px; height: 12px; background: #ebedf0; border-radius: 2px;"></div>
-                        <div style="width: 12px; height: 12px; background: #ddd6fe; border-radius: 2px; margin-left: 3px;"></div>
-                        <div style="width: 12px; height: 12px; background: #c4b5fd; border-radius: 2px; margin-left: 3px;"></div>
-                        <div style="width: 12px; height: 12px; background: #a78bfa; border-radius: 2px; margin-left: 3px;"></div>
-                        <div style="width: 12px; height: 12px; background: #7c3aed; border-radius: 2px; margin-left: 3px;"></div>
-                        <span class="text-muted small ms-2">More</span>
+                    <div class="mt-4 d-flex align-items-center justify-content-center" style="background: white; padding: 12px 20px; border-radius: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); width: fit-content; margin-left: auto; margin-right: auto;">
+                        <span style="color: #6b7280; font-size: 13px; font-weight: 600; margin-right: 10px;">Less</span>
+                        <div style="width: 16px; height: 16px; background: #ebedf0; border-radius: 3px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'"></div>
+                        <div style="width: 16px; height: 16px; background: #ddd6fe; border-radius: 3px; margin-left: 5px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'"></div>
+                        <div style="width: 16px; height: 16px; background: #c4b5fd; border-radius: 3px; margin-left: 5px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'"></div>
+                        <div style="width: 16px; height: 16px; background: #a78bfa; border-radius: 3px; margin-left: 5px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'"></div>
+                        <div style="width: 16px; height: 16px; background: #7c3aed; border-radius: 3px; margin-left: 5px; box-shadow: 0 0 8px rgba(124, 58, 237, 0.4); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'"></div>
+                        <span style="color: #6b7280; font-size: 13px; font-weight: 600; margin-left: 10px;">More</span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <style>
+    @keyframes skeleton-loading {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+    </style>
     
     <!-- Charts Row -->
     <div class="row mb-4">
@@ -675,13 +685,15 @@ fetch('/stats/api/chart-data')
                 const weekDiv = document.createElement('div');
                 weekDiv.style.display = 'flex';
                 weekDiv.style.flexDirection = 'column';
-                weekDiv.style.gap = '3px';
+                weekDiv.style.gap = '4px';
 
                 currentWeek.forEach(d => {
                     const cell = document.createElement('div');
-                    cell.style.width = '12px';
-                    cell.style.height = '12px';
-                    cell.style.borderRadius = '2px';
+                    cell.style.width = '14px';
+                    cell.style.height = '14px';
+                    cell.style.borderRadius = '3px';
+                    cell.style.cursor = 'pointer';
+                    cell.style.transition = 'transform 0.2s, box-shadow 0.2s';
                     cell.title = `${d.display}: ${d.count} completion${d.count !== 1 ? 's' : ''}`;
 
                     // Color based on completion ratio - Purple gradient theme
@@ -697,6 +709,18 @@ fetch('/stats/api/chart-data')
                     } else {
                         cell.style.background = '#7c3aed';        // Primary purple (100%)
                     }
+
+                    // Add hover effects for interactivity
+                    cell.addEventListener('mouseenter', () => {
+                        cell.style.transform = 'scale(1.3)';
+                        if (d.count > 0) {
+                            cell.style.boxShadow = '0 0 12px rgba(124, 58, 237, 0.6)';
+                        }
+                    });
+                    cell.addEventListener('mouseleave', () => {
+                        cell.style.transform = 'scale(1)';
+                        cell.style.boxShadow = 'none';
+                    });
 
                     weekDiv.appendChild(cell);
                 });

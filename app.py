@@ -110,6 +110,10 @@ app.register_blueprint(webhooks_bp, url_prefix='/webhooks')
 # Exempt webhooks from CSRF protection
 csrf.exempt(webhooks_bp)
 
+# Import and register periods blueprint
+from periods import periods_bp
+app.register_blueprint(periods_bp)
+
 @app.route('/')
 def home():
     """Home page"""

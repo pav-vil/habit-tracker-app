@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block title %}Period Tracking Settings - HabitFlow{% endblock %}
+
+{% block extra_css %}
+<style>
+    .settings-card {
+        background: var(--card-bg);
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 10px 40px rgba(236, 72, 153, 0.15);
+        border: 2px solid #fce7f3;
+    }
+
+    .settings-card h2 {
+        background: linear-gradient(135deg, #ec4899 0%, #f472b6 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-weight: 700;
+        margin-bottom: 25px;
+    }
+
+    .settings-section {
+        margin-bottom: 30px;
+        padding-bottom: 25px;
+        border-bottom: 1px solid #fce7f3;
+    }
+
+    .settings-section:last-child {
+        border-bottom: none;
+    }
+
+    .settings-section h5 {
+        color: #be185d;
+        font-weight: 600;
+        margin-bottom: 15px;
+    }
+
+    body.dark-mode .settings-section h5 {
+        color: #f472b6;
+    }
+
+    .form-switch .form-check-input:checked {
+        background-color: #ec4899;
+        border-color: #ec4899;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #ec4899 0%, #f472b6 100%);
+        border: none;
+        padding: 12px 30px;
+        font-weight: 600;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #db2777 0%, #ec4899 100%);
+    }
+
+    .info-box {
+        background: rgba(236, 72, 153, 0.1);
+        border-left: 4px solid #ec4899;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+
+    body.dark-mode .info-box {
+        background: rgba(236, 72, 153, 0.2);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="settings-card">
+                <h2>🌸 Period Tracking Settings</h2>
+
+                <div class="info-box">
+                    <strong>About Period Tracking:</strong> Enable this feature to track your menstrual cycle, predict future periods, log symptoms and mood, and receive reminders.
+                </div>
+
+                <form method="POST" action="">
+                    {{ form.hidden_tag() }}
+
+                    <!-- Enable/Disable -->
+                    <div class="settings-section">
+                        <div class="form-check form-switch mb-3">
+                            {{ form.period_tracking_enabled(id="period_tracking_enabled") }}
+                            {{ form.period_tracking_enabled.label(class="form-check-label") }}
+                        </div>
+                        <small class="text-muted">Turn on period tracking to access cycle predictions and symptom logging.</small>
+                    </div>
+
+                    <!-- Cycle Preferences -->
+                    <div class="settings-section">
+                        <h5>📅 Your Cycle</h5>
+                        <div class="mb-3">
+                            {{ form.average_cycle_length.label(class="form-label") }}
+                            {{ form.average_cycle_length(class="form-control") }}
+                            <small class="text-muted">Typical cycle length: 21-35 days (default: 28)</small>
+                        </div>
+                        <div class="mb-3">
+                            {{ form.average_period_duration.label(class="form-label") }}
+                            {{ form.average_period_duration(class="form-control") }}
+                            <small class="text-muted">How many days your period typically lasts (default: 5)</small>
+                        </div>
+                    </div>
+
+                    <!-- Reminders -->
+                    <div class="settings-section">
+                        <h5>📧 Email Reminders</h5>
+                        <div class="form-check form-switch mb-3">
+                            {{ form.reminder_enabled(id="reminder_enabled") }}
+                            {{ form.reminder_enabled.label(class="form-check-label") }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.reminder_days_before.label(class="form-label") }}
+                            {{ form.reminder_days_before(class="form-control") }}
+                            <small class="text-muted">Get an email reminder before your predicted period</small>
+                        </div>
+                    </div>
+
+                    <!-- Dashboard Widget -->
+                    <div class="settings-section">
+                        <h5>📊 Dashboard Widget</h5>
+                        <div class="form-check form-switch">
+                            {{ form.show_on_dashboard(id="show_on_dashboard") }}
+                            {{ form.show_on_dashboard.label(class="form-check-label") }}
+                        </div>
+                        <small class="text-muted">Display period tracker widget on your main dashboard</small>
+                    </div>
+
+                    <!-- Submit -->
+                    <div class="text-center mt-4">
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+
+                <div class="text-center mt-4">
+                    <a href="{{ url_for('habits.dashboard') }}" class="text-decoration-none" style="color: #ec4899;">
+                        ← Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

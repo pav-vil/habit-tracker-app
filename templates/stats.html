@@ -227,14 +227,17 @@
     <!-- Habits Table -->
     <div class="row">
         <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="mb-0 h5"><span aria-hidden="true">🎯</span> Habit Details</h2>
+            <div class="card" style="border: none; border-radius: 20px; box-shadow: 0 10px 40px rgba(124, 58, 237, 0.15); overflow: hidden;">
+                <div class="card-header" style="background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%); border: none; padding: 20px 25px;">
+                    <h2 class="mb-0 h5" style="color: white; font-weight: 600; font-size: 1.2rem;">
+                        <span aria-hidden="true" style="font-size: 1.5rem; margin-right: 8px;">🎯</span>
+                        Habit Details
+                    </h2>
                 </div>
-                <div class="card-body">
+                <div class="card-body habit-details-body">
                     {% if habits %}
                     <div class="table-responsive">
-                        <table class="table table-hover" aria-label="Detailed habit statistics">
+                        <table class="table habit-details-table" aria-label="Detailed habit statistics">
                             <thead>
                                 <tr>
                                     <th scope="col">Habit</th>
@@ -246,11 +249,13 @@
                             <tbody>
                                 {% for habit in habits %}
                                 <tr>
-                                    <td><strong>{{ habit.name }}</strong></td>
+                                    <td><strong class="habit-name-text">{{ habit.name }}</strong></td>
                                     <td>
-                                        <span class="badge bg-primary">🔥 {{ habit.streak_count }} days</span>
+                                        <span class="streak-badge-table">
+                                            <span aria-hidden="true">🔥</span> {{ habit.streak_count }} day{% if habit.streak_count != 1 %}s{% endif %}
+                                        </span>
                                     </td>
-                                    <td>
+                                    <td class="last-completed-cell">
                                         {% if habit.last_completed %}
                                             {{ habit.last_completed.strftime('%b %d, %Y') }}
                                         {% else %}
@@ -259,11 +264,11 @@
                                     </td>
                                     <td>
                                         {% if habit.last_completed == now.date() %}
-                                            <span class="badge bg-success">✓ Done today</span>
+                                            <span class="status-badge status-done">✓ Done today</span>
                                         {% elif habit.streak_count > 0 %}
-                                            <span class="badge bg-warning text-dark">⏳ Pending</span>
+                                            <span class="status-badge status-pending">⏳ Pending</span>
                                         {% else %}
-                                            <span class="badge bg-secondary">Not started</span>
+                                            <span class="status-badge status-not-started">Not started</span>
                                         {% endif %}
                                     </td>
                                 </tr>
@@ -281,6 +286,164 @@
             </div>
         </div>
     </div>
+
+    <style>
+    /* Habit Details Table Styling */
+    .habit-details-body {
+        background: linear-gradient(135deg, #faf5ff 0%, #ffffff 100%);
+        padding: 30px 25px;
+    }
+
+    body.dark-mode .habit-details-body {
+        background: var(--card-bg);
+    }
+
+    .habit-details-table {
+        margin-bottom: 0;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .habit-details-table thead th {
+        background: white;
+        color: #6b7280;
+        font-weight: 700;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 15px 20px;
+        border: none;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    body.dark-mode .habit-details-table thead th {
+        background: #2d3748;
+        color: #9ca3af;
+    }
+
+    .habit-details-table tbody tr {
+        transition: all 0.3s ease;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    body.dark-mode .habit-details-table tbody tr {
+        border-bottom: 1px solid #374151;
+    }
+
+    .habit-details-table tbody tr:hover {
+        background: linear-gradient(135deg, rgba(124, 58, 237, 0.05) 0%, rgba(167, 139, 250, 0.05) 100%);
+        transform: scale(1.01);
+        box-shadow: 0 2px 8px rgba(124, 58, 237, 0.1);
+    }
+
+    .habit-details-table tbody td {
+        padding: 18px 20px;
+        vertical-align: middle;
+        border: none;
+    }
+
+    .habit-name-text {
+        color: #1f2937;
+        font-size: 1.05rem;
+        font-weight: 600;
+    }
+
+    body.dark-mode .habit-name-text {
+        color: #f3f4f6 !important;
+    }
+
+    .last-completed-cell {
+        color: #6b7280;
+        font-weight: 500;
+    }
+
+    body.dark-mode .last-completed-cell {
+        color: #9ca3af !important;
+    }
+
+    /* Streak Badge in Table */
+    .streak-badge-table {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+        transition: all 0.2s ease;
+    }
+
+    .streak-badge-table:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+    }
+
+    /* Status Badges */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+    }
+
+    .status-badge:hover {
+        transform: scale(1.05);
+    }
+
+    .status-done {
+        background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+        color: white;
+        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+    }
+
+    .status-done:hover {
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    }
+
+    .status-pending {
+        background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+        color: white;
+        box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+    }
+
+    .status-pending:hover {
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+    }
+
+    .status-not-started {
+        background: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%);
+        color: white;
+        box-shadow: 0 2px 8px rgba(107, 114, 128, 0.3);
+    }
+
+    .status-not-started:hover {
+        box-shadow: 0 4px 12px rgba(107, 114, 128, 0.4);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .habit-details-table thead th,
+        .habit-details-table tbody td {
+            padding: 12px 10px;
+            font-size: 0.9rem;
+        }
+
+        .streak-badge-table,
+        .status-badge {
+            font-size: 0.8rem;
+            padding: 6px 12px;
+        }
+    }
+    </style>
 
 </div>
 

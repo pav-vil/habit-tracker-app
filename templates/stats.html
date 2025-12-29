@@ -33,13 +33,13 @@
     </div>
 
     <div class="row mb-4">
-        <div class="col-md-4 text-end">
+        <div class="col-md-12 text-end">
             <!-- Export Buttons -->
             <div class="btn-group" role="group" aria-label="Export options">
-                <button type="button" class="btn btn-outline-primary" id="exportPdfBtn" aria-label="Download statistics as PDF file">
+                <button type="button" class="btn btn-primary" id="exportPdfBtn" aria-label="Download statistics as PDF file" style="background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%); border: none; border-radius: 10px 0 0 10px; padding: 12px 24px; font-weight: 600; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3); transition: all 0.3s ease;">
                     <span aria-hidden="true">📄</span> Export PDF
                 </button>
-                <button type="button" class="btn btn-outline-primary" id="exportImageBtn" aria-label="Download statistics as PNG image">
+                <button type="button" class="btn btn-primary" id="exportImageBtn" aria-label="Download statistics as PNG image" style="background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%); border: none; border-radius: 0 10px 10px 0; border-left: 1px solid rgba(255,255,255,0.3); padding: 12px 24px; font-weight: 600; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3); transition: all 0.3s ease;">
                     <span aria-hidden="true">🖼️</span> Export Image
                 </button>
             </div>
@@ -983,12 +983,32 @@ document.addEventListener('DOMContentLoaded', function() {
     const exportImageBtn = document.getElementById('exportImageBtn');
     if (exportImageBtn) {
         exportImageBtn.addEventListener('click', exportAsImage);
+
+        // Add hover effect
+        exportImageBtn.addEventListener('mouseenter', () => {
+            exportImageBtn.style.transform = 'translateY(-2px)';
+            exportImageBtn.style.boxShadow = '0 6px 25px rgba(124, 58, 237, 0.4)';
+        });
+        exportImageBtn.addEventListener('mouseleave', () => {
+            exportImageBtn.style.transform = 'translateY(0)';
+            exportImageBtn.style.boxShadow = '0 4px 15px rgba(124, 58, 237, 0.3)';
+        });
     }
 
     // Export as PDF button
     const exportPdfBtn = document.getElementById('exportPdfBtn');
     if (exportPdfBtn) {
         exportPdfBtn.addEventListener('click', exportAsPDF);
+
+        // Add hover effect
+        exportPdfBtn.addEventListener('mouseenter', () => {
+            exportPdfBtn.style.transform = 'translateY(-2px)';
+            exportPdfBtn.style.boxShadow = '0 6px 25px rgba(124, 58, 237, 0.4)';
+        });
+        exportPdfBtn.addEventListener('mouseleave', () => {
+            exportPdfBtn.style.transform = 'translateY(0)';
+            exportPdfBtn.style.boxShadow = '0 4px 15px rgba(124, 58, 237, 0.3)';
+        });
     }
 });
 </script>

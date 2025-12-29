@@ -1080,7 +1080,7 @@
             <a href="{{ url_for('habits.add_habit') }}" class="btn btn-primary btn-lg" aria-label="Create a new habit">
                 <span aria-hidden="true">➕</span> Add New Habit
             </a>
-            <a href="{{ url_for('habits.archived') }}" class="btn btn-outline-secondary btn-lg ms-2" aria-label="View your archived habits">
+            <a href="{{ url_for('habits.archived') }}" class="btn btn-lg ms-2" aria-label="View your archived habits" style="background: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%); border: none; border-radius: 10px; padding: 12px 24px; font-weight: 600; color: white; box-shadow: 0 4px 15px rgba(107, 114, 128, 0.3); transition: all 0.3s ease;">
                 <span aria-hidden="true">📦</span> View Archived
             </a>
         </div>
@@ -1152,13 +1152,13 @@
                             </form>
                         {% endif %}
 
-                        <a href="{{ url_for('habits.edit_habit', habit_id=habit.id) }}" class="btn btn-outline-secondary" aria-label="Edit {{ habit.name }}">
+                        <a href="{{ url_for('habits.edit_habit', habit_id=habit.id) }}" class="btn" aria-label="Edit {{ habit.name }}" style="background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%); border: none; border-radius: 8px; padding: 8px 16px; font-weight: 600; color: white; box-shadow: 0 2px 10px rgba(124, 58, 237, 0.3); transition: all 0.3s ease;">
                             <span aria-hidden="true">✏️</span> Edit
                         </a>
 
                         <form action="{{ url_for('habits.archive_habit', habit_id=habit.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to archive &quot;{{ habit.name }}&quot;? You can restore it later from the archived habits page.');" aria-label="Archive {{ habit.name }}">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                            <button type="submit" class="btn btn-outline-warning" aria-label="Archive {{ habit.name }}">
+                            <button type="submit" class="btn" aria-label="Archive {{ habit.name }}" style="background: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%); border: none; border-radius: 8px; padding: 8px 16px; font-weight: 600; color: white; box-shadow: 0 2px 10px rgba(107, 114, 128, 0.3); transition: all 0.3s ease;">
                                 <span aria-hidden="true">📦</span> Archive
                             </button>
                         </form>

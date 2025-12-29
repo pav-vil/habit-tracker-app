@@ -341,3 +341,101 @@ class Payment(db.Model):
 
     def __repr__(self):
         return f'<Payment user_id={self.user_id} provider={self.payment_provider} amount={self.amount} status={self.status}>'
+
+
+class AuditLog(db.Model):
+    """
+    Audit log for security events and sensitive user actions.
+    Tracks login attempts, password changes, account modifications, etc.
+    Used for security monitoring and GDPR compliance.
+    """
+    __tablename__ = 'audit_log'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True, index=True)  # None for failed logins
+
+    # Event details
+    event_type = db.Column(db.String(50), nullable=False, index=True)  # 'login', 'logout', 'password_change', etc.
+    event_description = db.Column(db.String(255), nullable=False)  # Human-readable description
+    ip_address = db.Column(db.String(45), nullable=True)  # IPv4 or IPv6
+    user_agent = db.Column(db.String(255), nullable=True)  # Browser/device info
+
+    # Event result
+    success = db.Column(db.Boolean, default=True, nullable=False)  # True if action succeeded
+    error_message = db.Column(db.Text, nullable=True)  # Error details if action failed
+
+    # Additional metadata (JSON)
+    event_metadata = db.Column(db.Text, nullable=True)  # Store extra details as JSON string
+
+    # Timestamp
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False, index=True)
+
+    # Relationships
+    user = db.relationship('User', backref=db.backref('audit_logs', lazy='dynamic'))
+
+    def __repr__(self):
+        return f'<AuditLog user_id={self.user_id} event={self.event_type} success={self.success}>'
+
+
+def log_security_event(user_id, event_type, description, success=True, error_message=None, metadata=None, ip_address=None, user_agent=None):
+    """
+    Helper function to log security events to the audit log.
+
+    Args:
+        user_id: User ID (None for unauthenticated events like failed logins)
+        event_type: Type of event (login, logout, password_change, account_delete, etc.)
+        description: Human-readable description
+        success: Whether the action succeeded
+        error_message: Error details if action failed
+        metadata: Additional details as dict (will be JSON serialized)
+        ip_address: Client IP address
+        user_agent: Client user agent string
+
+    Returns:
+        AuditLog object that was created
+    """
+    import json
+    from flask import request
+
+    # Auto-capture IP and user agent from request context if not provided
+    if ip_address is None:
+        try:
+            ip_address = request.remote_addr
+        except:
+            ip_address = None
+
+    if user_agent is None:
+        try:
+            user_agent = request.headers.get('User-Agent', '')[:255]  # Truncate to 255 chars
+        except:
+            user_agent = None
+
+    # Convert metadata dict to JSON string
+    metadata_json = None
+    if metadata:
+        try:
+            metadata_json = json.dumps(metadata)
+        except:
+            metadata_json = str(metadata)
+
+    # Create audit log entry
+    audit_entry = AuditLog(
+        user_id=user_id,
+        event_type=event_type,
+        event_description=description,
+        success=success,
+        error_message=error_message,
+        event_metadata=metadata_json,
+        ip_address=ip_address,
+        user_agent=user_agent
+    )
+
+    try:
+        db.session.add(audit_entry)
+        db.session.commit()
+        print(f"[AUDIT] {event_type}: {description} (user_id={user_id}, success={success})")
+        return audit_entry
+    except Exception as e:
+        db.session.rollback()
+        print(f"[AUDIT] Error logging event: {e}")
+        return None

@@ -118,6 +118,10 @@ def home():
 # Apply rate limiting to login endpoint (5 attempts per minute)
 app.view_functions['auth.login'] = limiter.limit("5 per minute")(app.view_functions['auth.login'])
 
+# Apply rate limiting to payment endpoints (10 requests per hour to prevent abuse)
+app.view_functions['payments.checkout'] = limiter.limit("10 per hour")(app.view_functions['payments.checkout'])
+app.view_functions['subscription.checkout'] = limiter.limit("10 per hour")(app.view_functions['subscription.checkout'])
+
 if __name__ == '__main__':
     # Run the app - accessible on all network interfaces
     app.run(host='0.0.0.0', port=5000, debug=True)

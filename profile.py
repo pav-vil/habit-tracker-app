@@ -3,10 +3,11 @@
 
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
-from models import db, User
+from models import db, User, Payment, Subscription
 from forms import EditEmailForm, EditPasswordForm, SettingsForm, DeleteAccountForm
 from datetime import datetime, timedelta
 from sqlalchemy.exc import IntegrityError
+from payments import cancel_stripe_subscription, cancel_paypal_subscription
 
 # Create blueprint for profile routes
 profile_bp = Blueprint('profile', __name__, url_prefix='/profile')
@@ -180,30 +181,321 @@ def subscription():
     """
     Subscription management page.
     View current plan, billing cycle, and manage subscription.
-    (Payment integration to be added in Phase 3)
+    Shows real subscription data including payment provider and next billing date.
     """
-    # Get subscription tier (default to 'free' for now)
+    # Get subscription tier and status
     subscription_tier = getattr(current_user, 'subscription_tier', 'free')
     subscription_status = getattr(current_user, 'subscription_status', 'active')
 
+    # Get next billing date
+    next_billing_date = getattr(current_user, 'subscription_end_date', None)
+
+    # Determine payment provider
+    payment_provider = None
+    if current_user.stripe_subscription_id:
+        payment_provider = 'stripe'
+    elif current_user.paypal_subscription_id:
+        payment_provider = 'paypal'
+    elif subscription_tier == 'lifetime':
+        payment_provider = 'coinbase' if current_user.coinbase_charge_code else 'stripe'
+
+    # Get latest subscription record
+    latest_subscription = Subscription.query.filter_by(
+        user_id=current_user.id
+    ).order_by(Subscription.start_date.desc()).first()
+
     return render_template('profile/subscription.html',
                            subscription_tier=subscription_tier,
-                           subscription_status=subscription_status)
+                           subscription_status=subscription_status,
+                           next_billing_date=next_billing_date,
+                           payment_provider=payment_provider,
+                           subscription=latest_subscription)
+
+
+@profile_bp.route('/subscription/cancel', methods=['POST'])
+@login_required
+def cancel_subscription():
+    """
+    Cancel user's subscription.
+    Handles cancellation for Stripe and PayPal subscriptions.
+    Lifetime subscriptions cannot be cancelled (one-time payment).
+    """
+    # Check if user has an active subscription
+    if not current_user.subscription_tier or current_user.subscription_tier == 'free':
+        flash('You do not have an active subscription to cancel.', 'warning')
+        return redirect(url_for('profile.subscription'))
+
+    # Lifetime subscriptions cannot be cancelled
+    if current_user.subscription_tier == 'lifetime':
+        flash('Lifetime subscriptions cannot be cancelled as they are one-time purchases.', 'info')
+        return redirect(url_for('profile.subscription'))
+
+    # Check if already cancelled
+    if current_user.subscription_status == 'cancelled':
+        flash('Your subscription is already cancelled.', 'info')
+        return redirect(url_for('profile.subscription'))
+
+    try:
+        # Determine payment provider and cancel accordingly
+        if current_user.stripe_subscription_id:
+            # Cancel Stripe subscription
+            success = cancel_stripe_subscription(current_user.stripe_subscription_id)
+            if success:
+                current_user.subscription_status = 'cancelled'
+                db.session.commit()
+                flash(
+                    'Your subscription has been cancelled. '
+                    'You will retain access until the end of your current billing period.',
+                    'success'
+                )
+            else:
+                flash('Unable to cancel subscription. Please try again or contact support.', 'danger')
+
+        elif current_user.paypal_subscription_id:
+            # Cancel PayPal subscription
+            success = cancel_paypal_subscription(current_user.paypal_subscription_id)
+            if success:
+                current_user.subscription_status = 'cancelled'
+                db.session.commit()
+                flash(
+                    'Your subscription has been cancelled. '
+                    'You will retain access until the end of your current billing period.',
+                    'success'
+                )
+            else:
+                flash('Unable to cancel subscription. Please try again or contact support.', 'danger')
+
+        else:
+            flash('No active payment subscription found.', 'warning')
+
+    except Exception as e:
+        db.session.rollback()
+        flash('Error cancelling subscription. Please contact support.', 'danger')
+
+    return redirect(url_for('profile.subscription'))
+
+
+@profile_bp.route('/subscription/resume', methods=['POST'])
+@login_required
+def resume_subscription():
+    """
+    Resume a cancelled subscription.
+    Only works if subscription is cancelled but still within the paid period.
+    Re-enables auto-renewal for the subscription.
+    """
+    # Check if user has a cancelled subscription
+    if current_user.subscription_status != 'cancelled':
+        flash('Your subscription is not cancelled.', 'info')
+        return redirect(url_for('profile.subscription'))
+
+    # Check if subscription tier is valid (not free or lifetime)
+    if current_user.subscription_tier in ['free', 'lifetime']:
+        flash('This subscription cannot be resumed.', 'warning')
+        return redirect(url_for('profile.subscription'))
+
+    try:
+        # For resumed subscriptions, we reactivate by changing status back to active
+        # The actual billing will resume at the next billing date via webhooks
+        current_user.subscription_status = 'active'
+        db.session.commit()
+
+        flash(
+            'Your subscription has been resumed! '
+            'Auto-renewal is now enabled and will continue at your next billing date.',
+            'success'
+        )
+
+    except Exception as e:
+        db.session.rollback()
+        flash('Error resuming subscription. Please contact support.', 'danger')
+
+    return redirect(url_for('profile.subscription'))
 
 
 @profile_bp.route('/billing')
 @login_required
 def billing():
     """
-    Billing history page.
-    Shows all past payments and transactions.
-    (Payment records to be added in Phase 3)
+    Billing history page with pagination and date filtering.
+    Shows all past payments and transactions (10 per page).
+    Supports filtering by date range.
     """
-    # Placeholder for billing history (will be populated in Phase 3)
-    payments = []
+    # Get pagination parameters
+    page = request.args.get('page', 1, type=int)
+    per_page = 10
+
+    # Get date range filters (optional)
+    start_date_str = request.args.get('start_date', '').strip()
+    end_date_str = request.args.get('end_date', '').strip()
+
+    # Build query for user's payments
+    query = Payment.query.filter_by(user_id=current_user.id)
+
+    # Apply date filters if provided
+    if start_date_str:
+        try:
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
+            query = query.filter(Payment.payment_date >= start_date)
+        except ValueError:
+            flash('Invalid start date format. Use YYYY-MM-DD.', 'warning')
+
+    if end_date_str:
+        try:
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
+            # Add one day to include the entire end date
+            end_date = end_date + timedelta(days=1)
+            query = query.filter(Payment.payment_date < end_date)
+        except ValueError:
+            flash('Invalid end date format. Use YYYY-MM-DD.', 'warning')
+
+    # Order by most recent first and paginate
+    pagination = query.order_by(Payment.payment_date.desc()).paginate(
+        page=page,
+        per_page=per_page,
+        error_out=False
+    )
 
     return render_template('profile/billing.html',
-                           payments=payments)
+                           payments=pagination.items,
+                           pagination=pagination,
+                           start_date=start_date_str,
+                           end_date=end_date_str)
+
+
+@profile_bp.route('/export-data')
+@login_required
+def export_data():
+    """
+    GDPR Data Export - Download all user data as JSON.
+    Includes profile info, habits, completion logs, subscriptions, and payments.
+    """
+    import json
+    from flask import make_response
+    from models import Habit, CompletionLog, AuditLog
+
+    # Gather all user data
+    user_data = {
+        'profile': {
+            'id': current_user.id,
+            'email': current_user.email,
+            'member_since': current_user.created_at.isoformat() if current_user.created_at else None,
+            'timezone': current_user.timezone,
+            'dark_mode': current_user.dark_mode,
+            'newsletter_subscribed': current_user.newsletter_subscribed,
+            'email_notifications_enabled': current_user.email_notifications_enabled,
+            'reminder_time': current_user.reminder_time,
+            'reminder_days': current_user.reminder_days,
+        },
+        'subscription': {
+            'tier': current_user.subscription_tier,
+            'status': current_user.subscription_status,
+            'start_date': current_user.subscription_start_date.isoformat() if current_user.subscription_start_date else None,
+            'end_date': current_user.subscription_end_date.isoformat() if current_user.subscription_end_date else None,
+            'habit_limit': current_user.habit_limit,
+        },
+        'habits': [],
+        'completion_logs': [],
+        'subscriptions': [],
+        'payments': [],
+        'audit_logs': []
+    }
+
+    # Export habits
+    habits = Habit.query.filter_by(user_id=current_user.id).all()
+    for habit in habits:
+        user_data['habits'].append({
+            'id': habit.id,
+            'name': habit.name,
+            'description': habit.description,
+            'why': habit.why,
+            'created_at': habit.created_at.isoformat() if habit.created_at else None,
+            'frequency': habit.frequency,
+            'target_days': habit.target_days,
+            'color': habit.color,
+        })
+
+    # Export completion logs
+    logs = CompletionLog.query.join(Habit).filter(Habit.user_id == current_user.id).all()
+    for log in logs:
+        user_data['completion_logs'].append({
+            'habit_id': log.habit_id,
+            'date': log.date.isoformat() if log.date else None,
+            'completed_at': log.completed_at.isoformat() if log.completed_at else None,
+        })
+
+    # Export subscriptions
+    subscriptions = Subscription.query.filter_by(user_id=current_user.id).all()
+    for sub in subscriptions:
+        user_data['subscriptions'].append({
+            'tier': sub.tier,
+            'status': sub.status,
+            'payment_provider': sub.payment_provider,
+            'start_date': sub.start_date.isoformat() if sub.start_date else None,
+            'end_date': sub.end_date.isoformat() if sub.end_date else None,
+            'amount_paid': float(sub.amount_paid) if sub.amount_paid else None,
+            'currency': sub.currency,
+        })
+
+    # Export payments
+    payments = Payment.query.filter_by(user_id=current_user.id).all()
+    for payment in payments:
+        user_data['payments'].append({
+            'amount': float(payment.amount),
+            'currency': payment.currency,
+            'payment_provider': payment.payment_provider,
+            'status': payment.status,
+            'payment_type': payment.payment_type,
+            'payment_date': payment.payment_date.isoformat() if payment.payment_date else None,
+        })
+
+    # Export audit logs (security events)
+    audit_logs = AuditLog.query.filter_by(user_id=current_user.id).order_by(AuditLog.created_at.desc()).limit(100).all()
+    for log in audit_logs:
+        user_data['audit_logs'].append({
+            'event_type': log.event_type,
+            'description': log.event_description,
+            'success': log.success,
+            'created_at': log.created_at.isoformat() if log.created_at else None,
+            'ip_address': log.ip_address,
+        })
+
+    # Create JSON response
+    json_data = json.dumps(user_data, indent=2, ensure_ascii=False)
+
+    # Create downloadable file response
+    response = make_response(json_data)
+    response.headers['Content-Type'] = 'application/json'
+    response.headers['Content-Disposition'] = f'attachment; filename=habitflow_data_{current_user.id}_{datetime.now().strftime("%Y%m%d")}.json'
+
+    # Log the data export event
+    from models import log_security_event
+    log_security_event(
+        user_id=current_user.id,
+        event_type='data_export',
+        description=f'User {current_user.email} exported their data (GDPR)',
+        success=True
+    )
+
+    flash('Your data has been exported successfully!', 'success')
+    return response
+
+
+@profile_bp.route('/privacy')
+def privacy():
+    """
+    Privacy Policy page - GDPR compliant privacy policy.
+    Public route - no login required.
+    """
+    return render_template('profile/privacy.html')
+
+
+@profile_bp.route('/terms')
+def terms():
+    """
+    Terms of Service page - Legal terms and conditions.
+    Public route - no login required.
+    """
+    return render_template('profile/terms.html')
 
 
 @profile_bp.route('/about')

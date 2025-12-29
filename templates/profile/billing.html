@@ -13,12 +13,39 @@
         </div>
     </div>
 
+    <!-- Date Range Filter -->
+    <div class="row mb-4">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="GET" action="{{ url_for('profile.billing') }}" class="row g-3">
+                        <div class="col-md-4">
+                            <label for="start_date" class="form-label">Start Date</label>
+                            <input type="date" class="form-control" id="start_date" name="start_date" value="{{ start_date }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="end_date" class="form-label">End Date</label>
+                            <input type="date" class="form-control" id="end_date" name="end_date" value="{{ end_date }}">
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary me-2">Filter</button>
+                            <a href="{{ url_for('profile.billing') }}" class="btn btn-outline-secondary">Clear</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Billing History Table -->
     <div class="row">
         <div class="col-lg-12">
             <div class="card">
-                <div class="card-header">
+                <div class="card-header d-flex justify-content-between align-items-center">
                     <h2 class="mb-0 h5">Payment History</h2>
+                    {% if payments and payments|length > 0 %}
+                        <span class="badge bg-secondary">{{ pagination.total }} total payments</span>
+                    {% endif %}
                 </div>
                 <div class="card-body">
                     {% if payments and payments|length > 0 %}
@@ -73,20 +100,54 @@
                             </table>
                         </div>
 
-                        <!-- Pagination (placeholder) -->
+                        <!-- Pagination -->
+                        {% if pagination.pages > 1 %}
                         <nav aria-label="Billing history pagination">
-                            <ul class="pagination justify-content-center mt-3">
-                                <li class="page-item disabled">
-                                    <span class="page-link">Previous</span>
+                            <ul class="pagination justify-content-center mt-4">
+                                <!-- Previous Page -->
+                                <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                                    {% if pagination.has_prev %}
+                                        <a class="page-link" href="{{ url_for('profile.billing', page=pagination.prev_num, start_date=start_date, end_date=end_date) }}">
+                                            Previous
+                                        </a>
+                                    {% else %}
+                                        <span class="page-link">Previous</span>
+                                    {% endif %}
                                 </li>
-                                <li class="page-item active">
-                                    <span class="page-link">1</span>
-                                </li>
-                                <li class="page-item disabled">
-                                    <span class="page-link">Next</span>
+
+                                <!-- Page Numbers -->
+                                {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                                    {% if page_num %}
+                                        <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+                                            <a class="page-link" href="{{ url_for('profile.billing', page=page_num, start_date=start_date, end_date=end_date) }}">
+                                                {{ page_num }}
+                                            </a>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item disabled">
+                                            <span class="page-link">...</span>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+
+                                <!-- Next Page -->
+                                <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                                    {% if pagination.has_next %}
+                                        <a class="page-link" href="{{ url_for('profile.billing', page=pagination.next_num, start_date=start_date, end_date=end_date) }}">
+                                            Next
+                                        </a>
+                                    {% else %}
+                                        <span class="page-link">Next</span>
+                                    {% endif %}
                                 </li>
                             </ul>
                         </nav>
+
+                        <!-- Page Info -->
+                        <div class="text-center text-muted small mt-2">
+                            Showing {{ ((pagination.page - 1) * pagination.per_page) + 1 }} to {{ min(pagination.page * pagination.per_page, pagination.total) }} of {{ pagination.total }} payments
+                        </div>
+                        {% endif %}
                     {% else %}
                         <!-- No Payments -->
                         <div class="text-center py-5">

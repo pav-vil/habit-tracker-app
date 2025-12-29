@@ -90,6 +90,7 @@
             /* Prevent iOS from creating stacking context issues */
             transform: translateZ(0);
             -webkit-transform: translateZ(0);
+            padding: 12px 0;
         }
 
         .navbar-light .navbar-brand,
@@ -99,8 +100,21 @@
 
         .brand-name {
             font-weight: 700;
-            color: #7c3aed;
+            background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .brand-name::before {
+            content: '🎯';
+            font-size: 1.8rem;
+            -webkit-text-fill-color: initial;
+            filter: drop-shadow(0 2px 4px rgba(124, 58, 237, 0.3));
         }
 
         .content-container {
@@ -366,29 +380,102 @@
 
         /* Navigation link transitions */
         .nav-link {
-            transition: all 0.2s ease;
-            position: relative;
-        }
-
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            width: 0;
-            height: 2px;
-            background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
             transition: all 0.3s ease;
-            transform: translateX(-50%);
+            position: relative;
+            padding: 8px 16px !important;
+            margin: 0 4px;
+            border-radius: 10px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        .nav-link:hover::after {
-            width: 80%;
+        .nav-link:hover {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(167, 139, 250, 0.1) 100%);
+            color: #7c3aed !important;
+            transform: translateY(-1px);
         }
 
         .nav-link.active {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.15) 0%, rgba(167, 139, 250, 0.15) 100%);
             color: #7c3aed !important;
             font-weight: 600;
+            box-shadow: 0 2px 8px rgba(124, 58, 237, 0.2);
+        }
+
+        /* Premium nav item styling */
+        .nav-link.premium-badge {
+            background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+            color: white !important;
+            box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
+            font-weight: 600;
+        }
+
+        .nav-link.premium-badge:hover {
+            background: linear-gradient(135deg, #6d28d9 0%, #9333ea 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
+            color: white !important;
+        }
+
+        /* Email display styling */
+        .nav-email {
+            background: rgba(124, 58, 237, 0.08);
+            padding: 8px 16px !important;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            color: var(--text-secondary) !important;
+            font-weight: 500;
+            border: 1px solid rgba(124, 58, 237, 0.2);
+        }
+
+        body.dark-mode .nav-email {
+            background: rgba(167, 139, 250, 0.12);
+            color: #d1d5db !important;
+        }
+
+        /* Logout button */
+        .nav-logout {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+            color: white !important;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+            font-weight: 600;
+        }
+
+        .nav-logout:hover {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.5) !important;
+            color: white !important;
+        }
+
+        /* Icon styling in nav */
+        .nav-icon {
+            font-size: 1.1rem;
+            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+        }
+
+        /* Mobile navigation adjustments */
+        @media (max-width: 991px) {
+            .navbar-nav {
+                margin-top: 15px;
+                padding: 10px 0;
+            }
+
+            .nav-link {
+                margin: 4px 0;
+                justify-content: flex-start;
+            }
+
+            .nav-email {
+                display: none !important;
+            }
+
+            .dark-mode-toggle {
+                margin: 10px 0;
+            }
         }
 
         /* Skeleton Loader Styles */
@@ -514,60 +601,62 @@
             }
         }
 
-        /* Dark Mode Toggle Switch */
+        /* Dark Mode Toggle Switch - Premium Design */
         .dark-mode-toggle {
             position: relative;
-            display: inline-block;
-            width: 60px;
-            height: 30px;
-            margin-left: 15px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
             cursor: pointer;
+            margin-left: 8px;
         }
 
         .dark-mode-toggle input {
             opacity: 0;
             width: 0;
             height: 0;
+            position: absolute;
         }
 
         .dark-mode-slider {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: 0.3s;
-            border-radius: 30px;
-        }
-
-        .dark-mode-slider:before {
-            content: '☀️';
-            position: absolute;
-            height: 22px;
-            width: 22px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: 0.3s;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            transition: all 0.3s ease;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
+            box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+        }
+
+        .dark-mode-slider:before {
+            content: '☀️';
+            font-size: 24px;
+            position: absolute;
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
         }
 
         .dark-mode-toggle input:checked + .dark-mode-slider {
-            background-color: #7c3aed;
+            background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
         }
 
         .dark-mode-toggle input:checked + .dark-mode-slider:before {
-            transform: translateX(30px);
             content: '🌙';
         }
 
         .dark-mode-toggle:hover .dark-mode-slider {
-            box-shadow: 0 0 5px rgba(124, 58, 237, 0.5);
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(124, 58, 237, 0.5);
+        }
+
+        .dark-mode-toggle input:checked + .dark-mode-slider:hover {
+            box-shadow: 0 6px 16px rgba(124, 58, 237, 0.6);
         }
 
         /* Bottom Navigation for Mobile - Thumb-Friendly */
@@ -801,7 +890,7 @@
     <nav class="navbar navbar-expand-lg navbar-light fixed-top" role="navigation" aria-label="Main navigation">
         <div class="container">
             <a class="navbar-brand brand-name" href="/" aria-label="HabitFlow home">
-                🎯 HabitFlow
+                HabitFlow
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation menu">
                 <span class="navbar-toggler-icon"></span>
@@ -811,34 +900,56 @@
                     {% if current_user.is_authenticated %}
                         <!-- Logged In User Menu -->
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('habits.dashboard') }}">Dashboard</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('stats.stats_dashboard') }}">📊 Stats</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('habits.add_habit') }}">Add Habit</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('subscription.manage') }}">
-                                {% if current_user.subscription_tier == 'premium' %}
-                                    💎 Premium
-                                {% else %}
-                                    ⬆️ Upgrade
-                                {% endif %}
+                            <a class="nav-link" href="{{ url_for('habits.dashboard') }}">
+                                <span style="font-size: 1.1rem;">📊</span>
+                                <span>Dashboard</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('auth.settings') }}">⚙️ Settings</a>
+                            <a class="nav-link" href="{{ url_for('stats.stats_dashboard') }}">
+                                <span style="font-size: 1.1rem;">📈</span>
+                                <span>Stats</span>
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('habits.habit_guide') }}">📖 Guide</a>
+                            <a class="nav-link" href="{{ url_for('habits.add_habit') }}">
+                                <span style="font-size: 1.1rem;">➕</span>
+                                <span>Add Habit</span>
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('profile.view') }}">👤 Profile</a>
+                            {% if current_user.subscription_tier and current_user.subscription_tier != 'free' %}
+                                <a class="nav-link premium-badge" href="{{ url_for('subscription.manage') }}">
+                                    <span style="font-size: 1.1rem;">💎</span>
+                                    <span>Premium</span>
+                                </a>
+                            {% else %}
+                                <a class="nav-link" href="{{ url_for('subscription.manage') }}" style="border: 2px solid #7c3aed; background: rgba(124, 58, 237, 0.05);">
+                                    <span style="font-size: 1.1rem;">⬆️</span>
+                                    <span>Upgrade</span>
+                                </a>
+                            {% endif %}
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('auth.settings') }}">
+                                <span style="font-size: 1.1rem;">⚙️</span>
+                                <span>Settings</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('habits.habit_guide') }}">
+                                <span style="font-size: 1.1rem;">📚</span>
+                                <span>Guide</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('profile.view') }}">
+                                <span style="font-size: 1.1rem;">👤</span>
+                                <span>Profile</span>
+                            </a>
                         </li>
                         <li class="nav-item d-none d-lg-block">
-                            <span class="nav-link" aria-label="Logged in as {{ current_user.email }}">
+                            <span class="nav-link nav-email" aria-label="Logged in as {{ current_user.email }}">
                                 {{ current_user.email }}
                             </span>
                         </li>
@@ -849,7 +960,9 @@
                             </label>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link btn btn-outline-danger ms-2 px-4" href="{{ url_for('auth.logout') }}" aria-label="Logout from your account">Logout</a>
+                            <a class="nav-link nav-logout" href="{{ url_for('auth.logout') }}" aria-label="Logout from your account">
+                                Logout
+                            </a>
                         </li>
                     {% else %}
                         <!-- Guest Menu -->

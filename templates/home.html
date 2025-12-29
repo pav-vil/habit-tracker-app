@@ -46,12 +46,22 @@
         transition: all 0.3s ease;
         height: 100%;
     }
-    
+
+    /* Force dark text on white cards regardless of theme */
+    .feature-card h3 {
+        color: #1f2937 !important;
+        font-weight: 600;
+    }
+
+    .feature-card p {
+        color: #4b5563 !important;
+    }
+
     .feature-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 8px 35px rgba(0,0,0,0.15);
     }
-    
+
     .feature-icon {
         font-size: 3rem;
         margin-bottom: 20px;

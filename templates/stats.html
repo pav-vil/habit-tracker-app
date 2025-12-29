@@ -236,6 +236,7 @@
                 </div>
                 <div class="card-body habit-details-body">
                     {% if habits %}
+                    <!-- Desktop Table View -->
                     <div class="table-responsive">
                         <table class="table habit-details-table" aria-label="Detailed habit statistics">
                             <thead>
@@ -276,6 +277,47 @@
                             </tbody>
                         </table>
                     </div>
+
+                    <!-- Mobile Card View -->
+                    {% for habit in habits %}
+                    <div class="mobile-habit-card">
+                        <div class="mobile-habit-name">{{ habit.name }}</div>
+
+                        <div class="mobile-habit-row">
+                            <span class="mobile-habit-label">Current Streak</span>
+                            <span class="mobile-habit-value">
+                                <span class="streak-badge-table">
+                                    <span aria-hidden="true">🔥</span> {{ habit.streak_count }} day{% if habit.streak_count != 1 %}s{% endif %}
+                                </span>
+                            </span>
+                        </div>
+
+                        <div class="mobile-habit-row">
+                            <span class="mobile-habit-label">Last Completed</span>
+                            <span class="mobile-habit-value last-completed-cell">
+                                {% if habit.last_completed %}
+                                    {{ habit.last_completed.strftime('%b %d, %Y') }}
+                                {% else %}
+                                    <span class="text-muted">Never</span>
+                                {% endif %}
+                            </span>
+                        </div>
+
+                        <div class="mobile-habit-row">
+                            <span class="mobile-habit-label">Status</span>
+                            <span class="mobile-habit-value">
+                                {% if habit.last_completed == now.date() %}
+                                    <span class="status-badge status-done">✓ Done</span>
+                                {% elif habit.streak_count > 0 %}
+                                    <span class="status-badge status-pending">⏳ Pending</span>
+                                {% else %}
+                                    <span class="status-badge status-not-started">Not started</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+
                     {% else %}
                     <div class="text-center py-4">
                         <p class="text-muted">No habits yet. Create some habits first!</p>
@@ -351,7 +393,7 @@
     }
 
     body.dark-mode .habit-name-text {
-        color: #f3f4f6 !important;
+        color: #ffffff !important;
     }
 
     .last-completed-cell {
@@ -360,6 +402,10 @@
     }
 
     body.dark-mode .last-completed-cell {
+        color: #d1d5db !important;
+    }
+
+    body.dark-mode .text-muted {
         color: #9ca3af !important;
     }
 
@@ -429,18 +475,85 @@
         box-shadow: 0 4px 12px rgba(107, 114, 128, 0.4);
     }
 
-    /* Responsive adjustments */
+    /* Responsive Mobile Card Layout */
     @media (max-width: 768px) {
-        .habit-details-table thead th,
-        .habit-details-table tbody td {
-            padding: 12px 10px;
-            font-size: 0.9rem;
+        /* Hide table on mobile */
+        .habit-details-table {
+            display: none;
+        }
+
+        /* Show card layout instead */
+        .habit-details-body {
+            padding: 15px;
+        }
+
+        /* Mobile habit cards */
+        .mobile-habit-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        body.dark-mode .mobile-habit-card {
+            background: #1f2937;
+            border-color: #374151;
+        }
+
+        .mobile-habit-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 15px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        body.dark-mode .mobile-habit-name {
+            color: #ffffff;
+            border-bottom-color: #374151;
+        }
+
+        .mobile-habit-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .mobile-habit-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .mobile-habit-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        body.dark-mode .mobile-habit-label {
+            color: #9ca3af;
+        }
+
+        .mobile-habit-value {
+            text-align: right;
         }
 
         .streak-badge-table,
         .status-badge {
-            font-size: 0.8rem;
-            padding: 6px 12px;
+            font-size: 0.85rem;
+            padding: 6px 14px;
+        }
+    }
+
+    /* Desktop: Hide mobile cards */
+    @media (min-width: 769px) {
+        .mobile-habit-card {
+            display: none;
         }
     }
     </style>

@@ -2,6 +2,75 @@
 
 {% block title %}{{ title }} - HabitFlow{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Form text styling */
+    .form-text {
+        color: #6b7280;
+        font-size: 0.9rem;
+        margin-top: 6px;
+    }
+
+    body.dark-mode .form-text {
+        color: #9ca3af !important;
+    }
+
+    body.dark-mode .form-text .text-muted {
+        color: #9ca3af !important;
+    }
+
+    /* Alert styling for dark mode */
+    body.dark-mode .alert-info {
+        background: rgba(124, 58, 237, 0.15) !important;
+        border-color: rgba(124, 58, 237, 0.3) !important;
+        color: #e5e7eb !important;
+    }
+
+    body.dark-mode .alert-info .alert-heading {
+        color: #f3f4f6 !important;
+    }
+
+    body.dark-mode .alert-info ul li {
+        color: #d1d5db !important;
+    }
+
+    /* Back link styling */
+    .text-decoration-none {
+        color: #7c3aed;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .text-decoration-none:hover {
+        color: #6d28d9;
+        transform: translateX(-4px);
+        display: inline-block;
+    }
+
+    body.dark-mode .text-decoration-none {
+        color: #a78bfa !important;
+    }
+
+    body.dark-mode .text-decoration-none:hover {
+        color: #c4b5fd !important;
+    }
+
+    /* Auth card title */
+    .auth-card h2 {
+        background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-weight: 700;
+    }
+
+    /* Error messages dark mode */
+    body.dark-mode .text-danger {
+        color: #fca5a5 !important;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="auth-card">
     <h2 class="text-center mb-4">{{ title }}</h2>

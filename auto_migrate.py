@@ -281,6 +281,102 @@ def auto_migrate_database(app, db):
                 except Exception as e:
                     print(f"[AUTO-MIGRATE] Error creating payment table: {e}")
 
+            # Migration 11: Create period_cycle table
+            if 'period_cycle' not in existing_tables:
+                print("[AUTO-MIGRATE] Creating period_cycle table...")
+                try:
+                    with db.engine.connect() as conn:
+                        conn.execute(text('''
+                            CREATE TABLE period_cycle (
+                                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                user_id INTEGER NOT NULL,
+                                start_date DATE NOT NULL,
+                                end_date DATE,
+                                cycle_length INTEGER,
+                                is_predicted BOOLEAN NOT NULL DEFAULT 0,
+                                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE
+                            )
+                        '''))
+                        conn.commit()
+
+                        # Create indexes
+                        conn.execute(text('CREATE INDEX idx_period_cycle_user_id ON period_cycle (user_id)'))
+                        conn.execute(text('CREATE INDEX idx_period_cycle_start_date ON period_cycle (start_date)'))
+                        conn.execute(text('CREATE INDEX idx_period_cycle_user_start ON period_cycle (user_id, start_date)'))
+                        conn.commit()
+
+                    print("[AUTO-MIGRATE] Successfully created period_cycle table")
+                except Exception as e:
+                    print(f"[AUTO-MIGRATE] Error creating period_cycle table: {e}")
+
+            # Migration 12: Create period_daily_log table
+            if 'period_daily_log' not in existing_tables:
+                print("[AUTO-MIGRATE] Creating period_daily_log table...")
+                try:
+                    with db.engine.connect() as conn:
+                        conn.execute(text('''
+                            CREATE TABLE period_daily_log (
+                                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                cycle_id INTEGER,
+                                user_id INTEGER NOT NULL,
+                                log_date DATE NOT NULL,
+                                flow_intensity VARCHAR(20),
+                                symptoms TEXT,
+                                mood VARCHAR(20),
+                                notes TEXT,
+                                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                FOREIGN KEY (cycle_id) REFERENCES period_cycle (id) ON DELETE CASCADE,
+                                FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE,
+                                UNIQUE (user_id, log_date)
+                            )
+                        '''))
+                        conn.commit()
+
+                        # Create indexes
+                        conn.execute(text('CREATE INDEX idx_period_log_cycle_id ON period_daily_log (cycle_id)'))
+                        conn.execute(text('CREATE INDEX idx_period_log_user_id ON period_daily_log (user_id)'))
+                        conn.execute(text('CREATE INDEX idx_period_log_date ON period_daily_log (log_date)'))
+                        conn.execute(text('CREATE INDEX idx_period_log_user_date ON period_daily_log (user_id, log_date)'))
+                        conn.commit()
+
+                    print("[AUTO-MIGRATE] Successfully created period_daily_log table")
+                except Exception as e:
+                    print(f"[AUTO-MIGRATE] Error creating period_daily_log table: {e}")
+
+            # Migration 13: Create period_settings table
+            if 'period_settings' not in existing_tables:
+                print("[AUTO-MIGRATE] Creating period_settings table...")
+                try:
+                    with db.engine.connect() as conn:
+                        conn.execute(text('''
+                            CREATE TABLE period_settings (
+                                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                user_id INTEGER NOT NULL UNIQUE,
+                                period_tracking_enabled BOOLEAN NOT NULL DEFAULT 0,
+                                average_cycle_length INTEGER NOT NULL DEFAULT 28,
+                                average_period_duration INTEGER NOT NULL DEFAULT 5,
+                                reminder_enabled BOOLEAN NOT NULL DEFAULT 1,
+                                reminder_days_before INTEGER NOT NULL DEFAULT 2,
+                                last_reminder_sent DATE,
+                                show_on_dashboard BOOLEAN NOT NULL DEFAULT 1,
+                                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE
+                            )
+                        '''))
+                        conn.commit()
+
+                        # Create indexes
+                        conn.execute(text('CREATE INDEX idx_period_settings_user_id ON period_settings (user_id)'))
+                        conn.commit()
+
+                    print("[AUTO-MIGRATE] Successfully created period_settings table")
+                except Exception as e:
+                    print(f"[AUTO-MIGRATE] Error creating period_settings table: {e}")
+
             print("[AUTO-MIGRATE] All migrations completed successfully")
         except Exception as e:
             print(f"[AUTO-MIGRATE] Error during migration check: {e}")

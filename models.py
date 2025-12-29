@@ -439,3 +439,122 @@ def log_security_event(user_id, event_type, description, success=True, error_mes
         db.session.rollback()
         print(f"[AUDIT] Error logging event: {e}")
         return None
+
+
+# ============================================================================
+# PERIOD TRACKING MODELS
+# ============================================================================
+
+class PeriodCycle(db.Model):
+    """
+    Model for tracking menstrual cycles.
+    Each instance represents one complete cycle from period start to the next period start.
+    """
+    __tablename__ = 'period_cycle'
+
+    # Primary Key
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+
+    # Foreign Keys
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+
+    # Period Dates
+    start_date = db.Column(db.Date, nullable=False, index=True)  # When period started
+    end_date = db.Column(db.Date, nullable=True)  # When period ended (null if ongoing)
+
+    # Cycle Metadata
+    cycle_length = db.Column(db.Integer, nullable=True)  # Days from this period start to next (calculated later)
+    is_predicted = db.Column(db.Boolean, default=False, nullable=False)  # True for future predictions
+
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    # Relationships
+    user = db.relationship('User', backref=db.backref('period_cycles', lazy='dynamic', cascade='all, delete-orphan'))
+    daily_logs = db.relationship('PeriodDailyLog', backref='cycle', lazy='dynamic', cascade='all, delete-orphan')
+
+    def __repr__(self):
+        return f'<PeriodCycle user_id={self.user_id} start={self.start_date} predicted={self.is_predicted}>'
+
+
+class PeriodDailyLog(db.Model):
+    """
+    Model for tracking daily symptoms, mood, and flow intensity during menstrual cycle.
+    One log per day per user for detailed tracking.
+    """
+    __tablename__ = 'period_daily_log'
+
+    # Primary Key
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+
+    # Foreign Keys
+    cycle_id = db.Column(db.Integer, db.ForeignKey('period_cycle.id'), nullable=True, index=True)  # Nullable - log can exist without cycle
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+
+    # Date and Flow Tracking
+    log_date = db.Column(db.Date, nullable=False, index=True)
+    flow_intensity = db.Column(db.String(20), nullable=True)  # 'light', 'medium', 'heavy', or null
+
+    # Symptoms (stored as JSON array)
+    symptoms = db.Column(db.JSON, nullable=True, default=list)  # e.g., ["cramps", "headache", "fatigue"]
+
+    # Mood Tracking
+    mood = db.Column(db.String(20), nullable=True)  # 'happy', 'sad', 'irritable', 'anxious', 'normal'
+
+    # Notes
+    notes = db.Column(db.Text, nullable=True)
+
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    # Relationships
+    user = db.relationship('User', backref=db.backref('period_logs', lazy='dynamic'))
+
+    # Unique Constraint: One log per day per user
+    __table_args__ = (
+        db.UniqueConstraint('user_id', 'log_date', name='unique_user_date_log'),
+    )
+
+    def __repr__(self):
+        return f'<PeriodDailyLog user_id={self.user_id} date={self.log_date} flow={self.flow_intensity}>'
+
+
+class PeriodSettings(db.Model):
+    """
+    Model for storing user preferences for period tracking feature.
+    One settings record per user.
+    """
+    __tablename__ = 'period_settings'
+
+    # Primary Key
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+
+    # Foreign Key
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, unique=True, index=True)
+
+    # Feature Toggle
+    period_tracking_enabled = db.Column(db.Boolean, default=False, nullable=False)
+
+    # Cycle Preferences
+    average_cycle_length = db.Column(db.Integer, default=28, nullable=False)  # User's typical cycle length in days
+    average_period_duration = db.Column(db.Integer, default=5, nullable=False)  # Typical period length in days
+
+    # Reminder Settings
+    reminder_enabled = db.Column(db.Boolean, default=True, nullable=False)
+    reminder_days_before = db.Column(db.Integer, default=2, nullable=False)  # Send reminder N days before predicted period
+    last_reminder_sent = db.Column(db.Date, nullable=True)
+
+    # Dashboard Widget
+    show_on_dashboard = db.Column(db.Boolean, default=True, nullable=False)
+
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    # Relationships
+    user = db.relationship('User', backref=db.backref('period_settings', uselist=False))
+
+    def __repr__(self):
+        return f'<PeriodSettings user_id={self.user_id} enabled={self.period_tracking_enabled}>'

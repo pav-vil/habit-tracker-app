@@ -4,9 +4,8 @@ Handles pricing page, checkout, billing history, and subscription management
 """
 from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
 from flask_login import login_required, current_user
-from models import db, PaymentTransaction, SubscriptionHistory
-from stripe_handler import create_checkout_session, cancel_subscription
-import stripe
+from models import db, PaymentTransaction, SubscriptionHistory, Payment, Subscription
+from payments import create_paypal_subscription, cancel_paypal_subscription
 
 subscription_bp = Blueprint('subscription', __name__)
 
@@ -59,7 +58,7 @@ def pricing():
 @subscription_bp.route('/checkout/<plan_type>')
 @login_required
 def checkout(plan_type):
-    """Create Stripe checkout session and redirect to Stripe."""
+    """Create PayPal subscription and redirect to PayPal for payment."""
     if plan_type not in ['monthly', 'annual', 'lifetime']:
         flash('Invalid subscription plan selected.', 'danger')
         return redirect(url_for('subscription.pricing'))
@@ -69,23 +68,14 @@ def checkout(plan_type):
         flash('You already have an active subscription. Please cancel first to change plans.', 'info')
         return redirect(url_for('subscription.manage'))
 
-    # Create checkout session
-    success_url = url_for('subscription.success', _external=True)
-    cancel_url = url_for('subscription.pricing', _external=True)
-
-    session = create_checkout_session(
-        user=current_user,
-        plan_type=plan_type,
-        success_url=success_url,
-        cancel_url=cancel_url
-    )
-
-    if not session:
-        flash('Unable to create checkout session. Please try again later.', 'danger')
+    # For lifetime tier: Show message to contact support or use crypto
+    # (Coinbase Commerce will be configured later)
+    if plan_type == 'lifetime':
+        flash('Lifetime tier is currently available via Bitcoin/Crypto payments only. Coinbase Commerce setup coming soon! For now, please use monthly or annual plans.', 'info')
         return redirect(url_for('subscription.pricing'))
 
-    # Redirect to Stripe Checkout
-    return redirect(session.url, code=303)
+    # Create PayPal subscription (monthly or annual only)
+    return create_paypal_subscription(current_user, plan_type)
 
 
 @subscription_bp.route('/success')
@@ -136,22 +126,29 @@ def billing_history():
 @subscription_bp.route('/cancel', methods=['POST'])
 @login_required
 def cancel_subscription_route():
-    """Cancel user's subscription."""
+    """Cancel user's PayPal subscription."""
     if not current_user.is_premium_active():
         flash('You do not have an active subscription to cancel.', 'warning')
         return redirect(url_for('subscription.manage'))
 
-    if current_user.subscription_status == 'lifetime':
+    if current_user.subscription_tier == 'lifetime':
         flash('Lifetime subscriptions cannot be cancelled.', 'info')
         return redirect(url_for('subscription.manage'))
 
-    # Cancel the Stripe subscription
-    if cancel_subscription(current_user):
-        flash(
-            'Your subscription has been cancelled. You will retain access until the end of your billing period.',
-            'success'
-        )
+    # Cancel the PayPal subscription
+    if current_user.paypal_subscription_id:
+        if cancel_paypal_subscription(current_user.paypal_subscription_id):
+            # Update user status
+            current_user.subscription_status = 'cancelled'
+            db.session.commit()
+
+            flash(
+                'Your subscription has been cancelled. You will retain access until the end of your billing period.',
+                'success'
+            )
+        else:
+            flash('Unable to cancel subscription. Please contact support.', 'danger')
     else:
-        flash('Unable to cancel subscription. Please contact support.', 'danger')
+        flash('No active PayPal subscription found. Please contact support.', 'danger')
 
     return redirect(url_for('subscription.manage'))

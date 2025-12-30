@@ -1082,6 +1082,62 @@
     </div>
     {% endif %}
 
+    <!-- Period Tracking Widget (conditional) -->
+    {% if current_user.period_settings and current_user.period_settings.period_tracking_enabled and current_user.period_settings.show_on_dashboard %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="period-widget" style="
+                background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
+                border: 2px solid #f9a8d4;
+                border-radius: 20px;
+                padding: 25px;
+                box-shadow: 0 4px 20px rgba(249, 168, 212, 0.2);
+                position: relative;
+                overflow: hidden;
+            ">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 style="color: #be185d; font-weight: 700; margin: 0;">
+                        🌸 Cycle Tracker
+                    </h4>
+                    <a href="{{ url_for('periods.settings') }}" class="btn btn-sm"
+                       style="background: linear-gradient(135deg, #ec4899 0%, #f472b6 100%); color: white; border-radius: 8px; padding: 8px 16px; font-weight: 600;">
+                        Manage
+                    </a>
+                </div>
+
+                <!-- Current Phase Display -->
+                <div id="currentPhase" class="mb-3" style="min-height: 50px;">
+                    <div class="text-center" style="color: #9ca3af;">
+                        <span>Loading...</span>
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="row text-center g-3">
+                    <div class="col-4">
+                        <div style="background: rgba(255, 255, 255, 0.7); padding: 15px; border-radius: 12px;">
+                            <div id="cycleDay" style="font-size: 1.8rem; font-weight: 700; color: #be185d;">--</div>
+                            <div style="font-size: 0.85rem; color: #6b7280; font-weight: 500;">Cycle Day</div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div style="background: rgba(255, 255, 255, 0.7); padding: 15px; border-radius: 12px;">
+                            <div id="daysUntil" style="font-size: 1.8rem; font-weight: 700; color: #be185d;">--</div>
+                            <div style="font-size: 0.85rem; color: #6b7280; font-weight: 500;">Days Until</div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div style="background: rgba(255, 255, 255, 0.7); padding: 15px; border-radius: 12px;">
+                            <div id="avgCycle" style="font-size: 1.8rem; font-weight: 700; color: #be185d;">--</div>
+                            <div style="font-size: 0.85rem; color: #6b7280; font-weight: 500;">Avg Cycle</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     <!-- Add New Habit Button -->
     <div class="row mb-4">
         <div class="col-md-12">
@@ -1440,6 +1496,45 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 {% endif %}
+
+// Load period cycle phase data if widget exists
+document.addEventListener('DOMContentLoaded', function() {
+    const periodWidget = document.querySelector('.period-widget');
+    if (periodWidget) {
+        fetch('/periods/api/current-phase')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update current phase display
+                    const phaseDiv = document.getElementById('currentPhase');
+                    phaseDiv.innerHTML = `
+                        <div class="text-center p-3" style="background: ${data.color}20; border-radius: 15px; border: 2px solid ${data.color};">
+                            <div style="font-size: 2.5rem; margin-bottom: 8px;">${data.emoji}</div>
+                            <div style="font-weight: 700; color: ${data.color}; font-size: 1.2rem;">${data.phase_name}</div>
+                        </div>
+                    `;
+
+                    // Update stats
+                    document.getElementById('cycleDay').innerHTML = `<div style="font-size: 1.8rem; font-weight: 700; color: #be185d;">${data.cycle_day || '--'}</div>`;
+                    document.getElementById('daysUntil').innerHTML = `<div style="font-size: 1.8rem; font-weight: 700; color: #be185d;">${data.days_until_period || '--'}</div>`;
+                    document.getElementById('avgCycle').innerHTML = `<div style="font-size: 1.8rem; font-weight: 700; color: #be185d;">${data.average_cycle || '--'} days</div>`;
+                } else {
+                    // Show error or no data state
+                    const phaseDiv = document.getElementById('currentPhase');
+                    phaseDiv.innerHTML = `
+                        <div class="text-center p-3" style="background: rgba(236, 72, 153, 0.1); border-radius: 15px;">
+                            <div style="color: #be185d;">No cycle data yet. <a href="{{ url_for('periods.settings') }}" style="color: #ec4899; text-decoration: underline;">Start tracking</a></div>
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error loading period phase data:', error);
+                const phaseDiv = document.getElementById('currentPhase');
+                phaseDiv.innerHTML = `<div class="text-center"><span style="color: #be185d;">Unable to load cycle data</span></div>`;
+            });
+    }
+});
 
 // Fetch 30-day completion data and render chart
 fetch('/api/30-day-completions')

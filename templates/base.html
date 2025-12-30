@@ -927,6 +927,12 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('challenges.my_challenges') }}">
+                                <span style="font-size: 1.1rem;">🎯</span>
+                                <span>Challenges</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('habits.add_habit') }}">
                                 <span style="font-size: 1.1rem;">➕</span>
                                 <span>Add Habit</span>
@@ -1036,6 +1042,11 @@
             <a href="{{ url_for('stats.stats_dashboard') }}" class="bottom-nav-item" aria-label="Statistics">
                 <span class="bottom-nav-icon" aria-hidden="true">📊</span>
                 <span class="bottom-nav-label">Stats</span>
+            </a>
+
+            <a href="{{ url_for('challenges.my_challenges') }}" class="bottom-nav-item" aria-label="Challenges">
+                <span class="bottom-nav-icon" aria-hidden="true">🎯</span>
+                <span class="bottom-nav-label">Challenges</span>
             </a>
 
             <a href="{{ url_for('habits.add_habit') }}" class="bottom-nav-item add-habit" aria-label="Add new habit">

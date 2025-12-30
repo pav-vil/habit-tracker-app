@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}Shareable Link - {{ challenge.name }} - HabitFlow{% endblock %}
+
+{% block extra_css %}
+<style>
+    h1, h2 { color: var(--text-primary); }
+    .page-title {
+        font-size: 2rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .link-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 4px 15px var(--shadow-color);
+        text-align: center;
+    }
+    .link-box {
+        background: rgba(124, 58, 237, 0.05);
+        border: 2px solid #7c3aed;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 25px 0;
+        word-break: break-all;
+    }
+    .link-url {
+        font-size: 1.1rem;
+        color: #7c3aed;
+        font-weight: 600;
+        font-family: monospace;
+    }
+    .btn-copy {
+        background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        font-weight: 600;
+        border-radius: 10px;
+        margin: 10px;
+    }
+    .btn-copy:hover { opacity: 0.9; }
+    .expires-notice {
+        color: #6b7280;
+        font-size: 0.9rem;
+        margin-top: 15px;
+    }
+    body.dark-mode .expires-notice { color: #9ca3af; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-8 offset-lg-2">
+            <h1 class="page-title mb-4">🔗 Shareable Invite Link</h1>
+
+            <div class="link-card">
+                <div style="font-size: 3rem; margin-bottom: 20px;">🎯</div>
+                <h3 style="margin-bottom: 15px;">{{ challenge.name }}</h3>
+                <p style="color: #6b7280; margin-bottom: 25px;">
+                    Share this link with anyone to invite them to your challenge!
+                </p>
+
+                <div class="link-box">
+                    <div class="link-url" id="invite-link">{{ invite_url }}</div>
+                </div>
+
+                <button onclick="copyLink()" class="btn-copy" id="copy-btn">
+                    📋 Copy Link
+                </button>
+
+                <div class="expires-notice">
+                    This link expires on {{ invite.expires_at.strftime('%B %d, %Y') }}
+                </div>
+
+                <hr style="margin: 30px 0; border-color: var(--border-color);">
+
+                <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                    <a href="https://twitter.com/intent/tweet?text=Join%20my%20challenge%20on%20HabitFlow!&url={{ invite_url|urlencode }}"
+                       target="_blank"
+                       class="btn btn-outline-primary">
+                        🐦 Share on Twitter
+                    </a>
+                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ invite_url|urlencode }}"
+                       target="_blank"
+                       class="btn btn-outline-primary">
+                        📘 Share on Facebook
+                    </a>
+                    <a href="mailto:?subject=Join%20my%20HabitFlow%20Challenge&body=I%20invite%20you%20to%20join%20my%20challenge%20on%20HabitFlow:%20{{ invite_url|urlencode }}"
+                       class="btn btn-outline-primary">
+                        📧 Share via Email
+                    </a>
+                </div>
+
+                <div style="margin-top: 30px;">
+                    <a href="{{ url_for('challenges.detail', challenge_id=challenge.id) }}" class="btn btn-outline-secondary">
+                        ← Back to Challenge
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyLink() {
+    const linkText = document.getElementById('invite-link').textContent;
+    const copyBtn = document.getElementById('copy-btn');
+
+    navigator.clipboard.writeText(linkText).then(function() {
+        // Success feedback
+        copyBtn.textContent = '✅ Copied!';
+        copyBtn.style.background = 'linear-gradient(135deg, #10b981 0%, #34d399 100%)';
+
+        // Reset after 2 seconds
+        setTimeout(function() {
+            copyBtn.textContent = '📋 Copy Link';
+            copyBtn.style.background = 'linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%)';
+        }, 2000);
+    }).catch(function(err) {
+        alert('Failed to copy link. Please copy manually.');
+    });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Link Habit - {{ challenge.name }} - HabitFlow{% endblock %}
+
+{% block extra_css %}
+<style>
+    h1, h2 { color: var(--text-primary); }
+    .page-title {
+        font-size: 2rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .form-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 4px 15px var(--shadow-color);
+    }
+    .form-label { color: var(--text-primary); font-weight: 600; }
+    .form-control, .form-select {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        padding: 12px;
+        border-radius: 8px;
+    }
+    .btn-primary {
+        background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+        border: none;
+        padding: 12px 30px;
+        font-weight: 600;
+        border-radius: 10px;
+    }
+    .challenge-info {
+        background: rgba(124, 58, 237, 0.1);
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 25px;
+    }
+    .divider {
+        text-align: center;
+        margin: 25px 0;
+        color: #6b7280;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-8 offset-lg-2">
+            <h1 class="page-title mb-4">🔗 Link Habit to Challenge</h1>
+
+            <div class="challenge-info">
+                <h4 style="color: #7c3aed; margin-bottom: 10px;">{{ challenge.icon }} {{ challenge.name }}</h4>
+                <p style="margin: 5px 0; color: #6b7280;">Link an existing habit or create a new one to track your progress in this challenge.</p>
+            </div>
+
+            <div class="form-card">
+                <form method="POST" action="{{ url_for('challenges.link_habit', challenge_id=challenge.id) }}">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-4">
+                        {{ form.habit_id.label(class="form-label") }}
+                        {{ form.habit_id(class="form-select") }}
+                        <div class="form-text">Choose an existing habit to link to this challenge</div>
+                        {% if form.habit_id.errors %}
+                            <div class="text-danger mt-1">{{ form.habit_id.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="divider">-- OR --</div>
+
+                    <div class="mb-4">
+                        {{ form.new_habit_name.label(class="form-label") }}
+                        {{ form.new_habit_name(class="form-control") }}
+                        <div class="form-text">Create a new habit specifically for this challenge</div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        {{ form.submit(class="btn btn-primary") }}
+                        <a href="{{ url_for('challenges.detail', challenge_id=challenge.id) }}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

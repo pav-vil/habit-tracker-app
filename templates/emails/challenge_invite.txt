@@ -1,0 +1,35 @@
+{{ challenge.icon }} You're Invited to a Challenge!
+
+Hi there!
+
+{{ inviter.email }} has invited you to join a challenge on HabitFlow!
+
+Challenge Details:
+{{ challenge.icon }} {{ challenge.name }}
+{% if challenge.description %}
+{{ challenge.description }}
+{% endif %}
+
+- Type: {{ challenge.challenge_type|title }}
+- Goal: {{ challenge.goal_type|replace('_', ' ')|title }}
+{% if challenge.goal_target %}- Target: {{ challenge.goal_target }}{% endif %}
+- Current Participants: {{ participant_count }}
+
+{% if personal_message %}
+Personal Message from {{ inviter.email }}:
+"{{ personal_message }}"
+
+{% endif %}
+Ready to join the challenge? Click the link below to accept the invite and start tracking your progress!
+
+Accept Invite: {{ invite_url }}
+
+This invite will expire on {{ expires_at.strftime('%B %d, %Y') }}. Don't miss out!
+
+See you in the challenge!
+The HabitFlow Team
+
+---
+You're receiving this email because you were invited to join a HabitFlow challenge.
+Manage your notification preferences: {{ url_for('profile.settings', _external=True) }}
+© 2025 HabitFlow. All rights reserved.

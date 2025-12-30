@@ -114,6 +114,10 @@ csrf.exempt(webhooks_bp)
 from periods import periods_bp
 app.register_blueprint(periods_bp)
 
+# Import and register challenges blueprint
+from challenges import challenges_bp
+app.register_blueprint(challenges_bp, url_prefix='/challenges')
+
 @app.route('/')
 def home():
     """Home page"""
@@ -125,6 +129,10 @@ app.view_functions['auth.login'] = limiter.limit("5 per minute")(app.view_functi
 # Apply rate limiting to payment endpoints (10 requests per hour to prevent abuse)
 app.view_functions['payments.checkout'] = limiter.limit("10 per hour")(app.view_functions['payments.checkout'])
 app.view_functions['subscription.checkout'] = limiter.limit("10 per hour")(app.view_functions['subscription.checkout'])
+
+# Apply rate limiting to challenge endpoints (prevent spam and abuse)
+app.view_functions['challenges.create'] = limiter.limit("5 per hour")(app.view_functions['challenges.create'])
+app.view_functions['challenges.invite'] = limiter.limit("20 per hour")(app.view_functions['challenges.invite'])
 
 if __name__ == '__main__':
     # Run the app - accessible on all network interfaces

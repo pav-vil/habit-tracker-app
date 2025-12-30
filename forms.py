@@ -404,3 +404,156 @@ class PeriodSettingsForm(FlaskForm):
     )
 
     submit = SubmitField('Save Settings', render_kw={"class": "btn btn-primary"})
+
+
+# ============================================================================
+# CHALLENGE FORMS
+# ============================================================================
+
+class ChallengeForm(FlaskForm):
+    """Form for creating/editing challenges"""
+
+    name = StringField(
+        'Challenge Name',
+        validators=[
+            DataRequired(message='Challenge name is required'),
+            Length(min=3, max=100, message='Name must be between 3 and 100 characters')
+        ],
+        render_kw={"placeholder": "e.g., 30-Day Running Challenge", "class": "form-control"}
+    )
+
+    description = TextAreaField(
+        'Description (optional)',
+        validators=[
+            Optional(),
+            Length(max=1000, message='Description must be less than 1000 characters')
+        ],
+        render_kw={
+            "placeholder": "Describe the challenge goals and rules...",
+            "class": "form-control",
+            "rows": "4"
+        }
+    )
+
+    icon = SelectField(
+        'Challenge Icon',
+        choices=[
+            ('🎯', '🎯 Target'),
+            ('🏃', '🏃 Running'),
+            ('💪', '💪 Strength'),
+            ('📚', '📚 Reading'),
+            ('🧘', '🧘 Meditation'),
+            ('💧', '💧 Hydration'),
+            ('🥗', '🥗 Healthy Eating'),
+            ('✍️', '✍️ Writing'),
+            ('🎨', '🎨 Creativity'),
+            ('🔥', '🔥 Streak')
+        ],
+        validators=[DataRequired()],
+        render_kw={"class": "form-select"}
+    )
+
+    challenge_type = SelectField(
+        'Challenge Type',
+        choices=[
+            ('competitive', 'Competitive - Leaderboard and rankings'),
+            ('collaborative', 'Collaborative - Group progress and teamwork')
+        ],
+        validators=[DataRequired(message='Please select a challenge type')],
+        render_kw={"class": "form-select"}
+    )
+
+    goal_type = SelectField(
+        'Goal Type',
+        choices=[
+            ('streak', 'Current Streak - Track consecutive days'),
+            ('total_completions', 'Total Completions - Count all completions'),
+            ('participation_rate', 'Participation Rate - Percentage of active days')
+        ],
+        validators=[DataRequired(message='Please select a goal type')],
+        render_kw={"class": "form-select"}
+    )
+
+    goal_target = IntegerField(
+        'Goal Target (optional)',
+        validators=[
+            Optional(),
+            NumberRange(min=1, max=365, message='Goal must be between 1 and 365')
+        ],
+        render_kw={
+            "placeholder": "e.g., 30 (leave empty for ongoing challenges)",
+            "class": "form-control",
+            "min": "1",
+            "max": "365"
+        }
+    )
+
+    max_participants = IntegerField(
+        'Max Participants (optional)',
+        validators=[
+            Optional(),
+            NumberRange(min=2, max=1000, message='Max participants must be between 2 and 1000')
+        ],
+        render_kw={
+            "placeholder": "e.g., 50 (leave empty for unlimited)",
+            "class": "form-control",
+            "min": "2",
+            "max": "1000"
+        }
+    )
+
+    submit = SubmitField('Create Challenge', render_kw={"class": "btn btn-primary"})
+
+
+class InviteForm(FlaskForm):
+    """Form for sending email invites to challenges"""
+
+    email = StringField(
+        'Email Address',
+        validators=[
+            DataRequired(message='Email is required'),
+            Email(message='Please enter a valid email address'),
+            Length(max=120, message='Email must be less than 120 characters')
+        ],
+        render_kw={"placeholder": "friend@example.com", "class": "form-control"}
+    )
+
+    message = TextAreaField(
+        'Personal Message (optional)',
+        validators=[
+            Optional(),
+            Length(max=500, message='Message must be less than 500 characters')
+        ],
+        render_kw={
+            "placeholder": "Add a personal message to your invite...",
+            "class": "form-control",
+            "rows": "3"
+        }
+    )
+
+    submit = SubmitField('Send Invite', render_kw={"class": "btn btn-primary"})
+
+
+class LinkHabitForm(FlaskForm):
+    """Form for linking habits to challenges"""
+
+    habit_id = SelectField(
+        'Select Habit',
+        coerce=int,
+        validators=[DataRequired(message='Please select a habit')],
+        render_kw={"class": "form-select"}
+    )
+
+    new_habit_name = StringField(
+        'Or Create New Habit',
+        validators=[
+            Optional(),
+            Length(min=2, max=100, message='Habit name must be between 2 and 100 characters')
+        ],
+        render_kw={
+            "placeholder": "e.g., Morning Run",
+            "class": "form-control"
+        }
+    )
+
+    submit = SubmitField('Link Habit', render_kw={"class": "btn btn-primary"})

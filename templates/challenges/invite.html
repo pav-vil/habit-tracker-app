@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Invite Friends - {{ challenge.name }} - HabitFlow{% endblock %}
+
+{% block extra_css %}
+<style>
+    h1, h2 { color: var(--text-primary); }
+    .page-title {
+        font-size: 2rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .form-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 4px 15px var(--shadow-color);
+    }
+    .form-label { color: var(--text-primary); font-weight: 600; }
+    .form-control, .form-select {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        padding: 12px;
+        border-radius: 8px;
+    }
+    .btn-primary {
+        background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+        border: none;
+        padding: 12px 30px;
+        font-weight: 600;
+        border-radius: 10px;
+    }
+    .info-box {
+        background: rgba(124, 58, 237, 0.1);
+        padding: 20px;
+        border-radius: 12px;
+        border-left: 4px solid #7c3aed;
+        margin-bottom: 25px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-8 offset-lg-2">
+            <h1 class="page-title mb-4">📧 Invite Friends to {{ challenge.name }}</h1>
+
+            <div class="info-box">
+                <h4 style="color: #7c3aed; margin-bottom: 10px;">Challenge Details</h4>
+                <p style="margin: 5px 0;"><strong>Type:</strong> {{ challenge.challenge_type|title }}</p>
+                <p style="margin: 5px 0;"><strong>Goal:</strong> {{ challenge.goal_type|replace('_', ' ')|title }}</p>
+                {% if challenge.goal_target %}
+                <p style="margin: 5px 0;"><strong>Target:</strong> {{ challenge.goal_target }}</p>
+                {% endif %}
+            </div>
+
+            <div class="form-card">
+                <h3 class="mb-4">Send Email Invitation</h3>
+                <form method="POST" action="{{ url_for('challenges.invite', challenge_id=challenge.id) }}">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-4">
+                        {{ form.email.label(class="form-label") }}
+                        {{ form.email(class="form-control") }}
+                        <div class="form-text">Enter your friend's email address</div>
+                        {% if form.email.errors %}
+                            <div class="text-danger mt-1">{{ form.email.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-4">
+                        {{ form.message.label(class="form-label") }}
+                        {{ form.message(class="form-control") }}
+                        <div class="form-text">Add a personal message to encourage them to join</div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        {{ form.submit(class="btn btn-primary") }}
+                        <a href="{{ url_for('challenges.detail', challenge_id=challenge.id) }}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+
+            <div class="text-center mt-4">
+                <p style="color: #6b7280;">Or</p>
+                <a href="{{ url_for('challenges.shareable_link', challenge_id=challenge.id) }}" class="btn btn-outline-primary">
+                    🔗 Get Shareable Link
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

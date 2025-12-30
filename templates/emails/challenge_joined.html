@@ -1,0 +1,37 @@
+{% extends 'emails/base.html' %}
+
+{% block content %}
+<h2 style="color: #4caf50;">{{ challenge.icon }} New Participant Joined Your Challenge!</h2>
+
+<p>Hi {{ challenge_creator.email }},</p>
+
+<p>Great news! Someone just joined your challenge on HabitFlow.</p>
+
+<div style="background: #1E1E1E; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #4caf50;">
+    <h3 style="margin-top: 0; color: #4caf50;">New Participant</h3>
+    <p style="font-size: 18px; margin: 10px 0;"><strong>{{ new_participant.email }}</strong> joined the challenge</p>
+</div>
+
+<div style="background: rgba(124, 58, 237, 0.1); padding: 20px; border-radius: 10px; margin: 20px 0;">
+    <h3 style="margin-top: 0;">{{ challenge.icon }} {{ challenge.name }}</h3>
+    <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 15px;">
+        <div>
+            <strong style="color: #7c3aed;">Type:</strong> {{ challenge.challenge_type|title }}
+        </div>
+        <div>
+            <strong style="color: #7c3aed;">Total Participants:</strong> {{ participant_count }}
+        </div>
+        {% if challenge.max_participants %}
+        <div>
+            <strong style="color: #7c3aed;">Limit:</strong> {{ participant_count }}/{{ challenge.max_participants }}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<p>The challenge is growing! Check out the leaderboard and see how everyone is doing.</p>
+
+<a href="{{ challenge_url }}" class="btn" style="background: linear-gradient(135deg, #7c3aed, #a78bfa);">View Challenge</a>
+
+<p style="margin-top: 30px;">Keep up the great work motivating others!<br>The HabitFlow Team</p>
+{% endblock %}

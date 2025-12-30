@@ -1,0 +1,384 @@
+{% extends "base.html" %}
+
+{% block title %}{{ challenge.name }} - HabitFlow{% endblock %}
+
+{% block extra_css %}
+<style>
+    h1, h2, h3, h4 { color: var(--text-primary); }
+
+    .challenge-header {
+        background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+        padding: 40px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        color: white;
+    }
+
+    .challenge-icon { font-size: 3rem; }
+    .challenge-title { font-size: 2rem; font-weight: 700; margin: 15px 0; }
+
+    .card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 15px;
+        box-shadow: 0 4px 15px var(--shadow-color);
+        margin-bottom: 25px;
+    }
+
+    .card-header {
+        background: var(--card-bg);
+        border-bottom: 2px solid var(--border-color);
+        padding: 20px;
+        font-weight: 600;
+    }
+
+    .leaderboard-row {
+        padding: 15px;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        transition: background 0.2s;
+    }
+
+    .leaderboard-row:last-child { border-bottom: none; }
+    .leaderboard-row:hover { background: rgba(124, 58, 237, 0.05); }
+
+    .rank-badge {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    .rank-1 { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: white; }
+    .rank-2 { background: linear-gradient(135deg, #9ca3af, #6b7280); color: white; }
+    .rank-3 { background: linear-gradient(135deg, #f87171, #dc2626); color: white; }
+    .rank-other { background: rgba(124, 58, 237, 0.1); color: #7c3aed; }
+
+    .participant-info {
+        flex: 1;
+    }
+
+    .participant-email {
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .participant-stats {
+        display: flex;
+        gap: 20px;
+        font-size: 0.9rem;
+        color: #6b7280;
+    }
+
+    body.dark-mode .participant-stats { color: #9ca3af; }
+
+    .stat-badge {
+        background: rgba(124, 58, 237, 0.1);
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-weight: 600;
+        color: #7c3aed;
+    }
+
+    .activity-item {
+        padding: 15px;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .activity-item:last-child { border-bottom: none; }
+
+    .activity-time {
+        font-size: 0.85rem;
+        color: #6b7280;
+    }
+
+    body.dark-mode .activity-time { color: #9ca3af; }
+
+    .btn-action {
+        background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-action:hover { color: white; opacity: 0.9; }
+
+    .btn-outline {
+        background: transparent;
+        border: 2px solid #7c3aed;
+        color: #7c3aed;
+    }
+
+    .btn-outline:hover {
+        background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+        color: white;
+    }
+
+    .collaborative-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        padding: 20px;
+    }
+
+    .stat-card {
+        background: rgba(124, 58, 237, 0.05);
+        padding: 20px;
+        border-radius: 12px;
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #7c3aed;
+        margin: 10px 0;
+    }
+
+    .stat-label {
+        color: #6b7280;
+        font-size: 0.9rem;
+    }
+
+    body.dark-mode .stat-label { color: #9ca3af; }
+
+    .linked-habit {
+        background: rgba(124, 58, 237, 0.05);
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .habit-name {
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Challenge Header -->
+    <div class="challenge-header">
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <div class="challenge-icon">{{ challenge.icon }}</div>
+                <h1 class="challenge-title">{{ challenge.name }}</h1>
+                {% if challenge.description %}
+                <p style="opacity: 0.9; margin: 10px 0;">{{ challenge.description }}</p>
+                {% endif %}
+                <div style="display: flex; gap: 15px; margin-top: 15px; flex-wrap: wrap;">
+                    <span style="background: rgba(255,255,255,0.2); padding: 6px 12px; border-radius: 8px;">
+                        {% if challenge.challenge_type == 'competitive' %}🏆 Competitive{% else %}🤝 Collaborative{% endif %}
+                    </span>
+                    <span style="background: rgba(255,255,255,0.2); padding: 6px 12px; border-radius: 8px;">
+                        {{ challenge.goal_type|replace('_', ' ')|title }}
+                    </span>
+                    {% if challenge.goal_target %}
+                    <span style="background: rgba(255,255,255,0.2); padding: 6px 12px; border-radius: 8px;">
+                        Target: {{ challenge.goal_target }}
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="d-flex gap-2 flex-wrap justify-content-end">
+                {% if challenge.creator_id == current_user.id %}
+                <a href="{{ url_for('challenges.edit', challenge_id=challenge.id) }}" class="btn-action btn-outline">✏️ Edit</a>
+                {% endif %}
+                {% if participation %}
+                <a href="{{ url_for('challenges.link_habit', challenge_id=challenge.id) }}" class="btn-action">🔗 Link Habit</a>
+                <a href="{{ url_for('challenges.invite', challenge_id=challenge.id) }}" class="btn-action btn-outline">📧 Invite</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Left Column - Leaderboard/Stats -->
+        <div class="col-lg-8">
+            {% if challenge.challenge_type == 'competitive' %}
+            <!-- Competitive Leaderboard -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0">🏆 Leaderboard</h3>
+                </div>
+                <div class="card-body p-0">
+                    {% if participants %}
+                        {% for p in participants %}
+                        <div class="leaderboard-row {% if p.user_id == current_user.id %}bg-opacity-10{% endif %}">
+                            <div class="rank-badge {% if loop.index == 1 %}rank-1{% elif loop.index == 2 %}rank-2{% elif loop.index == 3 %}rank-3{% else %}rank-other{% endif %}">
+                                {% if loop.index <= 3 %}
+                                    {% if loop.index == 1 %}🥇{% elif loop.index == 2 %}🥈{% else %}🥉{% endif %}
+                                {% else %}
+                                    #{{ loop.index }}
+                                {% endif %}
+                            </div>
+                            <div class="participant-info">
+                                <div class="participant-email">
+                                    {{ p.user.email }}
+                                    {% if p.user_id == current_user.id %}<span style="color: #7c3aed;">(You)</span>{% endif %}
+                                </div>
+                                <div class="participant-stats">
+                                    <span>🔥 Streak: {{ p.current_streak }}</span>
+                                    <span>🏅 Best: {{ p.longest_streak }}</span>
+                                    <span>✅ Total: {{ p.total_completions }}</span>
+                                </div>
+                            </div>
+                            {% if p.current_streak > 0 %}
+                            <div class="stat-badge">{{ p.current_streak }} 🔥</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div style="padding: 40px; text-align: center; color: #6b7280;">
+                            No participants yet. Be the first to link a habit!
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% else %}
+            <!-- Collaborative Stats -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0">🤝 Group Progress</h3>
+                </div>
+                <div class="collaborative-stats">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Streak</div>
+                        <div class="stat-value">{{ collaborative_stats.total_streak }}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Average Streak</div>
+                        <div class="stat-value">{{ collaborative_stats.average_streak }}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Total Completions</div>
+                        <div class="stat-value">{{ collaborative_stats.total_completions }}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Active Today</div>
+                        <div class="stat-value">{{ collaborative_stats.active_today }}/{{ collaborative_stats.total_participants }}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Participation Rate</div>
+                        <div class="stat-value">{{ collaborative_stats.participation_rate }}%</div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Activity Feed -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0">📋 Recent Activity</h3>
+                </div>
+                <div class="card-body p-0">
+                    {% if recent_activities %}
+                        {% for activity in recent_activities %}
+                        <div class="activity-item">
+                            <div>{{ activity.description }}</div>
+                            <div class="activity-time">{{ activity.created_at.strftime('%B %d, %Y at %I:%M %p') }}</div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div style="padding: 40px; text-align: center; color: #6b7280;">
+                            No activity yet
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - My Progress -->
+        <div class="col-lg-4">
+            {% if participation %}
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0">Your Progress</h3>
+                </div>
+                <div class="card-body">
+                    <div class="stat-card mb-3">
+                        <div class="stat-label">Current Streak</div>
+                        <div class="stat-value">{{ participation.current_streak }} 🔥</div>
+                    </div>
+                    <div class="stat-card mb-3">
+                        <div class="stat-label">Longest Streak</div>
+                        <div class="stat-value">{{ participation.longest_streak }}</div>
+                    </div>
+                    <div class="stat-card mb-3">
+                        <div class="stat-label">Total Completions</div>
+                        <div class="stat-value">{{ participation.total_completions }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0">Linked Habits</h3>
+                </div>
+                <div class="card-body">
+                    {% if user_linked_habits %}
+                        {% for habit in user_linked_habits %}
+                        <div class="linked-habit">
+                            <span class="habit-name">{{ habit.name }}</span>
+                            <form method="POST" action="{{ url_for('challenges.unlink_habit', challenge_id=challenge.id, habit_id=habit.id) }}" style="display: inline;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Unlink this habit?')">
+                                    Unlink
+                                </button>
+                            </form>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p style="color: #6b7280; text-align: center;">No habits linked yet</p>
+                    {% endif %}
+                    <a href="{{ url_for('challenges.link_habit', challenge_id=challenge.id) }}" class="btn-action w-100 text-center mt-3">
+                        + Link Habit
+                    </a>
+                </div>
+            </div>
+
+            {% if participation.role != 'creator' %}
+            <div class="card">
+                <div class="card-body text-center">
+                    <form method="POST" action="{{ url_for('challenges.leave', challenge_id=challenge.id) }}" onsubmit="return confirm('Are you sure you want to leave this challenge?');">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-outline-danger">Leave Challenge</button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+            {% endif %}
+
+            <!-- Participants List -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0">Participants ({{ participants|length }})</h3>
+                </div>
+                <div class="card-body">
+                    {% for p in participants %}
+                    <div style="padding: 8px 0; {% if not loop.last %}border-bottom: 1px solid var(--border-color);{% endif %}">
+                        {{ p.user.email }}
+                        {% if p.role == 'creator' %}<span style="color: #f59e0b;">👑</span>{% endif %}
+                        {% if p.user_id == current_user.id %}<span style="color: #7c3aed;">(You)</span>{% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

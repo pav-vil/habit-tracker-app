@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}Create Challenge - HabitFlow{% endblock %}
+
+{% block extra_css %}
+<style>
+    h1, h2 { color: var(--text-primary); }
+
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 8px;
+    }
+
+    .form-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 15px;
+        padding: 40px;
+        box-shadow: 0 4px 15px var(--shadow-color);
+    }
+
+    .form-label {
+        color: var(--text-primary);
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .form-control, .form-select {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        padding: 12px;
+        border-radius: 8px;
+    }
+
+    .form-control:focus, .form-select:focus {
+        background: var(--card-bg);
+        border-color: #7c3aed;
+        box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+        color: var(--text-primary);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+        border: none;
+        padding: 12px 40px;
+        font-weight: 600;
+        border-radius: 10px;
+    }
+
+    .btn-outline-secondary {
+        border-color: #6b7280;
+        color: #6b7280;
+        padding: 12px 30px;
+        font-weight: 600;
+        border-radius: 10px;
+    }
+
+    .form-text {
+        color: #6b7280;
+        font-size: 0.9rem;
+    }
+
+    body.dark-mode .form-text {
+        color: #9ca3af;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-8 offset-lg-2">
+            <h1 class="page-title mb-4">Create New Challenge</h1>
+
+            <div class="form-card">
+                <form method="POST" action="{{ url_for('challenges.create') }}">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-4">
+                        {{ form.name.label(class="form-label") }}
+                        {{ form.name(class="form-control") }}
+                        <div class="form-text">Give your challenge a catchy name</div>
+                        {% if form.name.errors %}
+                            <div class="text-danger mt-1">{{ form.name.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-4">
+                        {{ form.description.label(class="form-label") }}
+                        {{ form.description(class="form-control") }}
+                        <div class="form-text">Describe the challenge goals and rules</div>
+                    </div>
+
+                    <div class="mb-4">
+                        {{ form.icon.label(class="form-label") }}
+                        {{ form.icon(class="form-select") }}
+                        <div class="form-text">Choose an icon that represents your challenge</div>
+                    </div>
+
+                    <div class="mb-4">
+                        {{ form.challenge_type.label(class="form-label") }}
+                        {{ form.challenge_type(class="form-select") }}
+                        <div class="form-text">Competitive = leaderboard, Collaborative = group progress</div>
+                    </div>
+
+                    <div class="mb-4">
+                        {{ form.goal_type.label(class="form-label") }}
+                        {{ form.goal_type(class="form-select") }}
+                        <div class="form-text">What metric should participants track?</div>
+                    </div>
+
+                    <div class="mb-4">
+                        {{ form.goal_target.label(class="form-label") }}
+                        {{ form.goal_target(class="form-control") }}
+                        <div class="form-text">Optional - Leave empty for ongoing challenges</div>
+                    </div>
+
+                    <div class="mb-4">
+                        {{ form.max_participants.label(class="form-label") }}
+                        {{ form.max_participants(class="form-control") }}
+                        <div class="form-text">Optional - Leave empty for unlimited participants</div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        {{ form.submit(class="btn btn-primary") }}
+                        <a href="{{ url_for('challenges.my_challenges') }}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

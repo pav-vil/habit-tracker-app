@@ -100,6 +100,24 @@ def dashboard():
     day_of_year = today.timetuple().tm_yday
     daily_quote = motivational_quotes[day_of_year % len(motivational_quotes)]
 
+    # Get user's active challenges for widget (top 3)
+    active_challenges = []
+    try:
+        from models import ChallengeParticipant
+        participations = ChallengeParticipant.query.filter_by(
+            user_id=current_user.id,
+            status='active'
+        ).order_by(ChallengeParticipant.joined_at.desc()).limit(3).all()
+
+        for p in participations:
+            if not p.challenge.deleted_at:  # Only show non-deleted challenges
+                active_challenges.append({
+                    'challenge': p.challenge,
+                    'participation': p
+                })
+    except:
+        pass  # Challenges feature not available
+
     return render_template(
         'dashboard.html',
         habits=user_habits,
@@ -107,7 +125,8 @@ def dashboard():
         pagination=pagination,
         daily_quote=daily_quote,
         over_limit=over_limit,
-        habits_to_archive=habits_to_archive
+        habits_to_archive=habits_to_archive,
+        active_challenges=active_challenges
     )
 
 
@@ -249,6 +268,25 @@ def complete_habit(habit_id):
     db.session.add(completion)
 
     db.session.commit()
+
+    # Update challenge progress for any linked challenges
+    try:
+        from models import HabitChallengeLink
+        # Find all active challenge links for this habit
+        challenge_links = HabitChallengeLink.query.filter_by(
+            habit_id=habit.id,
+            is_active=True
+        ).all()
+
+        # Update progress for each linked challenge
+        for link in challenge_links:
+            link.participant.update_progress()
+
+        if challenge_links:
+            db.session.commit()
+    except Exception as e:
+        # Don't fail habit completion if challenge update fails
+        print(f"[WARNING] Challenge progress update failed: {e}")
 
     flash(f'🎉 "{habit.name}" completed! Streak: {habit.streak_count} days', 'success')
     return redirect(url_for('habits.dashboard'))

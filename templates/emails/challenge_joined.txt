@@ -1,0 +1,26 @@
+{{ challenge.icon }} New Participant Joined Your Challenge!
+
+Hi {{ challenge_creator.email }},
+
+Great news! Someone just joined your challenge on HabitFlow.
+
+New Participant:
+{{ new_participant.email }} joined the challenge
+
+Challenge Details:
+{{ challenge.icon }} {{ challenge.name }}
+- Type: {{ challenge.challenge_type|title }}
+- Total Participants: {{ participant_count }}
+{% if challenge.max_participants %}- Limit: {{ participant_count }}/{{ challenge.max_participants }}{% endif %}
+
+The challenge is growing! Check out the leaderboard and see how everyone is doing.
+
+View Challenge: {{ challenge_url }}
+
+Keep up the great work motivating others!
+The HabitFlow Team
+
+---
+You're receiving this email because you created this challenge on HabitFlow.
+Manage your notification preferences: {{ url_for('profile.settings', _external=True) }}
+© 2025 HabitFlow. All rights reserved.

@@ -7,6 +7,7 @@ from datetime import datetime, date, timedelta
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
+import secrets
 
 db = SQLAlchemy()
 
@@ -558,3 +559,246 @@ class PeriodSettings(db.Model):
 
     def __repr__(self):
         return f'<PeriodSettings user_id={self.user_id} enabled={self.period_tracking_enabled}>'
+
+
+# ============================================================================
+# CHALLENGE SYSTEM MODELS
+# ============================================================================
+
+class Challenge(db.Model):
+    """
+    Model for community challenges where users compete or collaborate.
+    Premium users can create challenges, free users can join.
+    """
+    __tablename__ = 'challenge'
+
+    # Primary Key
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+
+    # Creator (must be premium)
+    creator_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+
+    # Challenge Details
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.String(1000), nullable=True)
+    icon = db.Column(db.String(10), default='🎯', nullable=False)  # Emoji icon
+
+    # Challenge Type & Goals
+    challenge_type = db.Column(db.String(20), nullable=False)  # 'competitive' or 'collaborative'
+    goal_type = db.Column(db.String(30), nullable=False)  # 'streak', 'total_completions', 'participation_rate'
+    goal_target = db.Column(db.Integer, nullable=True)  # Nullable for ongoing challenges
+
+    # Status & Visibility
+    status = db.Column(db.String(20), default='active', nullable=False, index=True)  # 'active', 'paused', 'archived'
+    visibility = db.Column(db.String(20), default='invite_only', nullable=False)  # 'invite_only', future: 'public'
+
+    # Participant Management
+    allow_invites = db.Column(db.Boolean, default=True, nullable=False)
+    max_participants = db.Column(db.Integer, nullable=True)  # Nullable for unlimited
+
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False, index=True)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    deleted_at = db.Column(db.DateTime, nullable=True)  # Soft delete
+
+    # Relationships
+    creator = db.relationship('User', backref=db.backref('created_challenges', lazy='dynamic'))
+    participants = db.relationship('ChallengeParticipant', backref='challenge', lazy='dynamic', cascade='all, delete-orphan')
+    invites = db.relationship('ChallengeInvite', backref='challenge', lazy='dynamic', cascade='all, delete-orphan')
+    activities = db.relationship('ChallengeActivity', backref='challenge', lazy='dynamic', cascade='all, delete-orphan')
+
+    def __repr__(self):
+        return f'<Challenge id={self.id} name="{self.name}" type={self.challenge_type}>'
+
+
+class ChallengeParticipant(db.Model):
+    """
+    Links users to challenges they've joined.
+    Stores cached progress statistics for leaderboard performance.
+    """
+    __tablename__ = 'challenge_participant'
+
+    # Primary Key
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+
+    # Foreign Keys
+    challenge_id = db.Column(db.Integer, db.ForeignKey('challenge.id'), nullable=False, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+
+    # Participation Status
+    status = db.Column(db.String(20), default='active', nullable=False)  # 'active', 'left', 'removed'
+    role = db.Column(db.String(20), default='member', nullable=False)  # 'creator', 'member'
+
+    # Timestamps
+    joined_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    left_at = db.Column(db.DateTime, nullable=True)
+
+    # Cached Progress Statistics (updated when habits are completed)
+    current_streak = db.Column(db.Integer, default=0, nullable=False)
+    longest_streak = db.Column(db.Integer, default=0, nullable=False)
+    total_completions = db.Column(db.Integer, default=0, nullable=False)
+    last_activity = db.Column(db.Date, nullable=True)
+
+    # Relationships
+    user = db.relationship('User', backref=db.backref('challenge_participations', lazy='dynamic'))
+    habit_links = db.relationship('HabitChallengeLink', backref='participant', lazy='dynamic', cascade='all, delete-orphan')
+
+    # Unique Constraint: One participation per user per challenge
+    __table_args__ = (
+        db.UniqueConstraint('challenge_id', 'user_id', name='unique_challenge_user'),
+    )
+
+    def update_progress(self):
+        """
+        Recalculate progress statistics from all linked habits.
+        Called after habit completion or when habits are linked/unlinked.
+        """
+        from sqlalchemy import func
+
+        # Get all active habit links for this participant
+        active_links = self.habit_links.filter_by(is_active=True).all()
+
+        if not active_links:
+            # No linked habits - reset to zero
+            self.current_streak = 0
+            self.longest_streak = 0
+            self.total_completions = 0
+            self.last_activity = None
+            return
+
+        # Aggregate stats from all linked habits
+        total_current_streak = 0
+        total_longest_streak = 0
+        total_completions = 0
+        most_recent_activity = None
+
+        for link in active_links:
+            habit = link.habit
+            total_current_streak += habit.streak_count
+            total_longest_streak += habit.longest_streak
+
+            # Count total completions for this habit
+            completion_count = habit.completions.count()
+            total_completions += completion_count
+
+            # Track most recent activity
+            if habit.last_completed:
+                if most_recent_activity is None or habit.last_completed > most_recent_activity:
+                    most_recent_activity = habit.last_completed
+
+        # Update cached statistics
+        self.current_streak = total_current_streak
+        self.longest_streak = total_longest_streak
+        self.total_completions = total_completions
+        self.last_activity = most_recent_activity
+
+    def __repr__(self):
+        return f'<ChallengeParticipant challenge_id={self.challenge_id} user_id={self.user_id} role={self.role}>'
+
+
+class ChallengeInvite(db.Model):
+    """
+    Token-based invitations to challenges.
+    Supports both email invites (30 days) and shareable links (90 days).
+    """
+    __tablename__ = 'challenge_invite'
+
+    # Primary Key
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+
+    # Foreign Keys
+    challenge_id = db.Column(db.Integer, db.ForeignKey('challenge.id'), nullable=False, index=True)
+    inviter_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+
+    # Invite Details
+    invitee_email = db.Column(db.String(120), nullable=True)  # Nullable for shareable links
+    token = db.Column(db.String(64), unique=True, nullable=False, index=True)  # URL-safe token
+
+    # Status & Metadata
+    status = db.Column(db.String(20), default='pending', nullable=False, index=True)  # 'pending', 'accepted', 'rejected', 'expired'
+    personal_message = db.Column(db.String(500), nullable=True)
+
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    expires_at = db.Column(db.DateTime, nullable=False, index=True)
+    accepted_at = db.Column(db.DateTime, nullable=True)
+    accepted_by_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+
+    # Relationships
+    inviter = db.relationship('User', foreign_keys=[inviter_id], backref=db.backref('sent_invites', lazy='dynamic'))
+    accepted_by = db.relationship('User', foreign_keys=[accepted_by_user_id], backref=db.backref('accepted_invites', lazy='dynamic'))
+
+    @staticmethod
+    def generate_token():
+        """Generate a secure 64-character URL-safe token."""
+        return secrets.token_urlsafe(32)  # 32 bytes = 64 characters in base64
+
+    def is_expired(self):
+        """Check if invite has expired."""
+        return datetime.utcnow() > self.expires_at
+
+    def __repr__(self):
+        return f'<ChallengeInvite challenge_id={self.challenge_id} status={self.status} email={self.invitee_email}>'
+
+
+class HabitChallengeLink(db.Model):
+    """
+    Links a user's habit to a challenge they're participating in.
+    Allows participants to track challenge progress with their own habits.
+    """
+    __tablename__ = 'habit_challenge_link'
+
+    # Primary Key
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+
+    # Foreign Keys
+    habit_id = db.Column(db.Integer, db.ForeignKey('habit.id'), nullable=False, index=True)
+    challenge_id = db.Column(db.Integer, db.ForeignKey('challenge.id'), nullable=False, index=True)
+    participant_id = db.Column(db.Integer, db.ForeignKey('challenge_participant.id'), nullable=False, index=True)
+
+    # Link Status
+    is_active = db.Column(db.Boolean, default=True, nullable=False)
+
+    # Timestamps
+    linked_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    unlinked_at = db.Column(db.DateTime, nullable=True)
+
+    # Relationships
+    habit = db.relationship('Habit', backref=db.backref('challenge_links', lazy='dynamic', cascade='all, delete-orphan'))
+
+    # Unique Constraint: One link per habit per challenge
+    __table_args__ = (
+        db.UniqueConstraint('habit_id', 'challenge_id', name='unique_habit_challenge'),
+    )
+
+    def __repr__(self):
+        return f'<HabitChallengeLink habit_id={self.habit_id} challenge_id={self.challenge_id} active={self.is_active}>'
+
+
+class ChallengeActivity(db.Model):
+    """
+    Activity feed/timeline for challenges.
+    Tracks events like user joins, milestones reached, etc.
+    """
+    __tablename__ = 'challenge_activity'
+
+    # Primary Key
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+
+    # Foreign Keys
+    challenge_id = db.Column(db.Integer, db.ForeignKey('challenge.id'), nullable=False, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)  # Nullable for system events
+
+    # Activity Details
+    activity_type = db.Column(db.String(50), nullable=False, index=True)  # 'challenge_created', 'user_joined', 'milestone_reached', etc.
+    description = db.Column(db.String(500), nullable=False)
+    activity_metadata = db.Column(db.JSON, nullable=True)  # Additional event data (renamed from 'metadata' to avoid SQLAlchemy reserved word)
+
+    # Timestamp
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False, index=True)
+
+    # Relationships
+    user = db.relationship('User', backref=db.backref('challenge_activities', lazy='dynamic'))
+
+    def __repr__(self):
+        return f'<ChallengeActivity challenge_id={self.challenge_id} type={self.activity_type}>'

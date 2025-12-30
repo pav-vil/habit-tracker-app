@@ -1,0 +1,51 @@
+{% extends 'emails/base.html' %}
+
+{% block content %}
+<h2 style="color: #7c3aed;">{{ challenge.icon }} You're Invited to a Challenge!</h2>
+
+<p>Hi there!</p>
+
+<p><strong>{{ inviter.email }}</strong> has invited you to join a challenge on HabitFlow!</p>
+
+<div style="background: #1E1E1E; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #7c3aed;">
+    <h3 style="margin-top: 0;">{{ challenge.icon }} {{ challenge.name }}</h3>
+    {% if challenge.description %}
+    <p style="color: #B0B0B0;">{{ challenge.description }}</p>
+    {% endif %}
+    <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 15px;">
+        <div>
+            <strong style="color: #7c3aed;">Type:</strong> {{ challenge.challenge_type|title }}
+        </div>
+        <div>
+            <strong style="color: #7c3aed;">Goal:</strong> {{ challenge.goal_type|replace('_', ' ')|title }}
+        </div>
+        {% if challenge.goal_target %}
+        <div>
+            <strong style="color: #7c3aed;">Target:</strong> {{ challenge.goal_target }}
+        </div>
+        {% endif %}
+    </div>
+    <p style="margin-top: 15px; color: #B0B0B0; font-size: 14px;">
+        {{ participant_count }} {{ 'participant' if participant_count == 1 else 'participants' }} already joined
+    </p>
+</div>
+
+{% if personal_message %}
+<div style="background: rgba(124, 58, 237, 0.1); padding: 15px; border-radius: 8px; margin: 20px 0;">
+    <p style="margin: 0; font-style: italic;">"{{ personal_message }}"</p>
+    <p style="margin: 5px 0 0 0; font-size: 14px; color: #B0B0B0;">- {{ inviter.email }}</p>
+</div>
+{% endif %}
+
+<p style="font-size: 16px; margin-top: 30px;">
+    Ready to join the challenge? Click the button below to accept the invite and start tracking your progress!
+</p>
+
+<a href="{{ invite_url }}" class="btn" style="background: linear-gradient(135deg, #7c3aed, #a78bfa);">Accept Invite & Join Challenge</a>
+
+<p style="font-size: 14px; color: #9E9E9E; margin-top: 30px;">
+    This invite will expire on {{ expires_at.strftime('%B %d, %Y') }}. Don't miss out!
+</p>
+
+<p>See you in the challenge!<br>The HabitFlow Team</p>
+{% endblock %}

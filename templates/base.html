@@ -727,7 +727,8 @@
             max-width: 600px;
             margin: 0 auto;
             width: 100%;
-            padding: 0 10px;
+            padding: 0 4px;
+            gap: 2px;
         }
 
         .bottom-nav-item {
@@ -738,13 +739,13 @@
             text-decoration: none;
             color: var(--text-muted);
             transition: all 0.2s ease;
-            padding: 10px 12px;
+            padding: 8px 6px;
             border-radius: 12px;
-            min-width: 64px;
+            min-width: 48px;
             min-height: 48px; /* Ensure 44px+ touch target */
             position: relative;
             flex: 1;
-            max-width: 85px;
+            max-width: 70px;
         }
 
         .bottom-nav-item:hover,
@@ -772,17 +773,20 @@
         }
 
         .bottom-nav-icon {
-            font-size: 24px;
-            margin-bottom: 4px;
+            font-size: 22px;
+            margin-bottom: 3px;
             display: block;
             line-height: 1;
         }
 
         .bottom-nav-label {
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 500;
-            letter-spacing: 0.3px;
+            letter-spacing: 0.2px;
             white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
         }
 
         /* Add Habit Button - Special Style (Center) */
@@ -790,24 +794,26 @@
             background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
             color: white;
             border-radius: 50%;
-            width: 56px;
-            height: 56px;
-            min-width: 56px;
-            max-width: 56px;
+            width: 60px;
+            height: 60px;
+            min-width: 60px;
+            max-width: 60px;
             padding: 0;
-            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
-            margin-top: -20px;
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+            margin-top: -24px;
+            border: 3px solid var(--card-bg);
         }
 
         .bottom-nav-item.add-habit:hover {
             background: linear-gradient(135deg, #6d28d9 0%, #9333ea 100%);
             transform: translateY(-4px) scale(1.05);
-            box-shadow: 0 6px 16px rgba(124, 58, 237, 0.4);
+            box-shadow: 0 6px 20px rgba(124, 58, 237, 0.5);
         }
 
         .bottom-nav-item.add-habit .bottom-nav-icon {
-            font-size: 28px;
+            font-size: 32px;
             margin-bottom: 0;
+            font-weight: 300;
         }
 
         .bottom-nav-item.add-habit .bottom-nav-label {
@@ -831,6 +837,35 @@
         .bottom-nav-item:active::after {
             width: 100%;
             height: 100%;
+        }
+
+        /* Adjustments for smaller screens */
+        @media (max-width: 375px) {
+            .bottom-nav-item {
+                padding: 8px 4px;
+                max-width: 60px;
+                min-width: 44px;
+            }
+
+            .bottom-nav-icon {
+                font-size: 20px;
+            }
+
+            .bottom-nav-label {
+                font-size: 9px;
+            }
+
+            .bottom-nav-item.add-habit {
+                width: 56px;
+                height: 56px;
+                min-width: 56px;
+                max-width: 56px;
+                margin-top: -22px;
+            }
+
+            .bottom-nav-item.add-habit .bottom-nav-icon {
+                font-size: 28px;
+            }
         }
 
         /* Safe area for devices with notches */
@@ -1051,6 +1086,11 @@
 
             <a href="{{ url_for('habits.add_habit') }}" class="bottom-nav-item add-habit" aria-label="Add new habit">
                 <span class="bottom-nav-icon" aria-hidden="true">+</span>
+            </a>
+
+            <a href="{{ url_for('habits.habit_guide') }}" class="bottom-nav-item" aria-label="Habit guide">
+                <span class="bottom-nav-icon" aria-hidden="true">📚</span>
+                <span class="bottom-nav-label">Guide</span>
             </a>
 
             <a href="{{ url_for('profile.view') }}" class="bottom-nav-item" aria-label="Your profile">

@@ -898,6 +898,15 @@
             <a class="navbar-brand brand-name" href="/" aria-label="HabitFlow home">
                 HabitFlow
             </a>
+
+            <!-- Dark Mode Toggle - Always visible on mobile -->
+            {% if current_user.is_authenticated %}
+            <label class="dark-mode-toggle d-lg-none" aria-label="Toggle dark mode" style="margin-left: auto; margin-right: 10px;">
+                <input type="checkbox" id="darkModeToggleMobile" {% if current_user.dark_mode %}checked{% endif %}>
+                <span class="dark-mode-slider"></span>
+            </label>
+            {% endif %}
+
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation menu">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -1039,14 +1048,14 @@
                 <span class="bottom-nav-icon" aria-hidden="true">+</span>
             </a>
 
-            <a href="{{ url_for('profile.view') }}" class="bottom-nav-item" aria-label="Your profile">
-                <span class="bottom-nav-icon" aria-hidden="true">👤</span>
-                <span class="bottom-nav-label">Profile</span>
+            <a href="{{ url_for('periods.settings') }}" class="bottom-nav-item" aria-label="Period Tracker">
+                <span class="bottom-nav-icon" aria-hidden="true">🌸</span>
+                <span class="bottom-nav-label">Periods</span>
             </a>
 
-            <a href="{{ url_for('habits.habit_guide') }}" class="bottom-nav-item" aria-label="Habit building guide">
-                <span class="bottom-nav-icon" aria-hidden="true">📖</span>
-                <span class="bottom-nav-label">Guide</span>
+            <a href="{{ url_for('auth.settings') }}" class="bottom-nav-item" aria-label="Settings">
+                <span class="bottom-nav-icon" aria-hidden="true">⚙️</span>
+                <span class="bottom-nav-label">Settings</span>
             </a>
         </div>
     </nav>
@@ -1230,6 +1239,7 @@
         // Dark Mode Toggle Functionality
         document.addEventListener('DOMContentLoaded', function() {
             const darkModeToggle = document.getElementById('darkModeToggle');
+            const darkModeToggleMobile = document.getElementById('darkModeToggleMobile');
 
             // Initialize dark mode based on user preference from database
             {% if current_user.is_authenticated %}
@@ -1238,38 +1248,52 @@
                 }
             {% endif %}
 
-            // Handle dark mode toggle
+            // Function to handle dark mode change
+            async function handleDarkModeChange(isDarkMode) {
+                // Toggle dark mode class on body
+                if (isDarkMode) {
+                    document.body.classList.add('dark-mode');
+                } else {
+                    document.body.classList.remove('dark-mode');
+                }
+
+                // Sync both toggles
+                if (darkModeToggle) darkModeToggle.checked = isDarkMode;
+                if (darkModeToggleMobile) darkModeToggleMobile.checked = isDarkMode;
+
+                // Save preference to backend (if user is authenticated)
+                {% if current_user.is_authenticated %}
+                try {
+                    const response = await fetch('/habits/dark-mode-toggle', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({ dark_mode: isDarkMode })
+                    });
+
+                    const data = await response.json();
+                    if (!data.success) {
+                        console.error('Failed to save dark mode preference');
+                    }
+                } catch (error) {
+                    console.error('Error saving dark mode preference:', error);
+                }
+                {% endif %}
+            }
+
+            // Handle desktop dark mode toggle
             if (darkModeToggle) {
-                darkModeToggle.addEventListener('change', async function() {
-                    const isDarkMode = this.checked;
+                darkModeToggle.addEventListener('change', function() {
+                    handleDarkModeChange(this.checked);
+                });
+            }
 
-                    // Toggle dark mode class on body
-                    if (isDarkMode) {
-                        document.body.classList.add('dark-mode');
-                    } else {
-                        document.body.classList.remove('dark-mode');
-                    }
-
-                    // Save preference to backend (if user is authenticated)
-                    {% if current_user.is_authenticated %}
-                    try {
-                        const response = await fetch('/habits/dark-mode-toggle', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRFToken': '{{ csrf_token() }}'
-                            },
-                            body: JSON.stringify({ dark_mode: isDarkMode })
-                        });
-
-                        const data = await response.json();
-                        if (!data.success) {
-                            console.error('Failed to save dark mode preference');
-                        }
-                    } catch (error) {
-                        console.error('Error saving dark mode preference:', error);
-                    }
-                    {% endif %}
+            // Handle mobile dark mode toggle
+            if (darkModeToggleMobile) {
+                darkModeToggleMobile.addEventListener('change', function() {
+                    handleDarkModeChange(this.checked);
                 });
             }
         });

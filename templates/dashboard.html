@@ -135,32 +135,18 @@
     .habit-name {
         font-size: 1.4rem;
         font-weight: 600;
-        color: #1a1a2e;
+        color: var(--text-primary);
         margin-bottom: 10px;
     }
 
-    /* Dark mode override */
-    body.dark-mode .habit-name {
-        color: #f3f4f6 !important;
-    }
-
     .habit-description {
-        color: #4a5568;
+        color: var(--text-secondary);
         margin-bottom: 15px;
         font-weight: 500;
     }
 
-    /* Dark mode override */
-    body.dark-mode .habit-description {
-        color: #d1d5db !important;
-    }
-
     .last-completed-text {
-        color: #6b7280;
-    }
-
-    body.dark-mode .last-completed-text {
-        color: #9ca3af !important;
+        color: var(--text-secondary);
     }
 
     .streak-badge {
@@ -1037,7 +1023,7 @@
                             <div style="font-size: 2.5rem;">{{ item.challenge.icon }}</div>
                             <div style="flex: 1;">
                                 <div style="font-weight: 600; font-size: 1.1rem; color: var(--text-primary); margin-bottom: 5px;">{{ item.challenge.name }}</div>
-                                <div style="display: flex; gap: 15px; font-size: 0.9rem; color: #6b7280;">
+                                <div style="display: flex; gap: 15px; font-size: 0.9rem; color: var(--text-secondary);">
                                     <span>🔥 Streak: <strong style="color: #7c3aed;">{{ item.participation.current_streak }}</strong></span>
                                     <span>🏅 Best: <strong style="color: #7c3aed;">{{ item.participation.longest_streak }}</strong></span>
                                     <span>{% if item.challenge.challenge_type == 'competitive' %}🏆 Competitive{% else %}🤝 Collaborative{% endif %}</span>
@@ -1062,8 +1048,8 @@
         <div class="col-md-12">
             <div class="card" style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(167, 139, 250, 0.1) 100%); border: 2px dashed #7c3aed; border-radius: 15px; padding: 30px; text-align: center;">
                 <div style="font-size: 3rem; margin-bottom: 15px;">🎯</div>
-                <h4 style="color: #7c3aed; margin-bottom: 10px;">Create Your First Challenge!</h4>
-                <p style="color: #6b7280; margin-bottom: 20px;">Compete or collaborate with friends on habit goals</p>
+                <h4 style="color: #7c3aed; margin-bottom: 10px; font-weight: 700;">Create Your First Challenge!</h4>
+                <p style="color: var(--text-secondary); margin-bottom: 20px;">Compete or collaborate with friends on habit goals</p>
                 <a href="{{ url_for('challenges.create') }}" class="btn btn-primary" style="background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%); border: none; padding: 12px 30px; font-weight: 600; border-radius: 10px;">Create Challenge</a>
             </div>
         </div>
@@ -1114,7 +1100,7 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <strong style="color: #6d28d9;">Free Tier:</strong>
-                        <span class="ms-2" style="color: #2d3748; font-weight: 500;">{{ habits|selectattr('archived', 'equalto', False)|list|length }}/3 habits used</span>
+                        <span class="ms-2" style="color: var(--text-primary); font-weight: 500;">{{ habits|selectattr('archived', 'equalto', False)|list|length }}/3 habits used</span>
                         {% if habits|selectattr('archived', 'equalto', False)|list|length >= 3 %}
                         <span class="badge bg-warning text-dark ms-2">Limit Reached</span>
                         {% endif %}
@@ -1124,7 +1110,7 @@
                     </a>
                 </div>
                 {% if habits|selectattr('archived', 'equalto', False)|list|length >= 3 %}
-                <p class="mb-0 mt-2 small" style="color: #4a5568;">
+                <p class="mb-0 mt-2 small" style="color: var(--text-secondary);">
                     You've reached the free tier limit. Upgrade to create unlimited habits!
                 </p>
                 {% endif %}
@@ -1158,7 +1144,7 @@
 
                 <!-- Current Phase Display -->
                 <div id="currentPhase" class="mb-3" style="min-height: 50px;">
-                    <div class="text-center" style="color: #9ca3af;">
+                    <div class="text-center" style="color: var(--text-muted);">
                         <span>Loading...</span>
                     </div>
                 </div>
@@ -1168,19 +1154,19 @@
                     <div class="col-4">
                         <div style="background: rgba(255, 255, 255, 0.7); padding: 15px; border-radius: 12px;">
                             <div id="cycleDay" style="font-size: 1.8rem; font-weight: 700; color: #be185d;">--</div>
-                            <div style="font-size: 0.85rem; color: #6b7280; font-weight: 500;">Cycle Day</div>
+                            <div style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 500;">Cycle Day</div>
                         </div>
                     </div>
                     <div class="col-4">
                         <div style="background: rgba(255, 255, 255, 0.7); padding: 15px; border-radius: 12px;">
                             <div id="daysUntil" style="font-size: 1.8rem; font-weight: 700; color: #be185d;">--</div>
-                            <div style="font-size: 0.85rem; color: #6b7280; font-weight: 500;">Days Until</div>
+                            <div style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 500;">Days Until</div>
                         </div>
                     </div>
                     <div class="col-4">
                         <div style="background: rgba(255, 255, 255, 0.7); padding: 15px; border-radius: 12px;">
                             <div id="avgCycle" style="font-size: 1.8rem; font-weight: 700; color: #be185d;">--</div>
-                            <div style="font-size: 0.85rem; color: #6b7280; font-weight: 500;">Avg Cycle</div>
+                            <div style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 500;">Avg Cycle</div>
                         </div>
                     </div>
                 </div>
@@ -1431,8 +1417,8 @@
                     <h5 class="mb-3" style="color: #7c3aed; font-weight: 600;">🧠 Proven Habit-Building Strategies</h5>
 
                     <div class="alert alert-light mb-3" style="border-left: 4px solid #7c3aed; border-radius: 8px;">
-                        <h6 style="color: #333; font-weight: 600; margin-bottom: 8px;">🔗 Habit Stacking</h6>
-                        <p style="color: #666; font-size: 0.9rem; margin-bottom: 8px;">
+                        <h6 style="color: var(--text-primary); font-weight: 600; margin-bottom: 8px;">🔗 Habit Stacking</h6>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 8px;">
                             Link new habits to existing routines. Example: "After I brush my teeth, I will do 5 pushups" or "After I pour my morning coffee, I will meditate for 2 minutes."
                         </p>
                         <a href="https://jamesclear.com/habit-stacking" target="_blank" rel="noopener noreferrer" style="font-size: 0.85rem; color: #7c3aed; text-decoration: none; font-weight: 600;">
@@ -1441,8 +1427,8 @@
                     </div>
 
                     <div class="alert alert-light mb-3" style="border-left: 4px solid #10b981; border-radius: 8px;">
-                        <h6 style="color: #333; font-weight: 600; margin-bottom: 8px;">🌱 Start Tiny</h6>
-                        <p style="color: #666; font-size: 0.9rem; margin-bottom: 8px;">
+                        <h6 style="color: var(--text-primary); font-weight: 600; margin-bottom: 8px;">🌱 Start Tiny</h6>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 8px;">
                             Make it ridiculously easy to start. One pushup, one page, one minute. Once you start, you'll often do more. The goal is to show up, not to be perfect.
                         </p>
                         <a href="https://tinyhabits.com/start/" target="_blank" rel="noopener noreferrer" style="font-size: 0.85rem; color: #10b981; text-decoration: none; font-weight: 600;">
@@ -1451,8 +1437,8 @@
                     </div>
 
                     <div class="alert alert-light mb-3" style="border-left: 4px solid #f59e0b; border-radius: 8px;">
-                        <h6 style="color: #333; font-weight: 600; margin-bottom: 8px;">🎯 If-Then Plans</h6>
-                        <p style="color: #666; font-size: 0.9rem; margin-bottom: 8px;">
+                        <h6 style="color: var(--text-primary); font-weight: 600; margin-bottom: 8px;">🎯 If-Then Plans</h6>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 8px;">
                             Plan for obstacles in advance. "If I'm too tired to exercise, then I'll do just 5 minutes." "If I miss a day, then I'll get back on track tomorrow." Decide ahead, act automatically.
                         </p>
                         <a href="https://jamesclear.com/implementation-intentions" target="_blank" rel="noopener noreferrer" style="font-size: 0.85rem; color: #f59e0b; text-decoration: none; font-weight: 600;">
@@ -1461,8 +1447,8 @@
                     </div>
 
                     <div class="alert alert-light" style="border-left: 4px solid #3b82f6; border-radius: 8px;">
-                        <h6 style="color: #333; font-weight: 600; margin-bottom: 8px;">🔁 Consistent Repetition</h6>
-                        <p style="color: #666; font-size: 0.9rem; margin-bottom: 8px;">
+                        <h6 style="color: var(--text-primary); font-weight: 600; margin-bottom: 8px;">🔁 Consistent Repetition</h6>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 8px;">
                             Habits form through repetition, not perfection. Do it daily for 66 days on average to make it automatic. Miss a day? No problem—just don't miss twice in a row.
                         </p>
                         <a href="https://jamesclear.com/new-habit" target="_blank" rel="noopener noreferrer" style="font-size: 0.85rem; color: #3b82f6; text-decoration: none; font-weight: 600;">
@@ -1482,8 +1468,8 @@
                         <div class="d-flex align-items-start">
                             <input type="checkbox" id="newsletterCheckbox" class="form-check-input mt-1" style="cursor: pointer; width: 20px; height: 20px; border-color: #7c3aed;">
                             <label for="newsletterCheckbox" style="cursor: pointer; margin-left: 12px; flex: 1;">
-                                <h6 style="color: #333; font-weight: 600; margin-bottom: 5px;">📧 Get Habit-Building Tips & Motivation</h6>
-                                <p style="color: #666; font-size: 0.85rem; margin-bottom: 0;">
+                                <h6 style="color: var(--text-primary); font-weight: 600; margin-bottom: 5px;">📧 Get Habit-Building Tips & Motivation</h6>
+                                <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0;">
                                     Receive weekly emails with proven strategies, success stories, and science-backed insights to help you build better habits. Unsubscribe anytime.
                                 </p>
                             </label>

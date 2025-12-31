@@ -201,6 +201,34 @@ class CompletionLog(db.Model):
         return f'<CompletionLog {self.habit_id} on {self.completed_at}>'
 
 
+class PomodoroSession(db.Model):
+    """Track Pomodoro timer sessions for habits."""
+    __tablename__ = "pomodoro_session"
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    habit_id = db.Column(db.Integer, db.ForeignKey('habit.id'), nullable=False, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+
+    # Session details
+    duration_minutes = db.Column(db.Integer, default=25, nullable=False)  # Standard pomodoro is 25 min
+    session_type = db.Column(db.String(20), default='work', nullable=False)  # 'work', 'short_break', 'long_break'
+    completed = db.Column(db.Boolean, default=True, nullable=False)  # False if session was abandoned
+
+    # Timestamps
+    started_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False, index=True)
+    completed_at = db.Column(db.DateTime, nullable=True)
+
+    # Relationships
+    habit = db.relationship(
+        'Habit',
+        backref=db.backref('pomodoro_sessions', lazy='dynamic', cascade='all, delete-orphan')
+    )
+    user = db.relationship('User', backref=db.backref('pomodoro_sessions', lazy='dynamic'))
+
+    def __repr__(self):
+        return f'<PomodoroSession habit_id={self.habit_id} duration={self.duration_minutes}min type={self.session_type}>'
+
+
 class SubscriptionHistory(db.Model):
     """Track all subscription changes for audit and billing history (LOCAL/HEAD version)."""
     __tablename__ = "subscription_history"

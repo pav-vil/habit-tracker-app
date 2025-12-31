@@ -1263,6 +1263,10 @@
                             </form>
                         {% endif %}
 
+                        <button onclick="openPomodoroTimer({{ habit.id }}, '{{ habit.name|replace("'", "\\'") }}')" class="btn btn-pomodoro" aria-label="Start Pomodoro timer for {{ habit.name }}" style="background: linear-gradient(135deg, #ef4444 0%, #f87171 100%); border: none; border-radius: 8px; padding: 8px 16px; font-weight: 600; color: white; box-shadow: 0 2px 10px rgba(239, 68, 68, 0.3); transition: all 0.3s ease;">
+                            <span aria-hidden="true">🍅</span> Pomodoro
+                        </button>
+
                         <a href="{{ url_for('habits.edit_habit', habit_id=habit.id) }}" class="btn" aria-label="Edit {{ habit.name }}" style="background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%); border: none; border-radius: 8px; padding: 8px 16px; font-weight: 600; color: white; box-shadow: 0 2px 10px rgba(124, 58, 237, 0.3); transition: all 0.3s ease;">
                             <span aria-hidden="true">✏️</span> Edit
                         </a>
@@ -1961,5 +1965,235 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+// ========================================
+// POMODORO TIMER
+// ========================================
+
+let pomodoroTimer = null;
+let pomodoroTimeLeft = 0;
+let pomodoroHabitId = null;
+let pomodoroHabitName = '';
+let pomodoroSessionType = 'work';
+let pomodoroSessionsCompleted = 0;
+
+function openPomodoroTimer(habitId, habitName) {
+    pomodoroHabitId = habitId;
+    pomodoroHabitName = habitName;
+    pomodoroSessionType = 'work';
+    pomodoroTimeLeft = 25 * 60; // 25 minutes in seconds
+
+    // Update modal
+    document.getElementById('pomodoro-habit-name').textContent = habitName;
+    document.getElementById('pomodoro-session-type').textContent = 'Work Session';
+    updateTimerDisplay();
+
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('pomodoroModal'));
+    modal.show();
+}
+
+function startPomodoroTimer() {
+    if (pomodoroTimer) return; // Already running
+
+    const startBtn = document.getElementById('pomodoro-start-btn');
+    const pauseBtn = document.getElementById('pomodoro-pause-btn');
+    const stopBtn = document.getElementById('pomodoro-stop-btn');
+
+    startBtn.style.display = 'none';
+    pauseBtn.style.display = 'inline-block';
+    stopBtn.style.display = 'inline-block';
+
+    pomodoroTimer = setInterval(() => {
+        pomodoroTimeLeft--;
+
+        if (pomodoroTimeLeft <= 0) {
+            completePomodoroSession();
+        } else {
+            updateTimerDisplay();
+        }
+    }, 1000);
+}
+
+function pausePomodoroTimer() {
+    if (pomodoroTimer) {
+        clearInterval(pomodoroTimer);
+        pomodoroTimer = null;
+
+        const startBtn = document.getElementById('pomodoro-start-btn');
+        const pauseBtn = document.getElementById('pomodoro-pause-btn');
+
+        startBtn.style.display = 'inline-block';
+        pauseBtn.style.display = 'none';
+    }
+}
+
+function stopPomodoroTimer() {
+    if (confirm('Are you sure you want to stop this Pomodoro session? Progress will not be saved.')) {
+        resetPomodoro();
+    }
+}
+
+function resetPomodoro() {
+    if (pomodoroTimer) {
+        clearInterval(pomodoroTimer);
+        pomodoroTimer = null;
+    }
+
+    pomodoroTimeLeft = 25 * 60;
+    updateTimerDisplay();
+
+    const startBtn = document.getElementById('pomodoro-start-btn');
+    const pauseBtn = document.getElementById('pomodoro-pause-btn');
+    const stopBtn = document.getElementById('pomodoro-stop-btn');
+
+    startBtn.style.display = 'inline-block';
+    pauseBtn.style.display = 'none';
+    stopBtn.style.display = 'none';
+}
+
+function updateTimerDisplay() {
+    const minutes = Math.floor(pomodoroTimeLeft / 60);
+    const seconds = pomodoroTimeLeft % 60;
+    const display = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+    document.getElementById('pomodoro-timer-display').textContent = display;
+
+    // Update progress circle
+    const totalSeconds = pomodoroSessionType === 'work' ? 25 * 60 : 5 * 60;
+    const progress = ((totalSeconds - pomodoroTimeLeft) / totalSeconds) * 100;
+    const circle = document.getElementById('pomodoro-progress-circle');
+    const circumference = 2 * Math.PI * 90; // radius is 90
+    const offset = circumference - (progress / 100) * circumference;
+    circle.style.strokeDashoffset = offset;
+}
+
+async function completePomodoroSession() {
+    // Stop timer
+    if (pomodoroTimer) {
+        clearInterval(pomodoroTimer);
+        pomodoroTimer = null;
+    }
+
+    // Play completion sound (optional)
+    try {
+        const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjGP1/K/bSUFKXzK8NuPPwoVYbjp7KxfFApNouDwul4gBzeV2PHAfCMGLYPO8dqOOQcZaLvp65JSFQ1Sq+HuwVsZBi+R1vHBaiIFKX7O8NqSOQkWZLnp66xgEQpOo+Hux2EeBzeX2fHJfyQFLoHM8MqJNwgYaLvt55JSFQ1Qre'></audio>
+        audio.volume = 0.3;
+        audio.play();
+    } catch (e) {
+        // Sound failed, that's okay
+    }
+
+    // Save session to database
+    try {
+        const response = await fetch('/pomodoro/complete', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+                habit_id: pomodoroHabitId,
+                duration_minutes: pomodoroSessionType === 'work' ? 25 : 5,
+                session_type: pomodoroSessionType
+            })
+        });
+
+        if (response.ok) {
+            pomodoroSessionsCompleted++;
+            document.getElementById('pomodoro-sessions-count').textContent = pomodoroSessionsCompleted;
+
+            // Show completion message
+            showPomodoroCompletionMessage();
+
+            // Start break or next session
+            if (pomodoroSessionType === 'work') {
+                const breakType = pomodoroSessionsCompleted % 4 === 0 ? 'long' : 'short';
+                startBreak(breakType);
+            } else {
+                // Break completed, ready for next work session
+                resetPomodoro();
+                document.getElementById('pomodoro-session-type').textContent = 'Work Session';
+                pomodoroSessionType = 'work';
+            }
+        }
+    } catch (error) {
+        console.error('Error saving Pomodoro session:', error);
+        alert('Failed to save Pomodoro session. Please try again.');
+    }
+}
+
+function showPomodoroCompletionMessage() {
+    const msgEl = document.getElementById('pomodoro-completion-msg');
+    msgEl.style.display = 'block';
+    msgEl.textContent = pomodoroSessionType === 'work' ? '🎉 Work session completed!' : '✅ Break completed!';
+
+    setTimeout(() => {
+        msgEl.style.display = 'none';
+    }, 3000);
+}
+
+function startBreak(breakType) {
+    pomodoroSessionType = breakType === 'long' ? 'long_break' : 'short_break';
+    pomodoroTimeLeft = breakType === 'long' ? 15 * 60 : 5 * 60;
+
+    document.getElementById('pomodoro-session-type').textContent = breakType === 'long' ? 'Long Break (15min)' : 'Short Break (5min)';
+    updateTimerDisplay();
+
+    // Auto-start break
+    startPomodoroTimer();
+}
 </script>
+
+<!-- Pomodoro Timer Modal -->
+<div class="modal fade" id="pomodoroModal" tabindex="-1" aria-labelledby="pomodoroModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 20px;">
+            <div class="modal-header" style="border-bottom: 1px solid var(--border-color);">
+                <h5 class="modal-title" id="pomodoroModalLabel" style="color: var(--text-primary);">
+                    🍅 Pomodoro Timer
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center" style="padding: 40px 30px;">
+                <h6 id="pomodoro-habit-name" style="color: var(--text-primary); margin-bottom: 10px; font-weight: 600;"></h6>
+                <p id="pomodoro-session-type" style="color: var(--text-secondary); margin-bottom: 30px; font-size: 0.9rem;"></p>
+
+                <!-- Circular Progress -->
+                <div style="position: relative; width: 220px; height: 220px; margin: 0 auto 30px;">
+                    <svg width="220" height="220" style="transform: rotate(-90deg);">
+                        <circle cx="110" cy="110" r="90" fill="none" stroke="rgba(239, 68, 68, 0.1)" stroke-width="12"/>
+                        <circle id="pomodoro-progress-circle" cx="110" cy="110" r="90" fill="none" stroke="#ef4444" stroke-width="12"
+                                stroke-dasharray="565.48" stroke-dashoffset="565.48"
+                                style="transition: stroke-dashoffset 0.3s linear;"/>
+                    </svg>
+                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+                        <div id="pomodoro-timer-display" style="font-size: 3rem; font-weight: 700; color: var(--text-primary); font-family: 'Courier New', monospace;">
+                            25:00
+                        </div>
+                        <div style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 5px;">
+                            Sessions: <span id="pomodoro-sessions-count" style="font-weight: 600; color: #ef4444;">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Completion Message -->
+                <div id="pomodoro-completion-msg" style="display: none; background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; color: #10b981; padding: 12px; border-radius: 10px; margin-bottom: 20px; font-weight: 600;"></div>
+
+                <!-- Control Buttons -->
+                <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                    <button id="pomodoro-start-btn" onclick="startPomodoroTimer()" class="btn" style="background: linear-gradient(135deg, #10b981 0%, #34d399 100%); color: white; border: none; padding: 12px 30px; font-weight: 600; border-radius: 10px;">
+                        ▶️ Start
+                    </button>
+                    <button id="pomodoro-pause-btn" onclick="pausePomodoroTimer()" class="btn" style="display: none; background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%); color: white; border: none; padding: 12px 30px; font-weight: 600; border-radius: 10px;">
+                        ⏸️ Pause
+                    </button>
+                    <button id="pomodoro-stop-btn" onclick="stopPomodoroTimer()" class="btn" style="display: none; background: linear-gradient(135deg, #ef4444 0%, #f87171 100%); color: white; border: none; padding: 12px 30px; font-weight: 600; border-radius: 10px;">
+                        ⏹️ Stop
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

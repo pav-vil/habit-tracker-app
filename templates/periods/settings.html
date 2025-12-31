@@ -175,6 +175,125 @@
         text-decoration: none;
     }
 
+    /* iOS-style Wheel Picker */
+    .wheel-picker-container {
+        position: relative;
+        background: #2d3748;
+        border: 1px solid #4a5568;
+        border-radius: 12px;
+        padding: 0;
+        height: 200px;
+        overflow: hidden;
+        user-select: none;
+        -webkit-user-select: none;
+        touch-action: pan-y;
+    }
+
+    body.dark-mode .wheel-picker-container {
+        background: #2d3748;
+        border-color: #4a5568;
+    }
+
+    .wheel-picker {
+        position: relative;
+        height: 100%;
+        overflow-y: scroll;
+        scroll-snap-type: y mandatory;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* IE/Edge */
+        padding: 85px 0;
+    }
+
+    .wheel-picker::-webkit-scrollbar {
+        display: none; /* Chrome/Safari */
+    }
+
+    .wheel-item {
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        color: #6b7280;
+        transition: all 0.2s ease;
+        scroll-snap-align: center;
+        scroll-snap-stop: always;
+        font-weight: 400;
+    }
+
+    .wheel-item.selected {
+        color: #e5e7eb;
+        font-weight: 600;
+        font-size: 1.5rem;
+    }
+
+    /* Selection indicator */
+    .wheel-picker-container::before,
+    .wheel-picker-container::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        height: 40px;
+        pointer-events: none;
+        z-index: 2;
+    }
+
+    .wheel-picker-container::before {
+        top: 80px;
+        border-top: 1px solid rgba(236, 72, 153, 0.3);
+        background: linear-gradient(to bottom,
+            rgba(45, 55, 72, 0) 0%,
+            rgba(236, 72, 153, 0.05) 50%,
+            rgba(45, 55, 72, 0) 100%);
+    }
+
+    .wheel-picker-container::after {
+        top: 120px;
+        border-bottom: 1px solid rgba(236, 72, 153, 0.3);
+    }
+
+    /* Fade effect at top and bottom */
+    .wheel-picker-fade {
+        position: absolute;
+        left: 0;
+        right: 0;
+        height: 80px;
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .wheel-picker-fade.top {
+        top: 0;
+        background: linear-gradient(to bottom,
+            rgba(45, 55, 72, 1) 0%,
+            rgba(45, 55, 72, 0.8) 50%,
+            rgba(45, 55, 72, 0) 100%);
+    }
+
+    .wheel-picker-fade.bottom {
+        bottom: 0;
+        background: linear-gradient(to top,
+            rgba(45, 55, 72, 1) 0%,
+            rgba(45, 55, 72, 0.8) 50%,
+            rgba(45, 55, 72, 0) 100%);
+    }
+
+    body.dark-mode .wheel-picker-fade.top {
+        background: linear-gradient(to bottom,
+            rgba(45, 55, 72, 1) 0%,
+            rgba(45, 55, 72, 0.8) 50%,
+            rgba(45, 55, 72, 0) 100%);
+    }
+
+    body.dark-mode .wheel-picker-fade.bottom {
+        background: linear-gradient(to top,
+            rgba(45, 55, 72, 1) 0%,
+            rgba(45, 55, 72, 0.8) 50%,
+            rgba(45, 55, 72, 0) 100%);
+    }
+
     /* Mobile responsive */
     @media (max-width: 768px) {
         .settings-card {
@@ -226,14 +345,28 @@
                             <div class="section-icon">📅</div>
                             <h2 class="section-title">Your Cycle</h2>
                         </div>
-                        <div class="mb-3">
+                        <div class="mb-4">
                             {{ form.average_cycle_length.label(class="form-label") }}
-                            {{ form.average_cycle_length(class="form-control") }}
+                            <!-- Hidden input to store value -->
+                            {{ form.average_cycle_length(class="form-control", style="display: none;", id="average_cycle_length") }}
+                            <!-- Wheel picker UI -->
+                            <div class="wheel-picker-container" id="cycle-length-picker-container">
+                                <div class="wheel-picker-fade top"></div>
+                                <div class="wheel-picker" id="cycle-length-picker"></div>
+                                <div class="wheel-picker-fade bottom"></div>
+                            </div>
                             <small class="text-muted">Typical cycle length: 21-35 days (default: 28)</small>
                         </div>
-                        <div class="mb-3">
+                        <div class="mb-4">
                             {{ form.average_period_duration.label(class="form-label") }}
-                            {{ form.average_period_duration(class="form-control") }}
+                            <!-- Hidden input to store value -->
+                            {{ form.average_period_duration(class="form-control", style="display: none;", id="average_period_duration") }}
+                            <!-- Wheel picker UI -->
+                            <div class="wheel-picker-container" id="period-duration-picker-container">
+                                <div class="wheel-picker-fade top"></div>
+                                <div class="wheel-picker" id="period-duration-picker"></div>
+                                <div class="wheel-picker-fade bottom"></div>
+                            </div>
                             <small class="text-muted">How many days your period typically lasts (default: 5)</small>
                         </div>
                     </div>
@@ -283,4 +416,106 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize iOS-style wheel pickers
+    function initWheelPicker(pickerId, inputId, min, max, defaultValue) {
+        const picker = document.getElementById(pickerId);
+        const input = document.getElementById(inputId);
+
+        if (!picker || !input) return;
+
+        // Get current value or use default
+        const currentValue = parseInt(input.value) || defaultValue;
+
+        // Populate picker with numbers
+        for (let i = min; i <= max; i++) {
+            const item = document.createElement('div');
+            item.className = 'wheel-item';
+            item.textContent = i;
+            item.dataset.value = i;
+            picker.appendChild(item);
+        }
+
+        // Update selected item visual
+        function updateSelection() {
+            const items = picker.querySelectorAll('.wheel-item');
+            const scrollTop = picker.scrollTop;
+            const containerHeight = picker.offsetHeight;
+            const itemHeight = 40;
+
+            items.forEach(item => {
+                const itemTop = item.offsetTop - picker.offsetTop;
+                const itemCenter = itemTop - scrollTop + itemHeight / 2;
+                const containerCenter = containerHeight / 2;
+                const distance = Math.abs(itemCenter - containerCenter);
+
+                if (distance < itemHeight / 2) {
+                    item.classList.add('selected');
+                    // Update hidden input
+                    input.value = item.dataset.value;
+                } else {
+                    item.classList.remove('selected');
+                }
+            });
+        }
+
+        // Snap to nearest item on scroll end
+        let scrollTimeout;
+        picker.addEventListener('scroll', function() {
+            clearTimeout(scrollTimeout);
+
+            // Update selection during scroll
+            updateSelection();
+
+            // Snap to nearest after scroll ends
+            scrollTimeout = setTimeout(() => {
+                const items = Array.from(picker.querySelectorAll('.wheel-item'));
+                const scrollTop = picker.scrollTop;
+                const containerHeight = picker.offsetHeight;
+                const itemHeight = 40;
+
+                // Find closest item to center
+                let closestItem = null;
+                let minDistance = Infinity;
+
+                items.forEach(item => {
+                    const itemTop = item.offsetTop - picker.offsetTop;
+                    const itemCenter = itemTop + itemHeight / 2;
+                    const containerCenter = scrollTop + containerHeight / 2;
+                    const distance = Math.abs(itemCenter - containerCenter);
+
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        closestItem = item;
+                    }
+                });
+
+                // Scroll to closest item
+                if (closestItem) {
+                    const targetScroll = closestItem.offsetTop - picker.offsetTop - (containerHeight / 2) + 20;
+                    picker.scrollTo({
+                        top: targetScroll,
+                        behavior: 'smooth'
+                    });
+                }
+            }, 100);
+        });
+
+        // Initialize scroll position to current value
+        const targetItem = picker.querySelector(`[data-value="${currentValue}"]`);
+        if (targetItem) {
+            const containerHeight = picker.offsetHeight;
+            const targetScroll = targetItem.offsetTop - picker.offsetTop - (containerHeight / 2) + 20;
+            picker.scrollTop = targetScroll;
+            updateSelection();
+        }
+    }
+
+    // Initialize both pickers
+    initWheelPicker('cycle-length-picker', 'average_cycle_length', 21, 45, 28);
+    initWheelPicker('period-duration-picker', 'average_period_duration', 2, 10, 5);
+});
+</script>
 {% endblock %}

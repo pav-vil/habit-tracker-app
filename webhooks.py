@@ -858,3 +858,45 @@ def handle_coinbase_charge_pending(charge):
     user_id = metadata.get('user_id')
 
     print(f"[COINBASE WEBHOOK] Charge {charge_code} pending for user {user_id}")
+
+
+# ==========================================
+# TILOPAY WEBHOOKS (Costa Rica)
+# ==========================================
+
+@webhooks_bp.route('/tilopay', methods=['POST'])
+def tilopay_webhook():
+    """
+    Handle TiloPay webhook events.
+    Must be configured in TiloPay portal.
+
+    Processes payment notifications from TiloPay.
+
+    Returns:
+        JSON response with status
+    """
+    from tilopay_handler import handle_tilopay_webhook
+
+    try:
+        # Get webhook payload
+        webhook_data = request.get_json()
+
+        # Get signature from headers (if TiloPay provides one)
+        signature = request.headers.get('X-TiloPay-Signature') or request.headers.get('X-Signature')
+
+        # Log webhook receipt
+        print(f"[TILOPAY WEBHOOK] Received webhook: {webhook_data}")
+
+        # Process webhook
+        success, message = handle_tilopay_webhook(webhook_data, signature)
+
+        if success:
+            return jsonify({'status': 'success', 'message': message}), 200
+        else:
+            return jsonify({'status': 'error', 'message': message}), 400
+
+    except Exception as e:
+        print(f"[TILOPAY WEBHOOK ERROR] {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'status': 'error', 'message': str(e)}), 500

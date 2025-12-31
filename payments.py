@@ -1,11 +1,12 @@
 # payments.py - Payment Processing Blueprint for HabitFlow
-# Handles Stripe, PayPal, and Coinbase Commerce payment flows
+# Handles Stripe, PayPal, Coinbase Commerce, and TiloPay payment flows
 
 from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
 from flask_login import login_required, current_user
 from models import db, User, Subscription, Payment
 from datetime import datetime, timedelta
 import stripe
+from tilopay_handler import create_tilopay_payment
 
 # Create blueprint for payment routes
 payments_bp = Blueprint('payments', __name__, url_prefix='/payments')
@@ -56,6 +57,8 @@ def checkout():
         return create_paypal_subscription(current_user, tier, currency)
     elif provider == 'coinbase':
         return create_coinbase_charge(current_user, tier)  # Coinbase always uses USD
+    elif provider == 'tilopay':
+        return create_tilopay_payment(current_user, tier, currency)
     else:
         flash('Invalid payment provider selected.', 'danger')
         return redirect(url_for('profile.subscription'))
@@ -695,3 +698,46 @@ def coinbase_success():
                            tier='lifetime',
                            amount=current_app.config['COINBASE_LIFETIME_PRICE'],
                            currency='USD')
+
+
+# ==========================================
+# TILOPAY PAYMENT PROCESSING (Costa Rica)
+# ==========================================
+
+@payments_bp.route('/tilopay-success')
+@login_required
+def tilopay_success():
+    """
+    TiloPay payment success callback.
+    User is redirected here after successful TiloPay payment.
+
+    Query Parameters:
+        order_id (str): TiloPay order ID
+        transaction_id (str): TiloPay transaction ID
+        status (str): Payment status
+
+    Returns:
+        Redirect to success page or profile
+    """
+    from tilopay_handler import TiloPayHandler
+
+    order_id = request.args.get('order_id')
+    transaction_id = request.args.get('transaction_id')
+    status = request.args.get('status')
+
+    if not order_id and not transaction_id:
+        flash('Invalid TiloPay payment.', 'danger')
+        return redirect(url_for('subscription.pricing'))
+
+    # Note: The actual payment verification and subscription activation
+    # should happen via webhook for security. This page shows a success message.
+    # If webhook is not configured, you can verify payment status here with TiloPay API.
+
+    if status and status.lower() in ['completed', 'approved', 'success']:
+        flash('Payment successful! Your subscription has been activated.', 'success')
+        return render_template('payments/success.html',
+                               tier=request.args.get('tier', 'premium'),
+                               provider='TiloPay')
+    else:
+        flash('Payment is being processed. You will receive an email confirmation shortly.', 'info')
+        return redirect(url_for('habits.dashboard'))

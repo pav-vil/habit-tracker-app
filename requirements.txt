@@ -35,6 +35,9 @@ paypalrestsdk>=1.13.1
 # Coinbase Commerce Integration (Phase 6)
 coinbase-commerce>=1.0.1
 
+# TiloPay Integration (Costa Rica Payment Gateway)
+requests>=2.31.0  # HTTP library for API calls
+
 # Email Notifications (Phase 5)
 Flask-Mail>=0.9.1
 

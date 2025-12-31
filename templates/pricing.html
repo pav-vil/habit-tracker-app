@@ -339,9 +339,26 @@
                     </ul>
 
                     {% if current_user.is_authenticated %}
-                        <a href="{{ url_for('subscription.checkout', plan_type='monthly', currency=current_currency) }}" class="btn btn-subscribe">
-                            Subscribe Now
-                        </a>
+                        {% if current_currency == 'CRC' %}
+                            <!-- For Costa Rica: Show TiloPay as primary option -->
+                            <a href="{{ url_for('payments.checkout', tier='monthly', provider='tilopay', currency=current_currency) }}" class="btn btn-subscribe mb-2">
+                                Subscribe with TiloPay
+                            </a>
+                            <div class="small text-muted mb-2">Or choose:</div>
+                            <div class="btn-group w-100" role="group">
+                                <a href="{{ url_for('payments.checkout', tier='monthly', provider='stripe', currency=current_currency) }}" class="btn btn-outline-secondary btn-sm">
+                                    Stripe
+                                </a>
+                                <a href="{{ url_for('payments.checkout', tier='monthly', provider='paypal', currency=current_currency) }}" class="btn btn-outline-secondary btn-sm">
+                                    PayPal
+                                </a>
+                            </div>
+                        {% else %}
+                            <!-- For USD: Default to Stripe -->
+                            <a href="{{ url_for('payments.checkout', tier='monthly', provider='stripe', currency=current_currency) }}" class="btn btn-subscribe">
+                                Subscribe Now
+                            </a>
+                        {% endif %}
                     {% else %}
                         <a href="{{ url_for('auth.register') }}" class="btn btn-subscribe">
                             Get Started
@@ -365,9 +382,26 @@
                     </ul>
 
                     {% if current_user.is_authenticated %}
-                        <a href="{{ url_for('subscription.checkout', plan_type='annual', currency=current_currency) }}" class="btn btn-subscribe">
-                            Subscribe Now
-                        </a>
+                        {% if current_currency == 'CRC' %}
+                            <!-- For Costa Rica: Show TiloPay as primary option -->
+                            <a href="{{ url_for('payments.checkout', tier='annual', provider='tilopay', currency=current_currency) }}" class="btn btn-subscribe mb-2">
+                                Subscribe with TiloPay
+                            </a>
+                            <div class="small text-muted mb-2">Or choose:</div>
+                            <div class="btn-group w-100" role="group">
+                                <a href="{{ url_for('payments.checkout', tier='annual', provider='stripe', currency=current_currency) }}" class="btn btn-outline-secondary btn-sm">
+                                    Stripe
+                                </a>
+                                <a href="{{ url_for('payments.checkout', tier='annual', provider='paypal', currency=current_currency) }}" class="btn btn-outline-secondary btn-sm">
+                                    PayPal
+                                </a>
+                            </div>
+                        {% else %}
+                            <!-- For USD: Default to Stripe -->
+                            <a href="{{ url_for('payments.checkout', tier='annual', provider='stripe', currency=current_currency) }}" class="btn btn-subscribe">
+                                Subscribe Now
+                            </a>
+                        {% endif %}
                     {% else %}
                         <a href="{{ url_for('auth.register') }}" class="btn btn-subscribe">
                             Get Started
@@ -391,9 +425,26 @@
                     </ul>
 
                     {% if current_user.is_authenticated %}
-                        <a href="{{ url_for('subscription.checkout', plan_type='lifetime', currency=current_currency) }}" class="btn btn-subscribe">
-                            Buy Now
-                        </a>
+                        {% if current_currency == 'CRC' %}
+                            <!-- For Costa Rica: Show TiloPay and Stripe options -->
+                            <a href="{{ url_for('payments.checkout', tier='lifetime', provider='tilopay', currency=current_currency) }}" class="btn btn-subscribe mb-2">
+                                Buy with TiloPay
+                            </a>
+                            <div class="small text-muted mb-2">Or choose:</div>
+                            <div class="btn-group w-100" role="group">
+                                <a href="{{ url_for('payments.checkout', tier='lifetime', provider='stripe', currency=current_currency) }}" class="btn btn-outline-secondary btn-sm">
+                                    Stripe
+                                </a>
+                                <a href="{{ url_for('payments.checkout', tier='lifetime', provider='coinbase', currency=current_currency) }}" class="btn btn-outline-secondary btn-sm">
+                                    Bitcoin
+                                </a>
+                            </div>
+                        {% else %}
+                            <!-- For USD: Default to Stripe -->
+                            <a href="{{ url_for('payments.checkout', tier='lifetime', provider='stripe', currency=current_currency) }}" class="btn btn-subscribe">
+                                Buy Now
+                            </a>
+                        {% endif %}
                     {% else %}
                         <a href="{{ url_for('auth.register') }}" class="btn btn-subscribe">
                             Get Started

@@ -46,6 +46,22 @@ class Config:
     # Coinbase Commerce Pricing
     COINBASE_LIFETIME_PRICE = float(os.environ.get('COINBASE_LIFETIME_PRICE', '59.99'))
 
+    # TiloPay Configuration (Costa Rica Local Gateway)
+    TILOPAY_MODE = os.environ.get('TILOPAY_MODE', 'test')  # 'test' or 'production'
+    TILOPAY_API_KEY = os.environ.get('TILOPAY_API_KEY')  # Integration key from TiloPay portal
+    TILOPAY_API_USER = os.environ.get('TILOPAY_API_USER')  # API username
+    TILOPAY_API_PASSWORD = os.environ.get('TILOPAY_API_PASSWORD')  # API password
+    TILOPAY_WEBHOOK_SECRET = os.environ.get('TILOPAY_WEBHOOK_SECRET')  # Webhook verification secret
+
+    # TiloPay Test Credentials (for development)
+    TILOPAY_TEST_API_KEY = '6609-5850-8330-8034-3464'
+    TILOPAY_TEST_API_USER = 'lSrT45'
+    TILOPAY_TEST_API_PASSWORD = 'Zlb8H9'
+
+    # TiloPay API URLs
+    TILOPAY_API_URL_TEST = 'https://test.tilopay.com/api/v1'  # Test environment
+    TILOPAY_API_URL_PRODUCTION = 'https://api.tilopay.com/api/v1'  # Production environment
+
     # Currency Configuration
     SUPPORTED_CURRENCIES = ['USD', 'CRC']
     DEFAULT_CURRENCY = os.environ.get('DEFAULT_CURRENCY', 'USD')

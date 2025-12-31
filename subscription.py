@@ -13,10 +13,35 @@ subscription_bp = Blueprint('subscription', __name__)
 @subscription_bp.route('/pricing')
 def pricing():
     """Display pricing page with subscription options."""
+    # Get currency from query parameter or session, default to USD
+    currency = request.args.get('currency', current_app.config.get('DEFAULT_CURRENCY', 'USD')).upper()
+
+    # Validate currency
+    if currency not in current_app.config['SUPPORTED_CURRENCIES']:
+        currency = 'USD'
+
+    # Get pricing for selected currency
+    pricing_data = current_app.config['PRICING'][currency]
+    currency_symbol = current_app.config['CURRENCY_SYMBOLS'][currency]
+
+    # Format prices based on currency
+    if currency == 'CRC':
+        # CRC uses no decimals and comma separator
+        monthly_price = f'{currency_symbol}{pricing_data["monthly"]:,.0f}'
+        annual_price = f'{currency_symbol}{pricing_data["annual"]:,.0f}'
+        lifetime_price = f'{currency_symbol}{pricing_data["lifetime"]:,.0f}'
+    else:
+        # USD uses 2 decimals
+        monthly_price = f'{currency_symbol}{pricing_data["monthly"]:.2f}'
+        annual_price = f'{currency_symbol}{pricing_data["annual"]:.2f}'
+        lifetime_price = f'{currency_symbol}{pricing_data["lifetime"]:.2f}'
+
     plans = {
         'monthly': {
             'name': 'Monthly',
-            'price': '$2.99',
+            'price': monthly_price,
+            'price_numeric': pricing_data['monthly'],
+            'currency': currency,
             'period': 'per month',
             'features': [
                 'Unlimited habits',
@@ -27,7 +52,9 @@ def pricing():
         },
         'annual': {
             'name': 'Annual',
-            'price': '$19.99',
+            'price': annual_price,
+            'price_numeric': pricing_data['annual'],
+            'currency': currency,
             'period': 'per year',
             'savings': 'Save 44%',
             'features': [
@@ -39,7 +66,9 @@ def pricing():
         },
         'lifetime': {
             'name': 'Lifetime',
-            'price': '$59.99',
+            'price': lifetime_price,
+            'price_numeric': pricing_data['lifetime'],
+            'currency': currency,
             'period': 'one-time',
             'badge': 'Best Deal',
             'features': [
@@ -52,13 +81,18 @@ def pricing():
         }
     }
 
-    return render_template('pricing.html', plans=plans)
+    return render_template(
+        'pricing.html',
+        plans=plans,
+        current_currency=currency,
+        supported_currencies=current_app.config['SUPPORTED_CURRENCIES']
+    )
 
 
 @subscription_bp.route('/checkout/<plan_type>')
 @login_required
 def checkout(plan_type):
-    """Create PayPal subscription and redirect to PayPal for payment."""
+    """Create payment subscription and redirect to payment provider."""
     if plan_type not in ['monthly', 'annual', 'lifetime']:
         flash('Invalid subscription plan selected.', 'danger')
         return redirect(url_for('subscription.pricing'))
@@ -68,14 +102,21 @@ def checkout(plan_type):
         flash('You already have an active subscription. Please cancel first to change plans.', 'info')
         return redirect(url_for('subscription.manage'))
 
+    # Get currency from query parameter, default to USD
+    currency = request.args.get('currency', 'USD').upper()
+
+    # Validate currency
+    if currency not in current_app.config['SUPPORTED_CURRENCIES']:
+        currency = 'USD'
+
     # For lifetime tier: Show message to contact support or use crypto
     # (Coinbase Commerce will be configured later)
     if plan_type == 'lifetime':
         flash('Lifetime tier is currently available via Bitcoin/Crypto payments only. Coinbase Commerce setup coming soon! For now, please use monthly or annual plans.', 'info')
         return redirect(url_for('subscription.pricing'))
 
-    # Create PayPal subscription (monthly or annual only)
-    return create_paypal_subscription(current_user, plan_type)
+    # Create PayPal subscription (monthly or annual only) with currency support
+    return create_paypal_subscription(current_user, plan_type, currency)
 
 
 @subscription_bp.route('/success')

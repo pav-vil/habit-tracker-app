@@ -25,18 +25,24 @@ def checkout():
     Query Parameters:
         tier (str): Subscription tier - 'monthly', 'annual', or 'lifetime'
         provider (str): Payment provider - 'stripe', 'paypal', or 'coinbase'
+        currency (str): Currency code - 'USD' or 'CRC' (default: 'USD')
 
     Returns:
         Redirect to payment provider checkout or error page
     """
     tier = request.args.get('tier')
     provider = request.args.get('provider', 'stripe')
+    currency = request.args.get('currency', 'USD').upper()
 
     # Validate tier parameter
     valid_tiers = ['monthly', 'annual', 'lifetime']
     if tier not in valid_tiers:
         flash('Invalid subscription tier selected.', 'danger')
         return redirect(url_for('profile.subscription'))
+
+    # Validate currency
+    if currency not in current_app.config['SUPPORTED_CURRENCIES']:
+        currency = 'USD'
 
     # Check if user already has this tier or higher
     if current_user.subscription_tier == tier:
@@ -45,23 +51,24 @@ def checkout():
 
     # Route to appropriate payment provider
     if provider == 'stripe':
-        return create_stripe_checkout_session(current_user, tier)
+        return create_stripe_checkout_session(current_user, tier, currency)
     elif provider == 'paypal':
-        return create_paypal_subscription(current_user, tier)
+        return create_paypal_subscription(current_user, tier, currency)
     elif provider == 'coinbase':
-        return create_coinbase_charge(current_user, tier)
+        return create_coinbase_charge(current_user, tier)  # Coinbase always uses USD
     else:
         flash('Invalid payment provider selected.', 'danger')
         return redirect(url_for('profile.subscription'))
 
 
-def create_stripe_checkout_session(user, tier):
+def create_stripe_checkout_session(user, tier, currency='USD'):
     """
     Create a Stripe Checkout Session for the specified tier.
 
     Args:
         user (User): The user object making the purchase
         tier (str): Subscription tier - 'monthly', 'annual', or 'lifetime'
+        currency (str): Currency code - 'USD' or 'CRC'
 
     Returns:
         Redirect to Stripe Checkout or error page
@@ -69,6 +76,18 @@ def create_stripe_checkout_session(user, tier):
     try:
         # Initialize Stripe with secret key
         stripe.api_key = current_app.config['STRIPE_SECRET_KEY']
+
+        # Validate currency
+        if currency not in current_app.config['SUPPORTED_CURRENCIES']:
+            currency = 'USD'
+
+        # Get pricing for the selected currency
+        pricing_data = current_app.config['PRICING'][currency]
+        amount = pricing_data.get(tier)
+
+        if not amount:
+            flash(f'Pricing not configured for {tier} tier in {currency}.', 'danger')
+            return redirect(url_for('profile.subscription'))
 
         # Get the appropriate price ID from configuration
         price_mapping = {
@@ -108,19 +127,51 @@ def create_stripe_checkout_session(user, tier):
         else:
             checkout_mode = 'subscription'  # Recurring subscription
 
+        # Convert amount to cents for Stripe (Stripe uses smallest currency unit)
+        # For USD: multiply by 100 (dollars to cents)
+        # For CRC: CRC doesn't use decimal places, so no conversion needed
+        if currency == 'CRC':
+            stripe_amount = int(amount)  # CRC colones (no decimals)
+        else:
+            stripe_amount = int(amount * 100)  # USD cents
+
+        # Prepare recurring interval for subscriptions
+        recurring_interval = None
+        if tier == 'monthly':
+            recurring_interval = 'month'
+        elif tier == 'annual':
+            recurring_interval = 'year'
+
+        # Build line items with dynamic pricing
+        line_item = {
+            'price_data': {
+                'currency': currency.lower(),
+                'product_data': {
+                    'name': f'HabitFlow {tier.title()} Subscription',
+                    'description': f'Unlimited habits with {tier} billing'
+                },
+                'unit_amount': stripe_amount
+            },
+            'quantity': 1
+        }
+
+        # Add recurring interval for subscriptions
+        if recurring_interval:
+            line_item['price_data']['recurring'] = {
+                'interval': recurring_interval
+            }
+
         # Create Stripe Checkout Session
         checkout_session = stripe.checkout.Session.create(
             customer=user.stripe_customer_id,
             mode=checkout_mode,
-            line_items=[{
-                'price': price_id,
-                'quantity': 1
-            }],
+            line_items=[line_item],
             success_url=current_app.config['APP_URL'] + url_for('payments.success') + '?session_id={CHECKOUT_SESSION_ID}',
             cancel_url=current_app.config['APP_URL'] + url_for('payments.cancel'),
             metadata={
                 'user_id': user.id,
-                'tier': tier
+                'tier': tier,
+                'currency': currency
             }
         )
 
@@ -308,13 +359,14 @@ def init_paypal():
     })
 
 
-def create_paypal_subscription(user, tier):
+def create_paypal_subscription(user, tier, currency='USD'):
     """
     Create a PayPal subscription for the specified tier.
 
     Args:
         user (User): The user object making the purchase
         tier (str): Subscription tier - 'monthly' or 'annual'
+        currency (str): Currency code - 'USD' or 'CRC'
 
     Returns:
         Redirect to PayPal approval URL or error page
@@ -323,7 +375,20 @@ def create_paypal_subscription(user, tier):
         # Initialize PayPal
         init_paypal()
 
+        # Validate currency
+        if currency not in current_app.config['SUPPORTED_CURRENCIES']:
+            currency = 'USD'
+
+        # Get pricing for the selected currency
+        pricing_data = current_app.config['PRICING'][currency]
+        amount = pricing_data.get(tier)
+
+        if not amount:
+            flash(f'Pricing not configured for {tier} tier in {currency}.', 'danger')
+            return redirect(url_for('profile.subscription'))
+
         # Get the appropriate plan ID from configuration
+        # Note: You'll need to create separate PayPal plans for each currency
         plan_mapping = {
             'monthly': current_app.config['PAYPAL_PLAN_ID_MONTHLY'],
             'annual': current_app.config['PAYPAL_PLAN_ID_ANNUAL']

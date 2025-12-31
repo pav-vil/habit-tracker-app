@@ -237,6 +237,64 @@
     body:not(.dark-mode) .free-tier-info strong {
         color: #7c3aed;
     }
+
+    /* Currency Selector */
+    .currency-selector {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    .btn-currency {
+        background: var(--bg-surface);
+        border: 2px solid rgba(179, 136, 255, 0.3);
+        color: var(--text-muted);
+        padding: 10px 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        margin: 0 5px;
+        border-radius: 10px;
+    }
+
+    body:not(.dark-mode) .btn-currency {
+        background: white;
+        border: 2px solid #e5e7eb;
+        color: #6b7280;
+    }
+
+    .btn-currency:hover {
+        border-color: var(--text-secondary);
+        color: var(--text-primary);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px var(--glow-purple);
+    }
+
+    body:not(.dark-mode) .btn-currency:hover {
+        border-color: #a78bfa;
+        color: #1f2937;
+        box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
+    }
+
+    .btn-currency.active {
+        background: linear-gradient(135deg, var(--purple-gradient-start), var(--purple-gradient-end));
+        border-color: var(--text-secondary);
+        color: white;
+        box-shadow: 0 4px 15px var(--glow-purple);
+    }
+
+    body:not(.dark-mode) .btn-currency.active {
+        background: linear-gradient(135deg, #7c3aed, #a78bfa);
+        border-color: #7c3aed;
+        color: white;
+    }
+
+    @media (max-width: 576px) {
+        .btn-currency {
+            padding: 8px 15px;
+            font-size: 0.9rem;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -246,6 +304,24 @@
         <div class="pricing-header">
             <h1>Choose Your Plan</h1>
             <p>Start building better habits today. Upgrade anytime.</p>
+
+            <!-- Currency Selector -->
+            <div class="currency-selector mt-4">
+                <div class="btn-group" role="group" aria-label="Currency selector">
+                    {% for curr in supported_currencies %}
+                    <a href="{{ url_for('subscription.pricing', currency=curr) }}"
+                       class="btn btn-currency {% if curr == current_currency %}active{% endif %}">
+                        {% if curr == 'USD' %}
+                            $ USD
+                        {% elif curr == 'CRC' %}
+                            ₡ CRC (Costa Rica)
+                        {% else %}
+                            {{ curr }}
+                        {% endif %}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
 
         <div class="row">
@@ -263,7 +339,7 @@
                     </ul>
 
                     {% if current_user.is_authenticated %}
-                        <a href="{{ url_for('subscription.checkout', plan_type='monthly') }}" class="btn btn-subscribe">
+                        <a href="{{ url_for('subscription.checkout', plan_type='monthly', currency=current_currency) }}" class="btn btn-subscribe">
                             Subscribe Now
                         </a>
                     {% else %}
@@ -289,7 +365,7 @@
                     </ul>
 
                     {% if current_user.is_authenticated %}
-                        <a href="{{ url_for('subscription.checkout', plan_type='annual') }}" class="btn btn-subscribe">
+                        <a href="{{ url_for('subscription.checkout', plan_type='annual', currency=current_currency) }}" class="btn btn-subscribe">
                             Subscribe Now
                         </a>
                     {% else %}
@@ -315,7 +391,7 @@
                     </ul>
 
                     {% if current_user.is_authenticated %}
-                        <a href="{{ url_for('subscription.checkout', plan_type='lifetime') }}" class="btn btn-subscribe">
+                        <a href="{{ url_for('subscription.checkout', plan_type='lifetime', currency=current_currency) }}" class="btn btn-subscribe">
                             Buy Now
                         </a>
                     {% else %}

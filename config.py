@@ -46,6 +46,34 @@ class Config:
     # Coinbase Commerce Pricing
     COINBASE_LIFETIME_PRICE = float(os.environ.get('COINBASE_LIFETIME_PRICE', '59.99'))
 
+    # Currency Configuration
+    SUPPORTED_CURRENCIES = ['USD', 'CRC']
+    DEFAULT_CURRENCY = os.environ.get('DEFAULT_CURRENCY', 'USD')
+
+    # Exchange Rate (USD to CRC) - Update periodically
+    # As of Dec 2025: 1 USD = ~497 CRC
+    USD_TO_CRC_RATE = float(os.environ.get('USD_TO_CRC_RATE', '500'))
+
+    # Pricing in different currencies
+    PRICING = {
+        'USD': {
+            'monthly': 2.99,
+            'annual': 19.99,
+            'lifetime': 59.99
+        },
+        'CRC': {
+            'monthly': 1500,    # Rounded from ~1,485 CRC
+            'annual': 10000,    # Rounded from ~9,995 CRC
+            'lifetime': 30000   # Rounded from ~29,995 CRC
+        }
+    }
+
+    # Currency display formats
+    CURRENCY_SYMBOLS = {
+        'USD': '$',
+        'CRC': '₡'
+    }
+
     # Email Configuration (Flask-Mail - Phase 5)
     MAIL_SERVER = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
     MAIL_PORT = int(os.environ.get('MAIL_PORT', '587'))

@@ -51,6 +51,26 @@
         margin-top: 15px;
     }
     body.dark-mode .expires-notice { color: #9ca3af; }
+
+    /* Instagram button styling */
+    #instagram-share-btn {
+        background: linear-gradient(135deg, #833ab4 0%, #fd1d1d 50%, #fcb045 100%);
+        color: white;
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    #instagram-share-btn:hover {
+        background: linear-gradient(135deg, #6b2f94 0%, #d61818 50%, #e09638 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(131, 58, 180, 0.4);
+        color: white;
+    }
+
+    #instagram-share-btn.btn-success {
+        background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+        border: none;
+    }
 </style>
 {% endblock %}
 
@@ -82,6 +102,9 @@
                 <hr style="margin: 30px 0; border-color: var(--border-color);">
 
                 <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                    <button onclick="shareOnInstagram()" class="btn btn-outline-primary" id="instagram-share-btn">
+                        📷 Share on Instagram
+                    </button>
                     <a href="https://twitter.com/intent/tweet?text=Join%20my%20challenge%20on%20HabitFlow!&url={{ invite_url|urlencode }}"
                        target="_blank"
                        class="btn btn-outline-primary">
@@ -126,6 +149,61 @@ function copyLink() {
     }).catch(function(err) {
         alert('Failed to copy link. Please copy manually.');
     });
+}
+
+async function shareOnInstagram() {
+    const linkText = document.getElementById('invite-link').textContent;
+    const challengeName = "{{ challenge.name }}";
+    const shareText = `Join my "${challengeName}" challenge on HabitFlow! 🎯\n\n${linkText}`;
+    const instagramBtn = document.getElementById('instagram-share-btn');
+
+    // Try Web Share API first (works on mobile)
+    if (navigator.share) {
+        try {
+            await navigator.share({
+                title: `Join my ${challengeName} challenge!`,
+                text: shareText,
+                url: linkText
+            });
+
+            // Success feedback
+            instagramBtn.innerHTML = '✅ Shared!';
+            instagramBtn.classList.add('btn-success');
+            instagramBtn.classList.remove('btn-outline-primary');
+
+            setTimeout(function() {
+                instagramBtn.innerHTML = '📷 Share on Instagram';
+                instagramBtn.classList.remove('btn-success');
+                instagramBtn.classList.add('btn-outline-primary');
+            }, 2000);
+        } catch (err) {
+            // User cancelled or share failed
+            if (err.name !== 'AbortError') {
+                console.error('Share failed:', err);
+            }
+        }
+    } else {
+        // Fallback: Copy to clipboard with Instagram instructions
+        try {
+            await navigator.clipboard.writeText(shareText);
+
+            // Show success message
+            instagramBtn.innerHTML = '✅ Copied!';
+            instagramBtn.classList.add('btn-success');
+            instagramBtn.classList.remove('btn-outline-primary');
+
+            // Show instructions
+            alert('📷 Link copied!\n\nTo share on Instagram:\n1. Open Instagram app\n2. Create a new Story or Post\n3. Paste the link in your caption\n4. Tag @habitflow (if available)');
+
+            setTimeout(function() {
+                instagramBtn.innerHTML = '📷 Share on Instagram';
+                instagramBtn.classList.remove('btn-success');
+                instagramBtn.classList.add('btn-outline-primary');
+            }, 2000);
+        } catch (err) {
+            alert('Failed to copy. Please copy the link manually and share on Instagram!');
+        }
+    }
 }
 </script>
 {% endblock %}

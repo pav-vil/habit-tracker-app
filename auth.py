@@ -128,6 +128,18 @@ def settings():
             current_user.reminder_time = request.form.get('reminder_time', '09:00')
             current_user.reminder_days = request.form.get('reminder_days', 'all')
 
+            # Update timezone
+            timezone = request.form.get('timezone', 'UTC')
+            # Validate timezone is in pytz
+            try:
+                import pytz
+                pytz.timezone(timezone)  # Will raise exception if invalid
+                current_user.timezone = timezone
+            except Exception as tz_error:
+                print(f"[AUTH] Invalid timezone: {timezone}, error: {tz_error}")
+                # Keep existing timezone if invalid
+                pass
+
             db.session.commit()
             flash('Settings updated successfully!', 'success')
             return redirect(url_for('auth.settings'))

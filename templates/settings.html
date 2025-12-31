@@ -84,6 +84,65 @@
                                 </select>
                                 <small class="text-muted">Choose when you'd like to receive reminders</small>
                             </div>
+
+                            <hr class="my-4" style="border-color: rgba(179, 136, 255, 0.2);">
+
+                            <!-- Timezone -->
+                            <div class="mb-4">
+                                <label for="timezone" class="form-label">
+                                    🌍 Timezone
+                                </label>
+                                <select class="form-select" id="timezone" name="timezone">
+                                    <optgroup label="Common Timezones">
+                                        <option value="America/New_York" {% if current_user.timezone == 'America/New_York' %}selected{% endif %}>Eastern Time (US & Canada)</option>
+                                        <option value="America/Chicago" {% if current_user.timezone == 'America/Chicago' %}selected{% endif %}>Central Time (US & Canada)</option>
+                                        <option value="America/Denver" {% if current_user.timezone == 'America/Denver' %}selected{% endif %}>Mountain Time (US & Canada)</option>
+                                        <option value="America/Los_Angeles" {% if current_user.timezone == 'America/Los_Angeles' %}selected{% endif %}>Pacific Time (US & Canada)</option>
+                                        <option value="America/Anchorage" {% if current_user.timezone == 'America/Anchorage' %}selected{% endif %}>Alaska Time (US)</option>
+                                        <option value="Pacific/Honolulu" {% if current_user.timezone == 'Pacific/Honolulu' %}selected{% endif %}>Hawaii Time (US)</option>
+                                    </optgroup>
+                                    <optgroup label="Europe">
+                                        <option value="Europe/London" {% if current_user.timezone == 'Europe/London' %}selected{% endif %}>London (GMT/BST)</option>
+                                        <option value="Europe/Paris" {% if current_user.timezone == 'Europe/Paris' %}selected{% endif %}>Paris (CET/CEST)</option>
+                                        <option value="Europe/Berlin" {% if current_user.timezone == 'Europe/Berlin' %}selected{% endif %}>Berlin (CET/CEST)</option>
+                                        <option value="Europe/Rome" {% if current_user.timezone == 'Europe/Rome' %}selected{% endif %}>Rome (CET/CEST)</option>
+                                        <option value="Europe/Madrid" {% if current_user.timezone == 'Europe/Madrid' %}selected{% endif %}>Madrid (CET/CEST)</option>
+                                        <option value="Europe/Athens" {% if current_user.timezone == 'Europe/Athens' %}selected{% endif %}>Athens (EET/EEST)</option>
+                                        <option value="Europe/Moscow" {% if current_user.timezone == 'Europe/Moscow' %}selected{% endif %}>Moscow (MSK)</option>
+                                    </optgroup>
+                                    <optgroup label="Asia">
+                                        <option value="Asia/Dubai" {% if current_user.timezone == 'Asia/Dubai' %}selected{% endif %}>Dubai (GST)</option>
+                                        <option value="Asia/Kolkata" {% if current_user.timezone == 'Asia/Kolkata' %}selected{% endif %}>India (IST)</option>
+                                        <option value="Asia/Bangkok" {% if current_user.timezone == 'Asia/Bangkok' %}selected{% endif %}>Bangkok (ICT)</option>
+                                        <option value="Asia/Singapore" {% if current_user.timezone == 'Asia/Singapore' %}selected{% endif %}>Singapore (SGT)</option>
+                                        <option value="Asia/Hong_Kong" {% if current_user.timezone == 'Asia/Hong_Kong' %}selected{% endif %}>Hong Kong (HKT)</option>
+                                        <option value="Asia/Shanghai" {% if current_user.timezone == 'Asia/Shanghai' %}selected{% endif %}>China (CST)</option>
+                                        <option value="Asia/Tokyo" {% if current_user.timezone == 'Asia/Tokyo' %}selected{% endif %}>Tokyo (JST)</option>
+                                        <option value="Asia/Seoul" {% if current_user.timezone == 'Asia/Seoul' %}selected{% endif %}>Seoul (KST)</option>
+                                    </optgroup>
+                                    <optgroup label="Australia & Pacific">
+                                        <option value="Australia/Perth" {% if current_user.timezone == 'Australia/Perth' %}selected{% endif %}>Perth (AWST)</option>
+                                        <option value="Australia/Sydney" {% if current_user.timezone == 'Australia/Sydney' %}selected{% endif %}>Sydney (AEST/AEDT)</option>
+                                        <option value="Australia/Melbourne" {% if current_user.timezone == 'Australia/Melbourne' %}selected{% endif %}>Melbourne (AEST/AEDT)</option>
+                                        <option value="Pacific/Auckland" {% if current_user.timezone == 'Pacific/Auckland' %}selected{% endif %}>Auckland (NZST/NZDT)</option>
+                                    </optgroup>
+                                    <optgroup label="Americas">
+                                        <option value="America/Toronto" {% if current_user.timezone == 'America/Toronto' %}selected{% endif %}>Toronto (EST/EDT)</option>
+                                        <option value="America/Mexico_City" {% if current_user.timezone == 'America/Mexico_City' %}selected{% endif %}>Mexico City (CST/CDT)</option>
+                                        <option value="America/Sao_Paulo" {% if current_user.timezone == 'America/Sao_Paulo' %}selected{% endif %}>São Paulo (BRT/BRST)</option>
+                                        <option value="America/Buenos_Aires" {% if current_user.timezone == 'America/Buenos_Aires' %}selected{% endif %}>Buenos Aires (ART)</option>
+                                    </optgroup>
+                                    <optgroup label="Africa">
+                                        <option value="Africa/Cairo" {% if current_user.timezone == 'Africa/Cairo' %}selected{% endif %}>Cairo (EET/EEST)</option>
+                                        <option value="Africa/Johannesburg" {% if current_user.timezone == 'Africa/Johannesburg' %}selected{% endif %}>Johannesburg (SAST)</option>
+                                        <option value="Africa/Lagos" {% if current_user.timezone == 'Africa/Lagos' %}selected{% endif %}>Lagos (WAT)</option>
+                                    </optgroup>
+                                    <optgroup label="UTC">
+                                        <option value="UTC" {% if current_user.timezone == 'UTC' %}selected{% endif %}>UTC (Coordinated Universal Time)</option>
+                                    </optgroup>
+                                </select>
+                                <small class="text-muted">Set your timezone for accurate daily resets and reminders</small>
+                            </div>
                         </div>
 
                         <!-- Account Information Section -->
@@ -93,7 +152,6 @@
                             </h4>
                             <div class="p-3" style="background: var(--bg-main); border-radius: 10px;">
                                 <p class="mb-2"><strong>Email:</strong> {{ current_user.email }}</p>
-                                <p class="mb-2"><strong>Timezone:</strong> {{ current_user.timezone }}</p>
                                 <p class="mb-2">
                                     <strong>Subscription:</strong>
                                     {% if current_user.subscription_status == 'lifetime' %}

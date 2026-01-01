@@ -1844,7 +1844,7 @@ if (completionModal) {
 
         // Set form action
         const form = completionModal.querySelector('#completionForm');
-        form.action = `/habits/complete/${habitId}`;
+        form.action = `/habits/${habitId}/complete`;
     });
 
     // Reset form when modal is closed

@@ -949,74 +949,128 @@
         background: rgba(124, 58, 237, 0.1);
     }
 
-    .modal-content {
-        background: var(--bg-surface);
-        border: 1px solid rgba(124, 58, 237, 0.2);
+    /* Modal - Dark Mode Specific Fixes */
+    .dark-mode .modal-content {
+        background: #1f2937 !important;
+        border: 2px solid rgba(124, 58, 237, 0.5);
         border-radius: 15px;
     }
 
     body:not(.dark-mode) .modal-content {
         background: white;
-        border-color: #e5e7eb;
+        border: 2px solid #e5e7eb;
+        border-radius: 15px;
     }
 
-    .modal-header {
-        border-bottom: 1px solid rgba(124, 58, 237, 0.1);
+    .dark-mode .modal-header {
+        background: linear-gradient(135deg, #7c3aed, #a78bfa);
+        border-bottom: none;
+        border-radius: 13px 13px 0 0;
     }
 
     body:not(.dark-mode) .modal-header {
-        border-bottom-color: #e5e7eb;
+        background: linear-gradient(135deg, #7c3aed, #a78bfa);
+        border-bottom: none;
+        border-radius: 13px 13px 0 0;
     }
 
-    .modal-footer {
-        border-top: 1px solid rgba(124, 58, 237, 0.1);
+    .dark-mode .modal-footer {
+        background: #111827;
+        border-top: 1px solid rgba(124, 58, 237, 0.3);
+        border-radius: 0 0 13px 13px;
     }
 
     body:not(.dark-mode) .modal-footer {
-        border-top-color: #e5e7eb;
+        border-top: 1px solid #e5e7eb;
     }
 
     .modal-title {
-        color: var(--text-primary);
+        color: white !important;
         font-weight: 600;
     }
 
-    body:not(.dark-mode) .modal-title {
+    .dark-mode .modal-body {
+        background: #1f2937;
+        color: #f9fafb;
+    }
+
+    body:not(.dark-mode) .modal-body {
+        background: white;
         color: #1f2937;
     }
 
-    .modal-body .form-label {
-        color: var(--text-primary);
+    .dark-mode .modal-body .form-label {
+        color: #f9fafb !important;
         font-weight: 500;
     }
 
     body:not(.dark-mode) .modal-body .form-label {
         color: #374151;
+        font-weight: 500;
     }
 
-    .modal-body .form-control {
-        background: var(--bg-surface);
-        border: 1px solid rgba(124, 58, 237, 0.2);
-        color: var(--text-primary);
+    .dark-mode .modal-body .form-control {
+        background: #111827 !important;
+        border: 2px solid rgba(124, 58, 237, 0.4) !important;
+        color: #f9fafb !important;
+    }
+
+    .dark-mode .modal-body .form-control::placeholder {
+        color: #9ca3af !important;
     }
 
     body:not(.dark-mode) .modal-body .form-control {
         background: white;
-        border-color: #d1d5db;
+        border: 1px solid #d1d5db;
         color: #1f2937;
     }
 
     .modal-body .form-control:focus {
-        border-color: #7c3aed;
+        border-color: #7c3aed !important;
         box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.25);
     }
 
-    .modal-body .text-muted {
-        color: var(--text-muted);
+    .dark-mode .modal-body .text-muted,
+    .dark-mode .modal-body small {
+        color: #d1d5db !important;
     }
 
-    body:not(.dark-mode) .modal-body .text-muted {
-        color: #9ca3af;
+    body:not(.dark-mode) .modal-body .text-muted,
+    body:not(.dark-mode) .modal-body small {
+        color: #6b7280;
+    }
+
+    /* Modal backdrop for better visibility */
+    .modal-backdrop.show {
+        opacity: 0.8;
+    }
+
+    /* Close button visibility */
+    .modal-header .btn-close {
+        filter: brightness(0) invert(1);
+        opacity: 1;
+    }
+
+    /* Modal buttons */
+    .dark-mode .modal-footer .btn-secondary {
+        background: #374151;
+        border-color: #4b5563;
+        color: #f9fafb;
+    }
+
+    .dark-mode .modal-footer .btn-secondary:hover {
+        background: #4b5563;
+        border-color: #6b7280;
+    }
+
+    .dark-mode .modal-footer .btn-primary {
+        background: linear-gradient(135deg, #7c3aed, #a78bfa);
+        border: none;
+        color: white;
+    }
+
+    .dark-mode .modal-footer .btn-primary:hover {
+        background: linear-gradient(135deg, #6d28d9, #8b5cf6);
     }
 
     /* Completion Notes Display */

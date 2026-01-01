@@ -253,10 +253,10 @@ def complete_habit(habit_id):
     from models import db, CompletionLog
     from flask import request
 
-    # Debug: Print request data
+    # Debug: Print request data (safe for Windows console)
     print(f"[DEBUG] Complete habit request received for habit_id: {habit_id}")
     print(f"[DEBUG] Request method: {request.method}")
-    print(f"[DEBUG] Request form data: {request.form}")
+    print(f"[DEBUG] Form keys: {list(request.form.keys())}")
     print(f"[DEBUG] Has CSRF token: {'csrf_token' in request.form}")
 
     habit = Habit.query.get_or_404(habit_id)
@@ -381,9 +381,9 @@ def archive_habit(habit_id):
     """Archive a habit (soft delete)."""
     from flask import request
 
-    # Debug: Print request data
+    # Debug: Print request data (safe for Windows console)
     print(f"[DEBUG] Archive habit request received for habit_id: {habit_id}")
-    print(f"[DEBUG] Request form data: {request.form}")
+    print(f"[DEBUG] Form keys: {list(request.form.keys())}")
     print(f"[DEBUG] Has CSRF token: {'csrf_token' in request.form}")
 
     habit = Habit.query.get_or_404(habit_id)

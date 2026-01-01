@@ -377,6 +377,40 @@ def auto_migrate_database(app, db):
                 except Exception as e:
                     print(f"[AUTO-MIGRATE] Error creating period_settings table: {e}")
 
+            # Migration 14: Add notes, mood, and created_at columns to completion_log table
+            if 'completion_log' in existing_tables:
+                completion_log_columns = [col['name'] for col in inspector.get_columns('completion_log')]
+
+                if 'notes' not in completion_log_columns:
+                    print("[AUTO-MIGRATE] Adding notes column to completion_log table...")
+                    try:
+                        with db.engine.connect() as conn:
+                            conn.execute(text('ALTER TABLE completion_log ADD COLUMN notes TEXT'))
+                            conn.commit()
+                        print("[AUTO-MIGRATE] Successfully added notes column")
+                    except Exception as e:
+                        print(f"[AUTO-MIGRATE] Error adding notes column: {e}")
+
+                if 'mood' not in completion_log_columns:
+                    print("[AUTO-MIGRATE] Adding mood column to completion_log table...")
+                    try:
+                        with db.engine.connect() as conn:
+                            conn.execute(text('ALTER TABLE completion_log ADD COLUMN mood VARCHAR(10)'))
+                            conn.commit()
+                        print("[AUTO-MIGRATE] Successfully added mood column")
+                    except Exception as e:
+                        print(f"[AUTO-MIGRATE] Error adding mood column: {e}")
+
+                if 'created_at' not in completion_log_columns:
+                    print("[AUTO-MIGRATE] Adding created_at column to completion_log table...")
+                    try:
+                        with db.engine.connect() as conn:
+                            conn.execute(text('ALTER TABLE completion_log ADD COLUMN created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP'))
+                            conn.commit()
+                        print("[AUTO-MIGRATE] Successfully added created_at column")
+                    except Exception as e:
+                        print(f"[AUTO-MIGRATE] Error adding created_at column: {e}")
+
             print("[AUTO-MIGRATE] All migrations completed successfully")
         except Exception as e:
             print(f"[AUTO-MIGRATE] Error during migration check: {e}")

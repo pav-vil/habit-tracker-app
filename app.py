@@ -118,6 +118,10 @@ app.register_blueprint(periods_bp)
 from challenges import challenges_bp
 app.register_blueprint(challenges_bp, url_prefix='/challenges')
 
+# Import and register gamification blueprint
+from gamification import gamification_bp
+app.register_blueprint(gamification_bp, url_prefix='/gamification')
+
 @app.route('/')
 def home():
     """Home page"""

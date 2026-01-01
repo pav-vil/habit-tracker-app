@@ -830,3 +830,74 @@ class ChallengeActivity(db.Model):
 
     def __repr__(self):
         return f'<ChallengeActivity challenge_id={self.challenge_id} type={self.activity_type}>'
+
+
+class Badge(db.Model):
+    """
+    Badge definitions for gamification system.
+    Badges are earned when users achieve specific milestones.
+    """
+    __tablename__ = 'badge'
+
+    # Primary Key
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+
+    # Badge Details
+    name = db.Column(db.String(100), unique=True, nullable=False)
+    slug = db.Column(db.String(100), unique=True, nullable=False, index=True)  # URL-safe identifier
+    description = db.Column(db.String(500), nullable=False)
+    icon = db.Column(db.String(10), nullable=False)  # Emoji icon
+    color = db.Column(db.String(20), default='purple', nullable=False)  # Badge color theme
+    
+    # Achievement Requirements
+    category = db.Column(db.String(50), nullable=False, index=True)  # 'streak', 'completion', 'habit_count', 'challenge', 'special'
+    requirement_type = db.Column(db.String(50), nullable=False)  # 'streak_days', 'total_completions', 'habits_created', etc.
+    requirement_value = db.Column(db.Integer, nullable=False)  # Threshold value
+    
+    # Display Order & Rarity
+    display_order = db.Column(db.Integer, default=0, nullable=False)
+    rarity = db.Column(db.String(20), default='common', nullable=False)  # 'common', 'rare', 'epic', 'legendary'
+    
+    # Metadata
+    is_active = db.Column(db.Boolean, default=True, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    
+    # Relationships
+    user_badges = db.relationship('UserBadge', back_populates='badge', cascade='all, delete-orphan')
+
+    def __repr__(self):
+        return f'<Badge {self.name} ({self.slug})>'
+
+
+class UserBadge(db.Model):
+    """
+    Junction table tracking which badges users have earned.
+    Stores when badges were earned.
+    """
+    __tablename__ = 'user_badge'
+
+    # Primary Key
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+
+    # Foreign Keys
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    badge_id = db.Column(db.Integer, db.ForeignKey('badge.id'), nullable=False, index=True)
+
+    # Tracking
+    earned_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    notification_seen = db.Column(db.Boolean, default=False, nullable=False)  # Track if user has seen badge notification
+    
+    # Context (what triggered the badge)
+    trigger_context = db.Column(db.JSON, nullable=True)  # Store context like habit_id, streak_value, etc.
+
+    # Unique constraint: user can only earn each badge once
+    __table_args__ = (
+        db.UniqueConstraint('user_id', 'badge_id', name='unique_user_badge'),
+    )
+
+    # Relationships
+    user = db.relationship('User', backref=db.backref('earned_badges', lazy='dynamic'))
+    badge = db.relationship('Badge', back_populates='user_badges')
+
+    def __repr__(self):
+        return f'<UserBadge user_id={self.user_id} badge_id={self.badge_id}>'

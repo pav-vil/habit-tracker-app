@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+
+{% block title %}Badges - HabitFlow{% endblock %}
+
+{% block content %}
+<div class="container content-container">
+    <!-- Page Header -->
+    <div class="text-center mb-5">
+        <h1 class="display-5 mb-3">
+            <span style="background: linear-gradient(135deg, var(--purple-vibrant), var(--purple-light));
+                         -webkit-background-clip: text;
+                         -webkit-text-fill-color: transparent;
+                         background-clip: text;">
+                🏅 Badges
+            </span>
+        </h1>
+        <p class="text-muted">Earn badges by achieving milestones</p>
+    </div>
+
+    <!-- Progress Card -->
+    <div class="row mb-4">
+        <div class="col-md-10 mx-auto">
+            <div class="card progress-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="mb-0">Badge Collection</h5>
+                        <span class="badge-count">{{ earned_count }} / {{ total_badges }}</span>
+                    </div>
+                    <div class="progress" style="height: 25px;">
+                        <div class="progress-bar" role="progressbar"
+                             style="width: {{ completion_percentage }}%;"
+                             aria-valuenow="{{ completion_percentage }}"
+                             aria-valuemin="0" aria-valuemax="100">
+                            {{ completion_percentage }}%
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Earned Badges -->
+    <div class="row mb-5">
+        <div class="col-md-10 mx-auto">
+            <h3 class="mb-4">✨ Earned Badges</h3>
+            {% if earned_badges %}
+                <div class="row">
+                    {% for user_badge in earned_badges %}
+                    <div class="col-6 col-md-4 col-lg-3 mb-4">
+                        <div class="badge-card earned">
+                            <div class="badge-icon">{{ user_badge.badge.icon }}</div>
+                            <div class="badge-name">{{ user_badge.badge.name }}</div>
+                            <div class="badge-description">{{ user_badge.badge.description }}</div>
+                            <div class="badge-earned-date">
+                                Earned {{ user_badge.earned_at.strftime('%b %d, %Y') }}
+                            </div>
+                            <div class="badge-rarity {{ user_badge.badge.rarity }}">
+                                {{ user_badge.badge.rarity|title }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-5 text-muted">
+                    <p>You haven't earned any badges yet. Start completing habits to earn your first badge!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Locked Badges -->
+    <div class="row">
+        <div class="col-md-10 mx-auto">
+            <h3 class="mb-4">🔒 Locked Badges</h3>
+            {% if locked_badges %}
+                <div class="row">
+                    {% for badge in locked_badges %}
+                    <div class="col-6 col-md-4 col-lg-3 mb-4">
+                        <div class="badge-card locked">
+                            <div class="badge-icon locked-icon">{{ badge.icon }}</div>
+                            <div class="badge-name">{{ badge.name }}</div>
+                            <div class="badge-description">{{ badge.description }}</div>
+                            <div class="badge-requirement">
+                                {% if badge.requirement_type == 'streak_days' %}
+                                    Reach {{ badge.requirement_value }}-day streak
+                                {% elif badge.requirement_type == 'total_completions' %}
+                                    Complete {{ badge.requirement_value }} habits
+                                {% elif badge.requirement_type == 'habits_created' %}
+                                    Create {{ badge.requirement_value }} habits
+                                {% elif badge.requirement_type == 'perfect_week' %}
+                                    {{ badge.requirement_value }} perfect days
+                                {% else %}
+                                    {{ badge.description }}
+                                {% endif %}
+                            </div>
+                            <div class="badge-rarity {{ badge.rarity }}">
+                                {{ badge.rarity|title }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-5 text-muted">
+                    <p>Amazing! You've earned all available badges! 🎉</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .progress-card {
+        background: var(--bg-surface);
+        border: 1px solid rgba(179, 136, 255, 0.2);
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.5), 0 0 15px var(--glow-purple);
+    }
+
+    body:not(.dark-mode) .progress-card {
+        background: white;
+        border: 2px solid #e5e7eb;
+        box-shadow: 0 5px 20px rgba(124, 58, 237, 0.1);
+    }
+
+    .badge-count {
+        font-size: 1.2rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, var(--purple-vibrant), var(--purple-light));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .progress-bar {
+        background: linear-gradient(135deg, var(--purple-gradient-start), var(--purple-gradient-end));
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .badge-card {
+        background: var(--bg-surface);
+        border: 2px solid rgba(179, 136, 255, 0.3);
+        border-radius: 15px;
+        padding: 20px;
+        text-align: center;
+        transition: all 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+    }
+
+    body:not(.dark-mode) .badge-card {
+        background: white;
+        border: 2px solid #e5e7eb;
+    }
+
+    .badge-card.earned {
+        border-color: var(--text-secondary);
+        box-shadow: 0 4px 15px var(--glow-purple);
+    }
+
+    body:not(.dark-mode) .badge-card.earned {
+        border-color: #7c3aed;
+        box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);
+    }
+
+    .badge-card.locked {
+        opacity: 0.6;
+    }
+
+    .badge-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px var(--glow-purple);
+    }
+
+    .badge-icon {
+        font-size: 4rem;
+        margin-bottom: 15px;
+    }
+
+    .locked-icon {
+        filter: grayscale(100%);
+        opacity: 0.5;
+    }
+
+    .badge-name {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--text-primary);
+        margin-bottom: 10px;
+    }
+
+    body:not(.dark-mode) .badge-name {
+        color: #1f2937;
+    }
+
+    .badge-description, .badge-requirement {
+        font-size: 0.875rem;
+        color: var(--text-muted);
+        margin-bottom: 10px;
+        flex-grow: 1;
+    }
+
+    .badge-earned-date {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        margin-bottom: 10px;
+    }
+
+    .badge-rarity {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-top: 10px;
+    }
+
+    .badge-rarity.common {
+        background: rgba(100, 116, 139, 0.2);
+        color: #64748b;
+    }
+
+    .badge-rarity.rare {
+        background: rgba(59, 130, 246, 0.2);
+        color: #3b82f6;
+    }
+
+    .badge-rarity.epic {
+        background: rgba(168, 85, 247, 0.2);
+        color: #a855f7;
+    }
+
+    .badge-rarity.legendary {
+        background: rgba(234, 179, 8, 0.2);
+        color: #eab308;
+    }
+
+    @media (max-width: 768px) {
+        .badge-icon {
+            font-size: 3rem;
+        }
+
+        .badge-name {
+            font-size: 1rem;
+        }
+    }
+</style>
+{% endblock %}

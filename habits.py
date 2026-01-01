@@ -168,6 +168,16 @@ def add_habit():
         db.session.add(new_habit)
         db.session.commit()
 
+        # Check for new badges after habit creation
+        try:
+            from badge_service import check_and_award_badges
+            newly_awarded = check_and_award_badges(current_user)
+            if newly_awarded:
+                flash(f'🏅 Congratulations! You earned {len(newly_awarded)} new badge(s)!', 'success')
+        except Exception as e:
+            # Don't fail habit creation if badge check fails
+            print(f"[WARNING] Badge check failed: {e}")
+
         flash(f'Habit "{new_habit.name}" created successfully!', 'success')
         return redirect(url_for('habits.dashboard'))
 
@@ -287,6 +297,16 @@ def complete_habit(habit_id):
     except Exception as e:
         # Don't fail habit completion if challenge update fails
         print(f"[WARNING] Challenge progress update failed: {e}")
+
+    # Check for new badges after completion
+    try:
+        from badge_service import check_and_award_badges
+        newly_awarded = check_and_award_badges(current_user)
+        if newly_awarded:
+            flash(f'🏅 Congratulations! You earned {len(newly_awarded)} new badge(s)!', 'success')
+    except Exception as e:
+        # Don't fail habit completion if badge check fails
+        print(f"[WARNING] Badge check failed: {e}")
 
     flash(f'🎉 "{habit.name}" completed! Streak: {habit.streak_count} days', 'success')
     return redirect(url_for('habits.dashboard'))

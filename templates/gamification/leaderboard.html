@@ -1,0 +1,334 @@
+{% extends "base.html" %}
+
+{% block title %}Leaderboard - HabitFlow{% endblock %}
+
+{% block content %}
+<div class="container content-container">
+    <!-- Page Header -->
+    <div class="text-center mb-5">
+        <h1 class="display-5 mb-3">
+            <span style="background: linear-gradient(135deg, var(--purple-vibrant), var(--purple-light));
+                         -webkit-background-clip: text;
+                         -webkit-text-fill-color: transparent;
+                         background-clip: text;">
+                🏆 Leaderboard
+            </span>
+        </h1>
+        <p class="text-muted">See how you stack up against the HabitFlow community</p>
+    </div>
+
+    <!-- User Stats Card -->
+    <div class="row mb-4">
+        <div class="col-md-10 mx-auto">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Your Stats</h5>
+                    <div class="row text-center">
+                        <div class="col-6 col-md-3 mb-3">
+                            <div class="stat-item">
+                                <div class="stat-value">
+                                    {% if user_stats.global_rank %}
+                                        #{{ user_stats.global_rank }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </div>
+                                <div class="stat-label">Global Rank</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3 mb-3">
+                            <div class="stat-item">
+                                <div class="stat-value">{{ user_stats.best_streak }}</div>
+                                <div class="stat-label">Best Streak</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3 mb-3">
+                            <div class="stat-item">
+                                <div class="stat-value">{{ user_stats.total_completions }}</div>
+                                <div class="stat-label">Total Completions</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3 mb-3">
+                            <div class="stat-item">
+                                <div class="stat-value">{{ user_stats.badge_count }}</div>
+                                <div class="stat-label">Badges Earned</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaderboard Tabs -->
+    <div class="row">
+        <div class="col-md-10 mx-auto">
+            <ul class="nav nav-pills mb-4 justify-content-center" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link {% if current_type == 'global' %}active{% endif %}"
+                       href="{{ url_for('gamification.leaderboard', type='global') }}">
+                        🔥 Streaks
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if current_type == 'completions' %}active{% endif %}"
+                       href="{{ url_for('gamification.leaderboard', type='completions') }}">
+                        ✅ Completions
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if current_type == 'badges' %}active{% endif %}"
+                       href="{{ url_for('gamification.leaderboard', type='badges') }}">
+                        🏅 Badges
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Leaderboard Card -->
+            <div class="card leaderboard-card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table leaderboard-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 80px;">Rank</th>
+                                    <th>User</th>
+                                    {% if current_type == 'global' %}
+                                        <th class="text-center">Best Streak</th>
+                                        <th class="text-center">Active Streaks</th>
+                                        <th class="text-center">Badges</th>
+                                    {% elif current_type == 'completions' %}
+                                        <th class="text-center">Completions</th>
+                                        <th class="text-center">Habits</th>
+                                        <th class="text-center">Badges</th>
+                                    {% elif current_type == 'badges' %}
+                                        <th class="text-center">Badges</th>
+                                        <th class="text-center">Best Streak</th>
+                                    {% endif %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for leader in leaderboard.leaders %}
+                                <tr class="{% if leader.is_current_user %}current-user-row{% endif %}">
+                                    <td>
+                                        <span class="rank-badge">
+                                            {{ leader.rank_emoji }} {{ leader.rank }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="user-info">
+                                            <span class="username">{{ leader.username }}</span>
+                                            {% if leader.is_current_user %}
+                                                <span class="badge bg-primary ms-2">You</span>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    {% if current_type == 'global' %}
+                                        <td class="text-center">
+                                            <span class="highlight-value">{{ leader.best_streak }}</span> days
+                                        </td>
+                                        <td class="text-center">{{ leader.active_streaks }}</td>
+                                        <td class="text-center">{{ leader.badge_count }}</td>
+                                    {% elif current_type == 'completions' %}
+                                        <td class="text-center">
+                                            <span class="highlight-value">{{ leader.completion_count }}</span>
+                                        </td>
+                                        <td class="text-center">{{ leader.unique_habits }}</td>
+                                        <td class="text-center">{{ leader.badge_count }}</td>
+                                    {% elif current_type == 'badges' %}
+                                        <td class="text-center">
+                                            <span class="highlight-value">{{ leader.badge_count }}</span> 🏅
+                                        </td>
+                                        <td class="text-center">{{ leader.best_streak }} days</td>
+                                    {% endif %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {% if leaderboard.leaders|length == 0 %}
+                        <div class="text-center py-5 text-muted">
+                            <p>No users on this leaderboard yet. Be the first!</p>
+                        </div>
+                    {% endif %}
+
+                    <div class="text-center mt-3 text-muted">
+                        <small>Showing top {{ leaderboard.leaders|length }} of {{ leaderboard.total_users }} users</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .stats-card {
+        background: var(--bg-surface);
+        border: 1px solid rgba(179, 136, 255, 0.2);
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.5), 0 0 15px var(--glow-purple);
+    }
+
+    body:not(.dark-mode) .stats-card {
+        background: white;
+        border: 2px solid #e5e7eb;
+        box-shadow: 0 5px 20px rgba(124, 58, 237, 0.1);
+    }
+
+    .stat-item {
+        padding: 10px;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, var(--purple-vibrant), var(--purple-light));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    body:not(.dark-mode) .stat-value {
+        background: linear-gradient(135deg, #7c3aed, #a78bfa);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .stat-label {
+        color: var(--text-muted);
+        font-size: 0.875rem;
+        margin-top: 5px;
+    }
+
+    .nav-pills .nav-link {
+        background: var(--bg-surface);
+        border: 2px solid rgba(179, 136, 255, 0.3);
+        color: var(--text-primary);
+        margin: 0 5px;
+        border-radius: 10px;
+        padding: 10px 20px;
+        transition: all 0.3s ease;
+    }
+
+    body:not(.dark-mode) .nav-pills .nav-link {
+        background: white;
+        border: 2px solid #e5e7eb;
+        color: #1f2937;
+    }
+
+    .nav-pills .nav-link:hover {
+        border-color: var(--text-secondary);
+        transform: translateY(-2px);
+    }
+
+    .nav-pills .nav-link.active {
+        background: linear-gradient(135deg, var(--purple-gradient-start), var(--purple-gradient-end));
+        border-color: var(--text-secondary);
+        color: white;
+    }
+
+    body:not(.dark-mode) .nav-pills .nav-link.active {
+        background: linear-gradient(135deg, #7c3aed, #a78bfa);
+    }
+
+    .leaderboard-card {
+        background: var(--bg-surface);
+        border: 1px solid rgba(179, 136, 255, 0.2);
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.5), 0 0 15px var(--glow-purple);
+    }
+
+    body:not(.dark-mode) .leaderboard-card {
+        background: white;
+        border: 2px solid #e5e7eb;
+        box-shadow: 0 5px 20px rgba(124, 58, 237, 0.1);
+    }
+
+    .leaderboard-table {
+        margin-bottom: 0;
+    }
+
+    .leaderboard-table thead th {
+        border-bottom: 2px solid rgba(179, 136, 255, 0.3);
+        color: var(--text-secondary);
+        font-weight: 600;
+        padding: 15px;
+    }
+
+    body:not(.dark-mode) .leaderboard-table thead th {
+        border-bottom: 2px solid #e5e7eb;
+        color: #6b7280;
+    }
+
+    .leaderboard-table tbody tr {
+        border-bottom: 1px solid rgba(179, 136, 255, 0.1);
+        transition: background-color 0.2s ease;
+    }
+
+    body:not(.dark-mode) .leaderboard-table tbody tr {
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .leaderboard-table tbody tr:hover {
+        background-color: rgba(179, 136, 255, 0.05);
+    }
+
+    body:not(.dark-mode) .leaderboard-table tbody tr:hover {
+        background-color: #faf5ff;
+    }
+
+    .current-user-row {
+        background-color: rgba(179, 136, 255, 0.1) !important;
+        font-weight: 600;
+    }
+
+    body:not(.dark-mode) .current-user-row {
+        background-color: #f3e8ff !important;
+    }
+
+    .rank-badge {
+        font-size: 1.1rem;
+        font-weight: 700;
+    }
+
+    .username {
+        font-weight: 500;
+        color: var(--text-primary);
+    }
+
+    body:not(.dark-mode) .username {
+        color: #1f2937;
+    }
+
+    .highlight-value {
+        font-weight: 700;
+        background: linear-gradient(135deg, var(--purple-vibrant), var(--purple-light));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    body:not(.dark-mode) .highlight-value {
+        background: linear-gradient(135deg, #7c3aed, #a78bfa);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    @media (max-width: 768px) {
+        .leaderboard-table {
+            font-size: 0.875rem;
+        }
+
+        .rank-badge {
+            font-size: 1rem;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}

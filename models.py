@@ -191,6 +191,9 @@ class CompletionLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     habit_id = db.Column(db.Integer, db.ForeignKey('habit.id'), nullable=False, index=True)
     completed_at = db.Column(db.Date, nullable=False, index=True)
+    notes = db.Column(db.Text, nullable=True)
+    mood = db.Column(db.String(10), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
     habit = db.relationship(
         'Habit',

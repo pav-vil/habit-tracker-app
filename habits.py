@@ -273,8 +273,17 @@ def complete_habit(habit_id):
         flash(f'"{habit.name}" already completed today!', 'info')
         return redirect(url_for('habits.dashboard'))
 
+    # Get notes and mood from request (if provided)
+    notes = request.form.get('notes', '').strip()
+    mood = request.form.get('mood', '').strip()
+
     # Log this completion for history tracking
-    completion = CompletionLog(habit_id=habit.id, completed_at=today)
+    completion = CompletionLog(
+        habit_id=habit.id,
+        completed_at=today,
+        notes=notes if notes else None,
+        mood=mood if mood else None
+    )
     db.session.add(completion)
 
     db.session.commit()
@@ -470,6 +479,37 @@ def dark_mode_toggle():
         print(f"[DARK_MODE] Error updating preference: {e}")
         db.session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@habits_bp.route('/<int:habit_id>/notes')
+@login_required
+def habit_notes(habit_id):
+    """
+    View notes history for a specific habit.
+    """
+    from models import CompletionLog
+
+    habit = Habit.query.get_or_404(habit_id)
+
+    # Security: ensure user owns this habit
+    if habit.user_id != current_user.id:
+        flash('Access denied.', 'danger')
+        return redirect(url_for('habits.dashboard'))
+
+    # Get all completions with notes or mood, ordered by date (newest first)
+    completions_with_notes = CompletionLog.query.filter(
+        CompletionLog.habit_id == habit_id,
+        db.or_(
+            CompletionLog.notes.isnot(None),
+            CompletionLog.mood.isnot(None)
+        )
+    ).order_by(CompletionLog.completed_at.desc()).all()
+
+    return render_template(
+        'habit_notes.html',
+        habit=habit,
+        completions=completions_with_notes
+    )
 
 
 @habits_bp.route('/guide')

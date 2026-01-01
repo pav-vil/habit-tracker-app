@@ -243,6 +243,11 @@
         box-shadow: 0 2px 10px rgba(124, 58, 237, 0.3);
     }
 
+    .btn-notes {
+        background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+        box-shadow: 0 2px 10px rgba(59, 130, 246, 0.3);
+    }
+
     .btn-archive {
         background: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%);
         box-shadow: 0 2px 10px rgba(107, 114, 128, 0.3);
@@ -907,6 +912,112 @@
             font-size: 0.9rem;
         }
     }
+
+    /* Habit Completion Modal Styles */
+    .mood-selector {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+        padding: 10px 0;
+    }
+
+    .mood-radio {
+        display: none;
+    }
+
+    .mood-option {
+        font-size: 2.5rem;
+        cursor: pointer;
+        padding: 10px;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+        opacity: 0.5;
+        background: transparent;
+        border: 3px solid transparent;
+    }
+
+    .mood-option:hover {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+
+    .mood-radio:checked + .mood-option {
+        opacity: 1;
+        transform: scale(1.2);
+        border-color: rgba(124, 58, 237, 0.5);
+        background: rgba(124, 58, 237, 0.1);
+    }
+
+    .modal-content {
+        background: var(--bg-surface);
+        border: 1px solid rgba(124, 58, 237, 0.2);
+        border-radius: 15px;
+    }
+
+    body:not(.dark-mode) .modal-content {
+        background: white;
+        border-color: #e5e7eb;
+    }
+
+    .modal-header {
+        border-bottom: 1px solid rgba(124, 58, 237, 0.1);
+    }
+
+    body:not(.dark-mode) .modal-header {
+        border-bottom-color: #e5e7eb;
+    }
+
+    .modal-footer {
+        border-top: 1px solid rgba(124, 58, 237, 0.1);
+    }
+
+    body:not(.dark-mode) .modal-footer {
+        border-top-color: #e5e7eb;
+    }
+
+    .modal-title {
+        color: var(--text-primary);
+        font-weight: 600;
+    }
+
+    body:not(.dark-mode) .modal-title {
+        color: #1f2937;
+    }
+
+    /* Completion Notes Display */
+    .completion-notes-section {
+        background: rgba(124, 58, 237, 0.05);
+        border-left: 3px solid rgba(124, 58, 237, 0.4);
+        padding: 10px 12px;
+        margin-bottom: 15px;
+        border-radius: 8px;
+    }
+
+    body:not(.dark-mode) .completion-notes-section {
+        background: rgba(124, 58, 237, 0.05);
+        border-left-color: #7c3aed;
+    }
+
+    .completion-mood {
+        margin-bottom: 8px;
+    }
+
+    .mood-emoji {
+        font-size: 1.5rem;
+        display: inline-block;
+    }
+
+    .completion-notes-text {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        font-style: italic;
+        line-height: 1.4;
+    }
+
+    body:not(.dark-mode) .completion-notes-text {
+        color: #6b7280;
+    }
 </style>
 {% endblock %}
 
@@ -1303,6 +1414,25 @@
                     </div>
                     {% endif %}
 
+                    <!-- Today's Notes and Mood -->
+                    {% if habit.last_completed == current_user.get_user_date() %}
+                        {% set today_completion = habit.completions.filter_by(completed_at=current_user.get_user_date()).first() %}
+                        {% if today_completion and (today_completion.mood or today_completion.notes) %}
+                        <div class="completion-notes-section">
+                            {% if today_completion.mood %}
+                            <div class="completion-mood">
+                                <span class="mood-emoji">{{ today_completion.mood }}</span>
+                            </div>
+                            {% endif %}
+                            {% if today_completion.notes %}
+                            <div class="completion-notes-text">
+                                "{{ today_completion.notes }}"
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    {% endif %}
+
                     <div class="habit-actions">
                         {% if habit.last_completed == current_user.get_user_date() %}
                             <form action="{{ url_for('habits.undo_completion', habit_id=habit.id) }}" method="POST" onsubmit="return confirm('Undo today\\'s completion for &quot;{{ habit.name }}&quot;? This will decrease your streak.');">
@@ -1312,16 +1442,21 @@
                                 </button>
                             </form>
                         {% else %}
-                            <form action="{{ url_for('habits.complete_habit', habit_id=habit.id) }}" method="POST">
-                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                                <button type="submit" class="btn btn-complete">
-                                    <span aria-hidden="true">✓</span> Complete
-                                </button>
-                            </form>
+                            <button type="button" class="btn btn-complete"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#completionModal"
+                                    data-habit-id="{{ habit.id }}"
+                                    data-habit-name="{{ habit.name }}">
+                                <span aria-hidden="true">✓</span> Complete
+                            </button>
                         {% endif %}
 
                         <a href="{{ url_for('habits.edit_habit', habit_id=habit.id) }}" class="btn btn-edit">
                             <span aria-hidden="true">✏️</span> Edit
+                        </a>
+
+                        <a href="{{ url_for('habits.habit_notes', habit_id=habit.id) }}" class="btn btn-notes">
+                            <span aria-hidden="true">📝</span> Notes
                         </a>
 
                         <form action="{{ url_for('habits.archive_habit', habit_id=habit.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to archive &quot;{{ habit.name }}&quot;? You can restore it later from the archived habits page.');">
@@ -1549,6 +1684,54 @@
         </div>
     </div>
 </div>
+
+<!-- Habit Completion Modal -->
+<div class="modal fade" id="completionModal" tabindex="-1" aria-labelledby="completionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="completionModalLabel">Complete Habit</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="completionForm" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">How are you feeling?</label>
+                        <div class="mood-selector">
+                            <input type="radio" name="mood" value="😊" id="mood-happy" class="mood-radio">
+                            <label for="mood-happy" class="mood-option">😊</label>
+
+                            <input type="radio" name="mood" value="😐" id="mood-neutral" class="mood-radio">
+                            <label for="mood-neutral" class="mood-option">😐</label>
+
+                            <input type="radio" name="mood" value="😔" id="mood-sad" class="mood-radio">
+                            <label for="mood-sad" class="mood-option">😔</label>
+
+                            <input type="radio" name="mood" value="😤" id="mood-determined" class="mood-radio">
+                            <label for="mood-determined" class="mood-option">😤</label>
+
+                            <input type="radio" name="mood" value="😴" id="mood-tired" class="mood-radio">
+                            <label for="mood-tired" class="mood-option">😴</label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="completionNotes" class="form-label">Notes (optional)</label>
+                        <textarea class="form-control" id="completionNotes" name="notes" rows="3"
+                                  placeholder="How did it go? Any thoughts or reflections..."
+                                  maxlength="500"></textarea>
+                        <small class="text-muted">Max 500 characters</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Complete Habit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
@@ -1558,6 +1741,33 @@ document.addEventListener('DOMContentLoaded', function() {
     const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
     const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
 });
+
+// Handle habit completion modal
+const completionModal = document.getElementById('completionModal');
+if (completionModal) {
+    completionModal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const habitId = button.getAttribute('data-habit-id');
+        const habitName = button.getAttribute('data-habit-name');
+
+        // Update modal title
+        const modalTitle = completionModal.querySelector('.modal-title');
+        modalTitle.textContent = `Complete: ${habitName}`;
+
+        // Set form action
+        const form = completionModal.querySelector('#completionForm');
+        form.action = `/habits/complete/${habitId}`;
+    });
+
+    // Reset form when modal is closed
+    completionModal.addEventListener('hidden.bs.modal', function () {
+        const form = completionModal.querySelector('#completionForm');
+        form.reset();
+        // Uncheck all mood radios
+        const moodRadios = form.querySelectorAll('.mood-radio');
+        moodRadios.forEach(radio => radio.checked = false);
+    });
+}
 
 // Save newsletter preference
 function saveNewsletterPreference() {

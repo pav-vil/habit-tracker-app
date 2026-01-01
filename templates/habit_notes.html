@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %}Notes: {{ habit.name }} - HabitFlow{% endblock %}
+
+{% block content %}
+<div class="container content-container">
+    <!-- Page Header -->
+    <div class="text-center mb-5">
+        <h1 class="display-5 mb-3">
+            <span style="background: linear-gradient(135deg, var(--purple-vibrant), var(--purple-light));
+                         -webkit-background-clip: text;
+                         -webkit-text-fill-color: transparent;
+                         background-clip: text;">
+                📝 {{ habit.name }}
+            </span>
+        </h1>
+        <p class="text-muted">Your completion notes and reflections</p>
+        <a href="{{ url_for('habits.dashboard') }}" class="btn btn-outline-secondary mt-2">
+            ← Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Notes Timeline -->
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            {% if completions %}
+                <div class="notes-timeline">
+                    {% for completion in completions %}
+                    <div class="note-card">
+                        <div class="note-header">
+                            <div class="note-date">
+                                {{ completion.completed_at.strftime('%B %d, %Y') }}
+                                <span class="note-time">
+                                    {{ completion.created_at.strftime('%I:%M %p') if completion.created_at else '' }}
+                                </span>
+                            </div>
+                            {% if completion.mood %}
+                            <div class="note-mood-large">
+                                {{ completion.mood }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% if completion.notes %}
+                        <div class="note-content">
+                            {{ completion.notes }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <div class="empty-state-icon" style="font-size: 4rem; margin-bottom: 20px;">📝</div>
+                    <h4 class="text-muted">No notes yet</h4>
+                    <p class="text-muted">
+                        Start adding notes when you complete "{{ habit.name }}" to track your thoughts and reflections.
+                    </p>
+                    <a href="{{ url_for('habits.dashboard') }}" class="btn btn-primary mt-3">
+                        Go to Dashboard
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .notes-timeline {
+        position: relative;
+        padding: 20px 0;
+    }
+
+    .note-card {
+        background: var(--bg-surface);
+        border: 1px solid rgba(124, 58, 237, 0.2);
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.5), 0 0 15px var(--glow-purple);
+        transition: all 0.3s ease;
+    }
+
+    body:not(.dark-mode) .note-card {
+        background: white;
+        border: 2px solid #e5e7eb;
+        box-shadow: 0 4px 15px rgba(124, 58, 237, 0.1);
+    }
+
+    .note-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(124, 58, 237, 0.3);
+    }
+
+    .note-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid rgba(124, 58, 237, 0.1);
+    }
+
+    body:not(.dark-mode) .note-header {
+        border-bottom-color: #e5e7eb;
+    }
+
+    .note-date {
+        font-weight: 600;
+        color: var(--text-primary);
+        font-size: 1.1rem;
+    }
+
+    body:not(.dark-mode) .note-date {
+        color: #1f2937;
+    }
+
+    .note-time {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        font-weight: 400;
+        margin-left: 10px;
+    }
+
+    .note-mood-large {
+        font-size: 2.5rem;
+    }
+
+    .note-content {
+        color: var(--text-secondary);
+        line-height: 1.6;
+        font-size: 1rem;
+        white-space: pre-wrap;
+    }
+
+    body:not(.dark-mode) .note-content {
+        color: #4b5563;
+    }
+
+    .empty-state-icon {
+        opacity: 0.5;
+    }
+
+    @media (max-width: 768px) {
+        .note-mood-large {
+            font-size: 2rem;
+        }
+
+        .note-date {
+            font-size: 1rem;
+        }
+
+        .note-card {
+            padding: 15px;
+        }
+    }
+</style>
+{% endblock %}

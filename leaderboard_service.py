@@ -30,11 +30,16 @@ def get_global_leaderboard(limit=100, user=None):
     # Subquery to get each user's best streak
     user_best_streaks = db.session.query(
         Habit.user_id,
-        func.max(func.greatest(Habit.current_streak, Habit.longest_streak)).label('best_streak'),
+        func.max(
+            case(
+                (Habit.streak_count >= Habit.longest_streak, Habit.streak_count),
+                else_=Habit.longest_streak
+            )
+        ).label('best_streak'),
         func.count(Habit.id).label('habit_count'),
         func.sum(
             case(
-                (Habit.current_streak > 0, 1),
+                (Habit.streak_count > 0, 1),
                 else_=0
             )
         ).label('active_streaks')
@@ -187,7 +192,12 @@ def get_badges_leaderboard(limit=100):
         User.id,
         User.email,
         func.count(UserBadge.id).label('badge_count'),
-        func.max(func.greatest(Habit.current_streak, Habit.longest_streak)).label('best_streak')
+        func.max(
+            case(
+                (Habit.streak_count >= Habit.longest_streak, Habit.streak_count),
+                else_=Habit.longest_streak
+            )
+        ).label('best_streak')
     ).outerjoin(
         UserBadge,
         User.id == UserBadge.user_id
@@ -240,7 +250,12 @@ def get_user_rank(user):
     """
     # Get user's best streak
     user_best_streak = db.session.query(
-        func.max(func.greatest(Habit.current_streak, Habit.longest_streak))
+        func.max(
+            case(
+                (Habit.streak_count >= Habit.longest_streak, Habit.streak_count),
+                else_=Habit.longest_streak
+            )
+        )
     ).filter(
         Habit.user_id == user.id,
         Habit.archived == False
@@ -257,7 +272,12 @@ def get_user_rank(user):
     ).group_by(
         Habit.user_id
     ).having(
-        func.max(func.greatest(Habit.current_streak, Habit.longest_streak)) > user_best_streak
+        func.max(
+            case(
+                (Habit.streak_count >= Habit.longest_streak, Habit.streak_count),
+                else_=Habit.longest_streak
+            )
+        ) > user_best_streak
     ).count()
 
     return better_users + 1
@@ -275,7 +295,12 @@ def get_user_stats_summary(user):
     """
     # Best streak
     best_streak = db.session.query(
-        func.max(func.greatest(Habit.current_streak, Habit.longest_streak))
+        func.max(
+            case(
+                (Habit.streak_count >= Habit.longest_streak, Habit.streak_count),
+                else_=Habit.longest_streak
+            )
+        )
     ).filter(
         Habit.user_id == user.id,
         Habit.archived == False
@@ -287,7 +312,7 @@ def get_user_stats_summary(user):
     ).filter(
         Habit.user_id == user.id,
         Habit.archived == False,
-        Habit.current_streak > 0
+        Habit.streak_count > 0
     ).scalar() or 0
 
     # Total completions

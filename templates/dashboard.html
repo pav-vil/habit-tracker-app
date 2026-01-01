@@ -985,6 +985,40 @@
         color: #1f2937;
     }
 
+    .modal-body .form-label {
+        color: var(--text-primary);
+        font-weight: 500;
+    }
+
+    body:not(.dark-mode) .modal-body .form-label {
+        color: #374151;
+    }
+
+    .modal-body .form-control {
+        background: var(--bg-surface);
+        border: 1px solid rgba(124, 58, 237, 0.2);
+        color: var(--text-primary);
+    }
+
+    body:not(.dark-mode) .modal-body .form-control {
+        background: white;
+        border-color: #d1d5db;
+        color: #1f2937;
+    }
+
+    .modal-body .form-control:focus {
+        border-color: #7c3aed;
+        box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.25);
+    }
+
+    .modal-body .text-muted {
+        color: var(--text-muted);
+    }
+
+    body:not(.dark-mode) .modal-body .text-muted {
+        color: #9ca3af;
+    }
+
     /* Completion Notes Display */
     .completion-notes-section {
         background: rgba(124, 58, 237, 0.05);

@@ -291,19 +291,37 @@
         margin-bottom: 0;
     }
 
+    /* Better table styling */
+    .table-responsive {
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .leaderboard-table tbody tr:first-child td {
+        padding-top: 20px;
+    }
+
+    .leaderboard-table tbody tr:last-child {
+        border-bottom: none;
+    }
+
     .leaderboard-table thead th {
-        border-bottom: 2px solid rgba(179, 136, 255, 0.4);
-        color: #e5e7eb;
-        font-weight: 700;
-        padding: 18px 15px;
-        font-size: 1rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+        background: linear-gradient(135deg, rgba(124, 58, 237, 0.3), rgba(179, 136, 255, 0.2)) !important;
+        border-bottom: 3px solid #7c3aed !important;
+        color: #f9fafb !important;
+        font-weight: 800 !important;
+        padding: 20px 15px !important;
+        font-size: 1.05rem !important;
+        text-transform: uppercase !important;
+        letter-spacing: 1px !important;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
     }
 
     body:not(.dark-mode) .leaderboard-table thead th {
-        border-bottom: 2px solid #e5e7eb;
-        color: #6b7280;
+        background: linear-gradient(135deg, #f3e8ff, #faf5ff) !important;
+        border-bottom: 3px solid #7c3aed !important;
+        color: #1f2937 !important;
+        text-shadow: none;
     }
 
     .leaderboard-table tbody tr {
@@ -318,14 +336,23 @@
     }
 
     .leaderboard-table tbody td {
-        color: #e5e7eb;
-        padding: 16px 15px;
-        font-size: 1rem;
-        font-weight: 500;
+        color: #f9fafb !important;
+        padding: 18px 15px !important;
+        font-size: 1.05rem !important;
+        font-weight: 600 !important;
     }
 
     body:not(.dark-mode) .leaderboard-table tbody td {
-        color: #374151;
+        color: #1f2937 !important;
+    }
+
+    /* Make secondary text (like "days") visible */
+    .leaderboard-table tbody td:not(.rank-badge):not(.username) {
+        color: #e5e7eb !important;
+    }
+
+    body:not(.dark-mode) .leaderboard-table tbody td:not(.rank-badge):not(.username) {
+        color: #374151 !important;
     }
 
     .leaderboard-table tbody tr:hover {
@@ -417,12 +444,23 @@
 
     /* Bottom text */
     .leaderboard-card .text-center.mt-3 small {
-        color: #9ca3af;
-        font-weight: 500;
+        color: #d1d5db !important;
+        font-weight: 600 !important;
+        font-size: 0.95rem !important;
     }
 
     body:not(.dark-mode) .leaderboard-card .text-center.mt-3 small {
-        color: #6b7280;
+        color: #6b7280 !important;
+    }
+
+    .leaderboard-card .text-center.mt-3 {
+        padding: 15px 0;
+        border-top: 1px solid rgba(179, 136, 255, 0.2);
+        margin-top: 0 !important;
+    }
+
+    body:not(.dark-mode) .leaderboard-card .text-center.mt-3 {
+        border-top: 1px solid #e5e7eb;
     }
 
     @media (max-width: 768px) {

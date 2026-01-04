@@ -119,7 +119,7 @@ def logout():
 def settings():
     """
     User settings page.
-    Allows users to configure email notification preferences.
+    Allows users to configure email notification preferences, timezone, and language.
     """
     if request.method == 'POST':
         try:
@@ -127,6 +127,11 @@ def settings():
             current_user.email_notifications_enabled = request.form.get('email_notifications_enabled') == 'on'
             current_user.reminder_time = request.form.get('reminder_time', '09:00')
             current_user.reminder_days = request.form.get('reminder_days', 'all')
+
+            # Update language
+            language = request.form.get('language', 'en')
+            if language in ['en', 'es']:  # Validate language choice
+                current_user.language = language
 
             # Update timezone
             timezone = request.form.get('timezone', 'UTC')

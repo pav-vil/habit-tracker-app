@@ -2,190 +2,538 @@
 
 {% block title %}Settings - HabitFlow{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Page Header */
+    .page-header {
+        margin-bottom: 40px;
+    }
+
+    .page-title {
+        font-size: 2.8rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #b388ff, #7c3aed);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 12px;
+        letter-spacing: 0.5px;
+    }
+
+    body:not(.dark-mode) .page-title {
+        background: linear-gradient(135deg, #7c3aed, #a78bfa);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .page-subtitle {
+        color: #d1d5db;
+        font-size: 1.2rem;
+        font-weight: 500;
+    }
+
+    body:not(.dark-mode) .page-subtitle {
+        color: #6b7280;
+    }
+
+    /* Settings Card */
+    .settings-card {
+        background: linear-gradient(145deg, #2d3748 0%, #1a202c 100%);
+        border: 2px solid rgba(179, 136, 255, 0.4);
+        border-radius: 20px;
+        padding: 35px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.7), 0 0 25px rgba(124, 58, 237, 0.3);
+        margin-bottom: 30px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .settings-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #7c3aed, #b388ff, #7c3aed);
+        background-size: 200% 100%;
+        animation: shimmer 3s linear infinite;
+    }
+
+    @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+    }
+
+    body:not(.dark-mode) .settings-card {
+        background: linear-gradient(145deg, #ffffff 0%, #faf5ff 100%);
+        border: 2px solid #e5e7eb;
+        box-shadow: 0 10px 35px rgba(124, 58, 237, 0.12);
+    }
+
+    .card-header-custom {
+        background: transparent;
+        border-bottom: 2px solid rgba(179, 136, 255, 0.3);
+        padding-bottom: 20px;
+        margin-bottom: 30px;
+    }
+
+    body:not(.dark-mode) .card-header-custom {
+        border-bottom-color: #e5e7eb;
+    }
+
+    .card-header-custom h2 {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: #f9fafb;
+        margin: 0;
+        letter-spacing: 0.3px;
+    }
+
+    body:not(.dark-mode) .card-header-custom h2 {
+        color: #1f2937;
+    }
+
+    /* Section Headers */
+    .section-header {
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: #f9fafb;
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    body:not(.dark-mode) .section-header {
+        color: #1f2937;
+    }
+
+    /* Form Labels */
+    .form-label {
+        color: #e5e7eb !important;
+        font-weight: 700 !important;
+        font-size: 1.05rem !important;
+        margin-bottom: 10px !important;
+        letter-spacing: 0.3px;
+    }
+
+    body:not(.dark-mode) .form-label {
+        color: #1f2937 !important;
+    }
+
+    /* Form Controls */
+    .form-select, .form-control {
+        background: rgba(45, 55, 72, 0.6) !important;
+        border: 2px solid rgba(179, 136, 255, 0.3) !important;
+        color: #f9fafb !important;
+        padding: 12px 16px !important;
+        font-size: 1rem !important;
+        border-radius: 12px !important;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+
+    body:not(.dark-mode) .form-select,
+    body:not(.dark-mode) .form-control {
+        background: white !important;
+        border: 2px solid #d1d5db !important;
+        color: #1f2937 !important;
+    }
+
+    .form-select:focus, .form-control:focus {
+        border-color: #b388ff !important;
+        box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2) !important;
+        background: rgba(45, 55, 72, 0.8) !important;
+    }
+
+    body:not(.dark-mode) .form-select:focus,
+    body:not(.dark-mode) .form-control:focus {
+        background: white !important;
+        box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1) !important;
+    }
+
+    .form-select option {
+        background: #1a202c;
+        color: #f9fafb;
+    }
+
+    body:not(.dark-mode) .form-select option {
+        background: white;
+        color: #1f2937;
+    }
+
+    /* Form Text */
+    .form-text, small.text-muted {
+        color: #9ca3af !important;
+        font-size: 0.9rem !important;
+        margin-top: 8px !important;
+        line-height: 1.5;
+    }
+
+    body:not(.dark-mode) .form-text,
+    body:not(.dark-mode) small.text-muted {
+        color: #6b7280 !important;
+    }
+
+    /* Form Switches */
+    .form-check-label {
+        color: #e5e7eb !important;
+        font-weight: 600 !important;
+        font-size: 1.05rem !important;
+        cursor: pointer;
+    }
+
+    body:not(.dark-mode) .form-check-label {
+        color: #1f2937 !important;
+    }
+
+    .form-check-label strong {
+        font-weight: 700;
+    }
+
+    .form-check-input {
+        width: 3rem !important;
+        height: 1.5rem !important;
+        cursor: pointer !important;
+        background-color: rgba(107, 114, 128, 0.3) !important;
+        border: 2px solid rgba(179, 136, 255, 0.3) !important;
+    }
+
+    .form-check-input:checked {
+        background-color: #7c3aed !important;
+        border-color: #b388ff !important;
+        box-shadow: 0 0 10px rgba(124, 58, 237, 0.5);
+    }
+
+    .form-check-input:focus {
+        border-color: #b388ff !important;
+        box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2) !important;
+    }
+
+    /* Dividers */
+    hr {
+        border-color: rgba(179, 136, 255, 0.2) !important;
+        margin: 30px 0 !important;
+    }
+
+    body:not(.dark-mode) hr {
+        border-color: #e5e7eb !important;
+    }
+
+    /* Submit Button */
+    .btn-primary {
+        background: linear-gradient(135deg, #7c3aed 0%, #b388ff 100%) !important;
+        border: none !important;
+        padding: 14px 28px !important;
+        font-size: 1.1rem !important;
+        font-weight: 700 !important;
+        border-radius: 12px !important;
+        box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4) !important;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(124, 58, 237, 0.6) !important;
+        background: linear-gradient(135deg, #6d28d9 0%, #a78bfa 100%) !important;
+    }
+
+    .btn-primary:active {
+        transform: translateY(0);
+    }
+
+    /* Account Info Card */
+    .account-info-card {
+        background: rgba(124, 58, 237, 0.1);
+        border: 2px solid rgba(179, 136, 255, 0.3);
+        border-radius: 15px;
+        padding: 20px;
+    }
+
+    body:not(.dark-mode) .account-info-card {
+        background: rgba(124, 58, 237, 0.05);
+        border: 2px solid #e5e7eb;
+    }
+
+    .account-info-card p {
+        color: #e5e7eb;
+        margin-bottom: 12px;
+    }
+
+    body:not(.dark-mode) .account-info-card p {
+        color: #1f2937;
+    }
+
+    .account-info-card strong {
+        color: #f9fafb;
+        font-weight: 700;
+    }
+
+    body:not(.dark-mode) .account-info-card strong {
+        color: #374151;
+    }
+
+    .badge {
+        padding: 6px 14px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        border-radius: 8px;
+    }
+
+    .badge.bg-success {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    }
+
+    /* Back Button */
+    .btn-outline-secondary {
+        background: transparent !important;
+        border: 2px solid rgba(179, 136, 255, 0.3) !important;
+        color: #d1d5db !important;
+        padding: 10px 20px !important;
+        border-radius: 10px !important;
+        font-weight: 600 !important;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-secondary:hover {
+        border-color: #b388ff !important;
+        color: #f9fafb !important;
+        background: rgba(124, 58, 237, 0.2) !important;
+    }
+
+    body:not(.dark-mode) .btn-outline-secondary {
+        border-color: #d1d5db !important;
+        color: #6b7280 !important;
+    }
+
+    body:not(.dark-mode) .btn-outline-secondary:hover {
+        border-color: #7c3aed !important;
+        color: #7c3aed !important;
+        background: rgba(124, 58, 237, 0.05) !important;
+    }
+
+    /* Section Groups */
+    .settings-section {
+        margin-bottom: 35px;
+    }
+
+    .settings-section:last-child {
+        margin-bottom: 0;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+        .page-title {
+            font-size: 2.2rem;
+        }
+
+        .settings-card {
+            padding: 25px 20px;
+        }
+
+        .form-check-input {
+            width: 2.5rem !important;
+            height: 1.3rem !important;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container content-container">
+<div class="container py-4">
+    <!-- Page Header -->
+    <div class="row page-header">
+        <div class="col-md-12">
+            <h1 class="page-title">⚙️ Settings</h1>
+            <p class="page-subtitle">Manage your notification preferences and account settings</p>
+            <a href="{{ url_for('habits.dashboard') }}" class="btn btn-outline-secondary btn-sm mt-2">← Back to Dashboard</a>
+        </div>
+    </div>
+
+    <!-- Settings Form -->
     <div class="row">
         <div class="col-lg-8 mx-auto">
-            <!-- Page Header -->
-            <div class="text-center mb-5">
-                <h1 class="display-5 mb-3">
-                    <span style="background: linear-gradient(135deg, var(--purple-vibrant), var(--purple-light));
-                                 -webkit-background-clip: text;
-                                 -webkit-text-fill-color: transparent;
-                                 background-clip: text;">
-                        ⚙️ Settings
-                    </span>
-                </h1>
-                <p class="text-muted">Manage your notification preferences</p>
-            </div>
-
-            <!-- Settings Card -->
-            <div class="card">
-                <div class="card-body p-4">
-                    <form method="POST" action="{{ url_for('auth.settings') }}">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-
-                        <!-- Email Notifications Section -->
-                        <div class="mb-5">
-                            <h4 class="mb-4" style="color: var(--text-secondary);">
-                                📧 Email Notifications
-                            </h4>
-
-                            <!-- Enable/Disable Notifications -->
-                            <div class="mb-4">
-                                <div class="form-check form-switch">
-                                    <input
-                                        class="form-check-input"
-                                        type="checkbox"
-                                        id="email_notifications_enabled"
-                                        name="email_notifications_enabled"
-                                        {% if current_user.email_notifications_enabled %}checked{% endif %}
-                                    >
-                                    <label class="form-check-label" for="email_notifications_enabled" style="color: var(--text-primary);">
-                                        <strong>Enable Email Notifications</strong>
-                                        <br>
-                                        <small class="text-muted">Receive daily habit reminders and payment notifications</small>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <hr class="my-4" style="border-color: rgba(179, 136, 255, 0.2);">
-
-                            <!-- Reminder Time -->
-                            <div class="mb-4">
-                                <label for="reminder_time" class="form-label">
-                                    ⏰ Daily Reminder Time
-                                </label>
-                                <input
-                                    type="time"
-                                    class="form-control"
-                                    id="reminder_time"
-                                    name="reminder_time"
-                                    value="{{ current_user.reminder_time }}"
-                                >
-                                <small class="text-muted">Choose what time you'd like to receive daily habit reminders</small>
-                            </div>
-
-                            <!-- Reminder Days -->
-                            <div class="mb-4">
-                                <label for="reminder_days" class="form-label">
-                                    📅 Reminder Days
-                                </label>
-                                <select class="form-select" id="reminder_days" name="reminder_days">
-                                    <option value="all" {% if current_user.reminder_days == 'all' %}selected{% endif %}>
-                                        Every Day
-                                    </option>
-                                    <option value="weekdays" {% if current_user.reminder_days == 'weekdays' %}selected{% endif %}>
-                                        Weekdays Only (Monday - Friday)
-                                    </option>
-                                    <option value="weekends" {% if current_user.reminder_days == 'weekends' %}selected{% endif %}>
-                                        Weekends Only (Saturday - Sunday)
-                                    </option>
-                                </select>
-                                <small class="text-muted">Choose when you'd like to receive reminders</small>
-                            </div>
-
-                            <hr class="my-4" style="border-color: rgba(179, 136, 255, 0.2);">
-
-                            <!-- Timezone -->
-                            <div class="mb-4">
-                                <label for="timezone" class="form-label">
-                                    🌍 Timezone
-                                </label>
-                                <select class="form-select" id="timezone" name="timezone">
-                                    <optgroup label="Common Timezones">
-                                        <option value="America/New_York" {% if current_user.timezone == 'America/New_York' %}selected{% endif %}>Eastern Time (US & Canada)</option>
-                                        <option value="America/Chicago" {% if current_user.timezone == 'America/Chicago' %}selected{% endif %}>Central Time (US & Canada)</option>
-                                        <option value="America/Denver" {% if current_user.timezone == 'America/Denver' %}selected{% endif %}>Mountain Time (US & Canada)</option>
-                                        <option value="America/Los_Angeles" {% if current_user.timezone == 'America/Los_Angeles' %}selected{% endif %}>Pacific Time (US & Canada)</option>
-                                        <option value="America/Anchorage" {% if current_user.timezone == 'America/Anchorage' %}selected{% endif %}>Alaska Time (US)</option>
-                                        <option value="Pacific/Honolulu" {% if current_user.timezone == 'Pacific/Honolulu' %}selected{% endif %}>Hawaii Time (US)</option>
-                                    </optgroup>
-                                    <optgroup label="Europe">
-                                        <option value="Europe/London" {% if current_user.timezone == 'Europe/London' %}selected{% endif %}>London (GMT/BST)</option>
-                                        <option value="Europe/Paris" {% if current_user.timezone == 'Europe/Paris' %}selected{% endif %}>Paris (CET/CEST)</option>
-                                        <option value="Europe/Berlin" {% if current_user.timezone == 'Europe/Berlin' %}selected{% endif %}>Berlin (CET/CEST)</option>
-                                        <option value="Europe/Rome" {% if current_user.timezone == 'Europe/Rome' %}selected{% endif %}>Rome (CET/CEST)</option>
-                                        <option value="Europe/Madrid" {% if current_user.timezone == 'Europe/Madrid' %}selected{% endif %}>Madrid (CET/CEST)</option>
-                                        <option value="Europe/Athens" {% if current_user.timezone == 'Europe/Athens' %}selected{% endif %}>Athens (EET/EEST)</option>
-                                        <option value="Europe/Moscow" {% if current_user.timezone == 'Europe/Moscow' %}selected{% endif %}>Moscow (MSK)</option>
-                                    </optgroup>
-                                    <optgroup label="Asia">
-                                        <option value="Asia/Dubai" {% if current_user.timezone == 'Asia/Dubai' %}selected{% endif %}>Dubai (GST)</option>
-                                        <option value="Asia/Kolkata" {% if current_user.timezone == 'Asia/Kolkata' %}selected{% endif %}>India (IST)</option>
-                                        <option value="Asia/Bangkok" {% if current_user.timezone == 'Asia/Bangkok' %}selected{% endif %}>Bangkok (ICT)</option>
-                                        <option value="Asia/Singapore" {% if current_user.timezone == 'Asia/Singapore' %}selected{% endif %}>Singapore (SGT)</option>
-                                        <option value="Asia/Hong_Kong" {% if current_user.timezone == 'Asia/Hong_Kong' %}selected{% endif %}>Hong Kong (HKT)</option>
-                                        <option value="Asia/Shanghai" {% if current_user.timezone == 'Asia/Shanghai' %}selected{% endif %}>China (CST)</option>
-                                        <option value="Asia/Tokyo" {% if current_user.timezone == 'Asia/Tokyo' %}selected{% endif %}>Tokyo (JST)</option>
-                                        <option value="Asia/Seoul" {% if current_user.timezone == 'Asia/Seoul' %}selected{% endif %}>Seoul (KST)</option>
-                                    </optgroup>
-                                    <optgroup label="Australia & Pacific">
-                                        <option value="Australia/Perth" {% if current_user.timezone == 'Australia/Perth' %}selected{% endif %}>Perth (AWST)</option>
-                                        <option value="Australia/Sydney" {% if current_user.timezone == 'Australia/Sydney' %}selected{% endif %}>Sydney (AEST/AEDT)</option>
-                                        <option value="Australia/Melbourne" {% if current_user.timezone == 'Australia/Melbourne' %}selected{% endif %}>Melbourne (AEST/AEDT)</option>
-                                        <option value="Pacific/Auckland" {% if current_user.timezone == 'Pacific/Auckland' %}selected{% endif %}>Auckland (NZST/NZDT)</option>
-                                    </optgroup>
-                                    <optgroup label="Americas">
-                                        <option value="America/Toronto" {% if current_user.timezone == 'America/Toronto' %}selected{% endif %}>Toronto (EST/EDT)</option>
-                                        <option value="America/Mexico_City" {% if current_user.timezone == 'America/Mexico_City' %}selected{% endif %}>Mexico City (CST/CDT)</option>
-                                        <option value="America/Sao_Paulo" {% if current_user.timezone == 'America/Sao_Paulo' %}selected{% endif %}>São Paulo (BRT/BRST)</option>
-                                        <option value="America/Buenos_Aires" {% if current_user.timezone == 'America/Buenos_Aires' %}selected{% endif %}>Buenos Aires (ART)</option>
-                                    </optgroup>
-                                    <optgroup label="Africa">
-                                        <option value="Africa/Cairo" {% if current_user.timezone == 'Africa/Cairo' %}selected{% endif %}>Cairo (EET/EEST)</option>
-                                        <option value="Africa/Johannesburg" {% if current_user.timezone == 'Africa/Johannesburg' %}selected{% endif %}>Johannesburg (SAST)</option>
-                                        <option value="Africa/Lagos" {% if current_user.timezone == 'Africa/Lagos' %}selected{% endif %}>Lagos (WAT)</option>
-                                    </optgroup>
-                                    <optgroup label="UTC">
-                                        <option value="UTC" {% if current_user.timezone == 'UTC' %}selected{% endif %}>UTC (Coordinated Universal Time)</option>
-                                    </optgroup>
-                                </select>
-                                <small class="text-muted">Set your timezone for accurate daily resets and reminders</small>
-                            </div>
-                        </div>
-
-                        <!-- Account Information Section -->
-                        <div class="mb-4">
-                            <h4 class="mb-3" style="color: var(--text-secondary);">
-                                👤 Account Information
-                            </h4>
-                            <div class="p-3" style="background: var(--bg-main); border-radius: 10px;">
-                                <p class="mb-2"><strong>Email:</strong> {{ current_user.email }}</p>
-                                <p class="mb-2">
-                                    <strong>Subscription:</strong>
-                                    {% if current_user.subscription_status == 'lifetime' %}
-                                        <span class="badge bg-success">Lifetime Premium</span>
-                                    {% elif current_user.subscription_status in ['monthly', 'annual'] %}
-                                        <span class="badge bg-success">{{ current_user.subscription_status|title }} Premium</span>
-                                    {% else %}
-                                        <span class="badge" style="background: var(--purple-medium);">Free Plan</span>
-                                    {% endif %}
-                                </p>
-                                <p class="mb-0">
-                                    <strong>Habit Limit:</strong>
-                                    {% if current_user.is_premium_active() %}
-                                        <span style="color: var(--text-secondary);">Unlimited</span>
-                                    {% else %}
-                                        {{ current_user.habit_limit }} habits
-                                    {% endif %}
-                                </p>
-                            </div>
-                        </div>
-
-                        <!-- Save Button -->
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary btn-lg">
-                                💾 Save Settings
-                            </button>
-                        </div>
-                    </form>
+            <div class="settings-card">
+                <div class="card-header-custom">
+                    <h2>Notification Settings</h2>
                 </div>
+
+                <form method="POST" action="{{ url_for('auth.settings') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+                    <!-- Email Notifications Section -->
+                    <div class="settings-section">
+                        <h4 class="section-header">
+                            <span>📧</span>
+                            <span>Email Notifications</span>
+                        </h4>
+
+                        <!-- Enable/Disable Notifications -->
+                        <div class="mb-4">
+                            <div class="form-check form-switch">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    id="email_notifications_enabled"
+                                    name="email_notifications_enabled"
+                                    role="switch"
+                                    {% if current_user.email_notifications_enabled %}checked{% endif %}
+                                >
+                                <label class="form-check-label" for="email_notifications_enabled">
+                                    <strong>Enable Email Notifications</strong>
+                                    <br>
+                                    <small class="text-muted">Receive daily habit reminders and payment notifications</small>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Reminder Time -->
+                    <div class="settings-section">
+                        <label for="reminder_time" class="form-label">
+                            ⏰ Daily Reminder Time
+                        </label>
+                        <input
+                            type="time"
+                            class="form-control"
+                            id="reminder_time"
+                            name="reminder_time"
+                            value="{{ current_user.reminder_time }}"
+                        >
+                        <small class="text-muted">Choose what time you'd like to receive daily habit reminders</small>
+                    </div>
+
+                    <hr>
+
+                    <!-- Reminder Days -->
+                    <div class="settings-section">
+                        <label for="reminder_days" class="form-label">
+                            📅 Reminder Days
+                        </label>
+                        <select class="form-select" id="reminder_days" name="reminder_days">
+                            <option value="all" {% if current_user.reminder_days == 'all' %}selected{% endif %}>
+                                Every Day
+                            </option>
+                            <option value="weekdays" {% if current_user.reminder_days == 'weekdays' %}selected{% endif %}>
+                                Weekdays Only (Monday - Friday)
+                            </option>
+                            <option value="weekends" {% if current_user.reminder_days == 'weekends' %}selected{% endif %}>
+                                Weekends Only (Saturday - Sunday)
+                            </option>
+                        </select>
+                        <small class="text-muted">Choose when you'd like to receive reminders</small>
+                    </div>
+
+                    <hr>
+
+                    <!-- Timezone -->
+                    <div class="settings-section">
+                        <label for="timezone" class="form-label">
+                            🌍 Timezone
+                        </label>
+                        <select class="form-select" id="timezone" name="timezone">
+                            <optgroup label="Common Timezones">
+                                <option value="America/New_York" {% if current_user.timezone == 'America/New_York' %}selected{% endif %}>Eastern Time (US & Canada)</option>
+                                <option value="America/Chicago" {% if current_user.timezone == 'America/Chicago' %}selected{% endif %}>Central Time (US & Canada)</option>
+                                <option value="America/Denver" {% if current_user.timezone == 'America/Denver' %}selected{% endif %}>Mountain Time (US & Canada)</option>
+                                <option value="America/Los_Angeles" {% if current_user.timezone == 'America/Los_Angeles' %}selected{% endif %}>Pacific Time (US & Canada)</option>
+                                <option value="America/Anchorage" {% if current_user.timezone == 'America/Anchorage' %}selected{% endif %}>Alaska Time (US)</option>
+                                <option value="Pacific/Honolulu" {% if current_user.timezone == 'Pacific/Honolulu' %}selected{% endif %}>Hawaii Time (US)</option>
+                            </optgroup>
+                            <optgroup label="Europe">
+                                <option value="Europe/London" {% if current_user.timezone == 'Europe/London' %}selected{% endif %}>London (GMT/BST)</option>
+                                <option value="Europe/Paris" {% if current_user.timezone == 'Europe/Paris' %}selected{% endif %}>Paris (CET/CEST)</option>
+                                <option value="Europe/Berlin" {% if current_user.timezone == 'Europe/Berlin' %}selected{% endif %}>Berlin (CET/CEST)</option>
+                                <option value="Europe/Rome" {% if current_user.timezone == 'Europe/Rome' %}selected{% endif %}>Rome (CET/CEST)</option>
+                                <option value="Europe/Madrid" {% if current_user.timezone == 'Europe/Madrid' %}selected{% endif %}>Madrid (CET/CEST)</option>
+                                <option value="Europe/Athens" {% if current_user.timezone == 'Europe/Athens' %}selected{% endif %}>Athens (EET/EEST)</option>
+                                <option value="Europe/Moscow" {% if current_user.timezone == 'Europe/Moscow' %}selected{% endif %}>Moscow (MSK)</option>
+                            </optgroup>
+                            <optgroup label="Asia">
+                                <option value="Asia/Dubai" {% if current_user.timezone == 'Asia/Dubai' %}selected{% endif %}>Dubai (GST)</option>
+                                <option value="Asia/Kolkata" {% if current_user.timezone == 'Asia/Kolkata' %}selected{% endif %}>India (IST)</option>
+                                <option value="Asia/Bangkok" {% if current_user.timezone == 'Asia/Bangkok' %}selected{% endif %}>Bangkok (ICT)</option>
+                                <option value="Asia/Singapore" {% if current_user.timezone == 'Asia/Singapore' %}selected{% endif %}>Singapore (SGT)</option>
+                                <option value="Asia/Hong_Kong" {% if current_user.timezone == 'Asia/Hong_Kong' %}selected{% endif %}>Hong Kong (HKT)</option>
+                                <option value="Asia/Shanghai" {% if current_user.timezone == 'Asia/Shanghai' %}selected{% endif %}>China (CST)</option>
+                                <option value="Asia/Tokyo" {% if current_user.timezone == 'Asia/Tokyo' %}selected{% endif %}>Tokyo (JST)</option>
+                                <option value="Asia/Seoul" {% if current_user.timezone == 'Asia/Seoul' %}selected{% endif %}>Seoul (KST)</option>
+                            </optgroup>
+                            <optgroup label="Australia & Pacific">
+                                <option value="Australia/Perth" {% if current_user.timezone == 'Australia/Perth' %}selected{% endif %}>Perth (AWST)</option>
+                                <option value="Australia/Sydney" {% if current_user.timezone == 'Australia/Sydney' %}selected{% endif %}>Sydney (AEST/AEDT)</option>
+                                <option value="Australia/Melbourne" {% if current_user.timezone == 'Australia/Melbourne' %}selected{% endif %}>Melbourne (AEST/AEDT)</option>
+                                <option value="Pacific/Auckland" {% if current_user.timezone == 'Pacific/Auckland' %}selected{% endif %}>Auckland (NZST/NZDT)</option>
+                            </optgroup>
+                            <optgroup label="Americas">
+                                <option value="America/Toronto" {% if current_user.timezone == 'America/Toronto' %}selected{% endif %}>Toronto (EST/EDT)</option>
+                                <option value="America/Mexico_City" {% if current_user.timezone == 'America/Mexico_City' %}selected{% endif %}>Mexico City (CST/CDT)</option>
+                                <option value="America/Sao_Paulo" {% if current_user.timezone == 'America/Sao_Paulo' %}selected{% endif %}>São Paulo (BRT/BRST)</option>
+                                <option value="America/Buenos_Aires" {% if current_user.timezone == 'America/Buenos_Aires' %}selected{% endif %}>Buenos Aires (ART)</option>
+                            </optgroup>
+                            <optgroup label="Africa">
+                                <option value="Africa/Cairo" {% if current_user.timezone == 'Africa/Cairo' %}selected{% endif %}>Cairo (EET/EEST)</option>
+                                <option value="Africa/Johannesburg" {% if current_user.timezone == 'Africa/Johannesburg' %}selected{% endif %}>Johannesburg (SAST)</option>
+                                <option value="Africa/Lagos" {% if current_user.timezone == 'Africa/Lagos' %}selected{% endif %}>Lagos (WAT)</option>
+                            </optgroup>
+                            <optgroup label="UTC">
+                                <option value="UTC" {% if current_user.timezone == 'UTC' %}selected{% endif %}>UTC (Coordinated Universal Time)</option>
+                            </optgroup>
+                        </select>
+                        <small class="text-muted">Set your timezone for accurate daily resets and reminders</small>
+                    </div>
+
+                    <hr>
+
+                    <!-- Account Information Section -->
+                    <div class="settings-section">
+                        <h4 class="section-header">
+                            <span>👤</span>
+                            <span>Account Information</span>
+                        </h4>
+                        <div class="account-info-card">
+                            <p><strong>Email:</strong> {{ current_user.email }}</p>
+                            <p>
+                                <strong>Subscription:</strong>
+                                {% if current_user.subscription_status == 'lifetime' %}
+                                    <span class="badge bg-success">Lifetime Premium</span>
+                                {% elif current_user.subscription_status in ['monthly', 'annual'] %}
+                                    <span class="badge bg-success">{{ current_user.subscription_status|title }} Premium</span>
+                                {% else %}
+                                    <span class="badge" style="background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);">Free Plan</span>
+                                {% endif %}
+                            </p>
+                            <p class="mb-0">
+                                <strong>Habit Limit:</strong>
+                                {% if current_user.is_premium_active() %}
+                                    <span style="color: #10b981;">Unlimited</span>
+                                {% else %}
+                                    {{ current_user.habit_limit }} habits
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Submit Button -->
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            💾 Save Settings
+                        </button>
+                    </div>
+                </form>
             </div>
 
             <!-- Additional Information -->
             <div class="text-center mt-4">
-                <p class="text-muted">
+                <p style="color: #9ca3af; font-size: 0.9rem;">
                     <small>
                         Payment notifications (receipts, failures, subscription changes) are sent regardless of daily reminder settings.
                     </small>
@@ -194,21 +542,4 @@
         </div>
     </div>
 </div>
-
-<style>
-    .form-check-input {
-        background-color: var(--bg-main);
-        border-color: rgba(179, 136, 255, 0.3);
-    }
-
-    .form-check-input:checked {
-        background-color: var(--purple-vibrant);
-        border-color: var(--purple-vibrant);
-    }
-
-    .form-check-input:focus {
-        box-shadow: 0 0 15px var(--glow-purple);
-        border-color: var(--text-secondary);
-    }
-</style>
 {% endblock %}

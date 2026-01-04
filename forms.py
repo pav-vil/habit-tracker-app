@@ -244,6 +244,16 @@ class SettingsForm(FlaskForm):
         render_kw={"class": "form-select"}
     )
 
+    language = SelectField(
+        'Language / Idioma',
+        choices=[
+            ('en', 'English'),
+            ('es', 'Español (Spanish)')
+        ],
+        validators=[DataRequired(message='Please select your language')],
+        render_kw={"class": "form-select"}
+    )
+
     dark_mode = BooleanField(
         'Dark Mode',
         render_kw={"class": "form-check-input"}

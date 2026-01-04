@@ -128,6 +128,7 @@ def auto_migrate_database(app, db):
                     ('last_reminder_sent', 'ALTER TABLE "user" ADD COLUMN last_reminder_sent DATE'),
                     ('account_deleted', 'ALTER TABLE "user" ADD COLUMN account_deleted BOOLEAN NOT NULL DEFAULT FALSE'),
                     ('deletion_scheduled_date', 'ALTER TABLE "user" ADD COLUMN deletion_scheduled_date TIMESTAMP'),
+                    ('language', 'ALTER TABLE "user" ADD COLUMN language VARCHAR(5) NOT NULL DEFAULT \'en\''),
                 ]
 
                 for column_name, sql in subscription_migrations:

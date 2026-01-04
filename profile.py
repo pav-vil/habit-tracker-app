@@ -97,7 +97,7 @@ def edit():
 def settings():
     """
     Consolidated settings page.
-    Manage timezone, dark mode, and newsletter subscription preferences.
+    Manage timezone, language, dark mode, and newsletter subscription preferences.
     """
     form = SettingsForm()
 
@@ -105,6 +105,7 @@ def settings():
         try:
             # Update user settings
             current_user.timezone = form.timezone.data
+            current_user.language = form.language.data
             current_user.dark_mode = form.dark_mode.data
             current_user.newsletter_subscribed = form.newsletter_subscribed.data
 
@@ -121,6 +122,7 @@ def settings():
     # Pre-fill form with current settings
     if request.method == 'GET':
         form.timezone.data = current_user.timezone
+        form.language.data = getattr(current_user, 'language', 'en')
         form.dark_mode.data = current_user.dark_mode
         form.newsletter_subscribed.data = current_user.newsletter_subscribed
 

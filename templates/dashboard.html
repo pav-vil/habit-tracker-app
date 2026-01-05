@@ -4,24 +4,288 @@
 
 {% block extra_css %}
 <style>
-    .stats-card {
-        background: var(--card-bg);
-        border-radius: 15px;
-        padding: 25px 20px;
-        text-align: center;
-        box-shadow: 0 4px 15px var(--shadow-color);
-        margin-bottom: 20px;
-        transition: all 0.3s ease;
+    /* iOS-Oriented Page Styling */
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+        background: linear-gradient(180deg, #faf5ff 0%, #f9fafb 50%, #ffffff 100%);
+        min-height: 100vh;
+    }
+
+    body.dark-mode {
+        background: linear-gradient(180deg, #1a1a1f 0%, #111115 50%, #0a0a0c 100%);
+    }
+
+    .container {
+        max-width: 1200px;
+        padding: 24px 20px;
+    }
+
+    @media (max-width: 768px) {
+        .container {
+            padding: 20px 16px;
+        }
+    }
+
+    /* iOS-Style Alert Banner */
+    .ios-alert-banner {
+        background: rgba(124, 58, 237, 0.08) !important;
+        backdrop-filter: blur(12px) saturate(180%);
+        -webkit-backdrop-filter: blur(12px) saturate(180%);
+        border: 1px solid rgba(124, 58, 237, 0.15) !important;
+        border-left: 3px solid #7c3aed !important;
+        border-radius: 16px !important;
+        padding: 14px 18px !important;
+        margin-top: 16px !important;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+        font-size: 0.9375rem;
+        line-height: 1.5;
+        color: rgba(107, 114, 128, 0.95);
+        box-shadow: 0 2px 8px rgba(124, 58, 237, 0.06);
+    }
+
+    body.dark-mode .ios-alert-banner {
+        background: rgba(124, 58, 237, 0.12) !important;
+        border-color: rgba(124, 58, 237, 0.25) !important;
+        color: rgba(209, 213, 219, 0.9);
+    }
+
+    .ios-alert-banner strong {
+        font-weight: 600;
+        color: #7c3aed;
+    }
+
+    body.dark-mode .ios-alert-banner strong {
+        color: #a78bfa;
+    }
+
+    /* iOS-Oriented Dashboard Header */
+    .dashboard-header {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 28px;
+        padding: 48px 40px;
+        margin-bottom: 32px;
         position: relative;
         overflow: hidden;
+        box-shadow:
+            0 1px 3px rgba(0, 0, 0, 0.04),
+            0 4px 12px rgba(124, 58, 237, 0.08),
+            0 16px 48px rgba(124, 58, 237, 0.06);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        animation: slideInDown 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    body:not(.dark-mode) .dashboard-header {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(24px) saturate(180%);
+        -webkit-backdrop-filter: blur(24px) saturate(180%);
+        border: 1px solid rgba(124, 58, 237, 0.12);
+    }
+
+    body.dark-mode .dashboard-header {
+        background: rgba(30, 30, 35, 0.75);
+        backdrop-filter: blur(24px) saturate(180%);
+        -webkit-backdrop-filter: blur(24px) saturate(180%);
+        border: 1px solid rgba(124, 58, 237, 0.2);
+    }
+
+    .dashboard-header:hover {
+        box-shadow:
+            0 1px 3px rgba(0, 0, 0, 0.06),
+            0 6px 16px rgba(124, 58, 237, 0.1),
+            0 20px 56px rgba(124, 58, 237, 0.08);
+        transform: translateY(-2px);
+    }
+
+    .dashboard-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg,
+            #7c3aed 0%,
+            #a78bfa 25%,
+            #c4b5fd 50%,
+            #a78bfa 75%,
+            #7c3aed 100%);
+        background-size: 200% 100%;
+        animation: shimmer 4s linear infinite;
+        border-radius: 28px 28px 0 0;
+    }
+
+    @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+    }
+
+    @keyframes slideInDown {
+        0% {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .dashboard-title {
+        font-size: 2.75rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #c4b5fd 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 12px;
+        letter-spacing: -0.5px;
+        line-height: 1.15;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    }
+
+    body:not(.dark-mode) .dashboard-title {
+        background: linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #b388ff 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .dashboard-subtitle {
+        font-size: 1.125rem;
+        color: rgba(107, 114, 128, 0.95);
+        font-weight: 500;
+        margin-bottom: 24px;
+        line-height: 1.6;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+        letter-spacing: -0.2px;
+    }
+
+    body.dark-mode .dashboard-subtitle {
+        color: rgba(209, 213, 219, 0.9);
+    }
+
+    .dashboard-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9375rem;
+        box-shadow:
+            0 2px 8px rgba(0, 0, 0, 0.08),
+            0 1px 2px rgba(0, 0, 0, 0.04);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+        letter-spacing: -0.2px;
+    }
+
+    .dashboard-badge:hover {
+        transform: scale(1.05);
+        box-shadow:
+            0 4px 12px rgba(0, 0, 0, 0.12),
+            0 2px 4px rgba(0, 0, 0, 0.06);
+    }
+
+    .dashboard-badge.premium {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        border: none;
+    }
+
+    .dashboard-badge.free {
+        background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+        color: white;
+        border: none;
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-header {
+            padding: 36px 28px;
+            border-radius: 24px;
+        }
+
+        .dashboard-title {
+            font-size: 2rem;
+        }
+
+        .dashboard-subtitle {
+            font-size: 1rem;
+        }
+
+        .dashboard-badge {
+            padding: 10px 20px;
+            font-size: 0.875rem;
+        }
+    }
+
+    /* iOS-Style Stats Cards */
+    .stats-card {
+        background: rgba(255, 255, 255, 0.75);
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
         border: 1px solid rgba(124, 58, 237, 0.1);
+        border-radius: 24px;
+        padding: 32px 24px;
+        text-align: center;
+        box-shadow:
+            0 1px 3px rgba(0, 0, 0, 0.04),
+            0 4px 12px rgba(124, 58, 237, 0.06),
+            0 12px 32px rgba(124, 58, 237, 0.04);
+        margin-bottom: 20px;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        animation: scaleIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        animation-fill-mode: backwards;
+    }
+
+    body:not(.dark-mode) .stats-card {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(24px) saturate(180%);
+        -webkit-backdrop-filter: blur(24px) saturate(180%);
+        border: 1px solid rgba(124, 58, 237, 0.08);
+        box-shadow:
+            0 1px 2px rgba(0, 0, 0, 0.03),
+            0 4px 8px rgba(124, 58, 237, 0.04),
+            0 12px 24px rgba(124, 58, 237, 0.03);
+    }
+
+    body.dark-mode .stats-card {
+        background: rgba(30, 30, 35, 0.75);
+        backdrop-filter: blur(24px) saturate(180%);
+        -webkit-backdrop-filter: blur(24px) saturate(180%);
+        border: 1px solid rgba(124, 58, 237, 0.2);
     }
 
     .stats-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(124, 58, 237, 0.15);
-        border-color: rgba(124, 58, 237, 0.3);
+        transform: translateY(-6px) scale(1.02);
+        box-shadow:
+            0 2px 4px rgba(0, 0, 0, 0.06),
+            0 8px 20px rgba(124, 58, 237, 0.1),
+            0 20px 48px rgba(124, 58, 237, 0.08);
+        border-color: rgba(124, 58, 237, 0.15);
     }
+
+    @keyframes scaleIn {
+        0% {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    /* Stagger animation delays for cards */
+    .stats-card:nth-child(1) { animation-delay: 0.1s; }
+    .stats-card:nth-child(2) { animation-delay: 0.2s; }
+    .stats-card:nth-child(3) { animation-delay: 0.3s; }
+    .stats-card:nth-child(4) { animation-delay: 0.4s; }
 
     .stats-card::before {
         content: '';
@@ -29,79 +293,280 @@
         top: 0;
         left: 0;
         right: 0;
-        height: 4px;
-        background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+        height: 3px;
+        background: linear-gradient(90deg,
+            #7c3aed 0%,
+            #a78bfa 25%,
+            #c4b5fd 50%,
+            #a78bfa 75%,
+            #7c3aed 100%);
+        background-size: 200% 100%;
+        animation: shimmer 3s linear infinite;
+        border-radius: 24px 24px 0 0;
     }
 
     .stats-icon {
-        font-size: 2.5rem;
-        margin-bottom: 12px;
+        font-size: 3rem;
+        margin-bottom: 16px;
         display: block;
-        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+        filter: drop-shadow(0 2px 6px rgba(124, 58, 237, 0.2));
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .stats-card:hover .stats-icon {
+        transform: scale(1.15) rotate(5deg);
     }
 
     .stats-number {
-        font-size: 2.8rem;
+        font-size: 3rem;
         font-weight: 700;
-        background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+        background: linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #c4b5fd 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        margin-bottom: 8px;
+        margin-bottom: 12px;
         display: block;
+        letter-spacing: -1.5px;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    }
+
+    body:not(.dark-mode) .stats-number {
+        background: linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #b388ff 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
 
     .stats-label {
-        color: var(--text-secondary);
-        font-size: 0.85rem;
+        color: rgba(75, 85, 99, 0.9);
+        font-size: 0.8125rem;
         text-transform: uppercase;
-        letter-spacing: 1.2px;
-        font-weight: 600;
+        letter-spacing: 1px;
+        font-weight: 700;
         margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    }
+
+    body.dark-mode .stats-label {
+        color: rgba(229, 231, 235, 0.8);
     }
 
     .stats-sublabel {
-        color: var(--text-muted);
-        font-size: 0.75rem;
-        margin-top: 5px;
-        font-weight: 400;
+        color: rgba(107, 114, 128, 0.8);
+        font-size: 0.8125rem;
+        margin-top: 10px;
+        font-weight: 500;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+        letter-spacing: -0.2px;
     }
 
-    /* Individual card accent colors */
+    body.dark-mode .stats-sublabel {
+        color: rgba(156, 163, 175, 0.8);
+    }
+
+    /* Individual card accent colors with shimmer */
     .stats-card-habits::before {
-        background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+        background: linear-gradient(90deg,
+            #7c3aed 0%,
+            #a78bfa 25%,
+            #c4b5fd 50%,
+            #a78bfa 75%,
+            #7c3aed 100%);
+        background-size: 200% 100%;
     }
 
     .stats-card-streaks::before {
-        background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+        background: linear-gradient(90deg,
+            #f59e0b 0%,
+            #fbbf24 25%,
+            #fcd34d 50%,
+            #fbbf24 75%,
+            #f59e0b 100%);
+        background-size: 200% 100%;
     }
 
     .stats-card-longest::before {
-        background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+        background: linear-gradient(90deg,
+            #10b981 0%,
+            #34d399 25%,
+            #6ee7b7 50%,
+            #34d399 75%,
+            #10b981 100%);
+        background-size: 200% 100%;
     }
 
     .stats-card-progress::before {
-        background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+        background: linear-gradient(90deg,
+            #3b82f6 0%,
+            #60a5fa 25%,
+            #93c5fd 50%,
+            #60a5fa 75%,
+            #3b82f6 100%);
+        background-size: 200% 100%;
     }
 
     @media (max-width: 767px) {
         .stats-card {
-            padding: 20px 15px;
+            padding: 28px 20px;
+            border-radius: 20px;
         }
 
         .stats-number {
-            font-size: 2.2rem;
+            font-size: 2.5rem;
         }
 
         .stats-icon {
-            font-size: 2rem;
+            font-size: 2.5rem;
+            margin-bottom: 12px;
         }
 
         .stats-label {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
+        }
+
+        .stats-sublabel {
+            font-size: 0.75rem;
         }
     }
 
+    /* iOS-Style Challenges Widget */
+    .challenges-widget {
+        background: rgba(255, 255, 255, 0.75);
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border: 1px solid rgba(124, 58, 237, 0.1);
+        border-radius: 24px;
+        box-shadow:
+            0 1px 3px rgba(0, 0, 0, 0.04),
+            0 4px 12px rgba(124, 58, 237, 0.06),
+            0 12px 32px rgba(124, 58, 237, 0.04);
+        overflow: hidden;
+        margin-bottom: 32px;
+        position: relative;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        animation: slideInUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s backwards;
+    }
+
+    body:not(.dark-mode) .challenges-widget {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(24px) saturate(180%);
+        -webkit-backdrop-filter: blur(24px) saturate(180%);
+        border: 1px solid rgba(124, 58, 237, 0.08);
+    }
+
+    body.dark-mode .challenges-widget {
+        background: rgba(30, 30, 35, 0.75);
+        backdrop-filter: blur(24px) saturate(180%);
+        -webkit-backdrop-filter: blur(24px) saturate(180%);
+        border: 1px solid rgba(124, 58, 237, 0.2);
+    }
+
+    @keyframes slideInUp {
+        0% {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .challenges-widget:hover {
+        box-shadow:
+            0 2px 4px rgba(0, 0, 0, 0.06),
+            0 8px 20px rgba(124, 58, 237, 0.1),
+            0 20px 48px rgba(124, 58, 237, 0.08);
+    }
+
+    .challenges-widget::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg,
+            #7c3aed 0%,
+            #a78bfa 25%,
+            #c4b5fd 50%,
+            #a78bfa 75%,
+            #7c3aed 100%);
+        background-size: 200% 100%;
+        animation: shimmer 3s linear infinite;
+        border-radius: 24px 24px 0 0;
+    }
+
+    .challenges-widget-header {
+        background: linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #b388ff 100%);
+        color: white;
+        padding: 24px 28px;
+        position: relative;
+    }
+
+    .challenges-widget-header h3 {
+        font-size: 1.375rem;
+        font-weight: 700;
+        margin: 0;
+        letter-spacing: -0.3px;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    }
+
+    .challenges-widget-header .btn-view-all {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        padding: 10px 20px;
+        border-radius: 16px;
+        font-weight: 600;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+        font-size: 0.875rem;
+        letter-spacing: -0.2px;
+    }
+
+    .challenges-widget-header .btn-view-all:hover {
+        background: rgba(255, 255, 255, 0.3);
+        border-color: rgba(255, 255, 255, 0.4);
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .challenges-widget-body {
+        padding: 0;
+    }
+
+    .challenge-item {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+        padding: 20px 28px;
+        border-bottom: 1px solid rgba(124, 58, 237, 0.08);
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body:not(.dark-mode) .challenge-item {
+        border-bottom-color: rgba(0, 0, 0, 0.06);
+    }
+
+    body.dark-mode .challenge-item {
+        border-bottom-color: rgba(124, 58, 237, 0.15);
+    }
+
+    .challenge-item:hover {
+        background: rgba(124, 58, 237, 0.06);
+        transform: translateX(4px);
+    }
+
+    body:not(.dark-mode) .challenge-item:hover {
+        background: rgba(124, 58, 237, 0.04);
+    }
+
+    .challenge-item:last-child {
+        border-bottom: none;
+    }
+
+    /* Habit Cards */
     .habit-card {
         background: var(--card-bg);
         border-radius: 15px;
@@ -460,59 +925,70 @@
         }
     }
 
-    /* Motivational Quote Card */
+    /* iOS-Style Motivational Quote Card */
     .quote-card {
-        background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
-        border-radius: 20px;
-        padding: 35px 40px;
-        margin-bottom: 30px;
-        box-shadow: 0 10px 30px rgba(124, 58, 237, 0.25);
+        background: linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #b388ff 100%);
+        border-radius: 24px;
+        padding: 36px 40px;
+        margin-bottom: 32px;
+        box-shadow:
+            0 2px 4px rgba(124, 58, 237, 0.12),
+            0 8px 20px rgba(124, 58, 237, 0.2),
+            0 16px 40px rgba(124, 58, 237, 0.15);
         position: relative;
         overflow: hidden;
-        transition: all 0.3s ease;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        animation: slideInUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s backwards;
     }
 
     .quote-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 15px 40px rgba(124, 58, 237, 0.35);
+        transform: translateY(-4px) scale(1.01);
+        box-shadow:
+            0 4px 8px rgba(124, 58, 237, 0.16),
+            0 12px 28px rgba(124, 58, 237, 0.24),
+            0 20px 48px rgba(124, 58, 237, 0.2);
     }
 
     .quote-card::before {
         content: '"';
         position: absolute;
         top: -20px;
-        left: 20px;
+        left: 24px;
         font-size: 120px;
         font-family: Georgia, serif;
-        color: rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.08);
         line-height: 1;
     }
 
     .quote-icon {
         font-size: 2.5rem;
-        margin-bottom: 15px;
+        margin-bottom: 16px;
         display: block;
-        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.2));
     }
 
     .quote-text {
-        font-size: 1.3rem;
-        line-height: 1.6;
+        font-size: 1.25rem;
+        line-height: 1.65;
         color: white;
         font-weight: 500;
         font-style: italic;
-        margin-bottom: 15px;
+        margin-bottom: 16px;
         position: relative;
         z-index: 1;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+        letter-spacing: -0.3px;
     }
 
     .quote-author {
-        font-size: 1rem;
-        color: rgba(255, 255, 255, 0.9);
+        font-size: 0.9375rem;
+        color: rgba(255, 255, 255, 0.95);
         font-weight: 600;
         text-align: right;
         position: relative;
         z-index: 1;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+        letter-spacing: -0.2px;
     }
 
     .quote-author::before {
@@ -520,39 +996,41 @@
     }
 
     .quote-label {
-        font-size: 0.75rem;
-        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.6875rem;
+        color: rgba(255, 255, 255, 0.85);
         text-transform: uppercase;
-        letter-spacing: 1.5px;
-        font-weight: 600;
-        margin-bottom: 10px;
+        letter-spacing: 1.2px;
+        font-weight: 700;
+        margin-bottom: 12px;
         display: flex;
         align-items: center;
         gap: 8px;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
     }
 
     .quote-refresh-icon {
-        font-size: 0.9rem;
-        opacity: 0.7;
+        font-size: 0.875rem;
+        opacity: 0.8;
     }
 
     @media (max-width: 768px) {
         .quote-card {
-            padding: 25px 25px;
+            padding: 28px 24px;
+            border-radius: 20px;
         }
 
         .quote-text {
-            font-size: 1.1rem;
+            font-size: 1.125rem;
         }
 
         .quote-author {
-            font-size: 0.9rem;
+            font-size: 0.875rem;
         }
 
         .quote-card::before {
             font-size: 80px;
-            top: -10px;
-            left: 10px;
+            top: -12px;
+            left: 16px;
         }
     }
 
@@ -658,39 +1136,71 @@
     }
 
     .over-limit-banner {
-        background: linear-gradient(135deg, rgba(255, 152, 0, 0.15), rgba(255, 193, 7, 0.15));
-        border: 2px solid rgba(255, 152, 0, 0.5);
-        border-radius: 15px;
-        padding: 25px;
-        margin-bottom: 30px;
-        box-shadow: 0 4px 20px rgba(255, 152, 0, 0.2), 0 0 20px rgba(255, 152, 0, 0.1);
+        background: linear-gradient(145deg, rgba(255, 152, 0, 0.15) 0%, rgba(255, 193, 7, 0.1) 100%);
+        border: 2px solid rgba(255, 152, 0, 0.4);
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 35px;
+        box-shadow: 0 8px 30px rgba(255, 152, 0, 0.25), 0 0 25px rgba(255, 152, 0, 0.15);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .over-limit-banner::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #f59e0b, #fbbf24, #fcd34d, #fbbf24, #f59e0b);
+        background-size: 200% 100%;
+        animation: shimmer 3s linear infinite;
+    }
+
+    body:not(.dark-mode) .over-limit-banner {
+        background: linear-gradient(145deg, rgba(255, 152, 0, 0.08) 0%, rgba(255, 193, 7, 0.05) 100%);
+        border: 2px solid rgba(255, 152, 0, 0.3);
     }
 
     .over-limit-banner h4 {
-        color: #FFA726;
-        font-weight: 600;
-        margin-bottom: 15px;
+        color: #fbbf24;
+        font-weight: 700;
+        font-size: 1.5rem;
+        margin-bottom: 18px;
+    }
+
+    body:not(.dark-mode) .over-limit-banner h4 {
+        color: #f59e0b;
     }
 
     .over-limit-banner p {
-        color: var(--text-primary);
+        color: #e5e7eb;
         margin-bottom: 15px;
         font-size: 1.05rem;
+        font-weight: 500;
+        line-height: 1.6;
+    }
+
+    body:not(.dark-mode) .over-limit-banner p {
+        color: #1f2937;
     }
 
     .over-limit-banner .btn-warning {
-        background: linear-gradient(135deg, #FF9800, #FFC107);
+        background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
         border: none;
         color: #000;
-        font-weight: 600;
-        box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+        font-weight: 700;
+        padding: 12px 24px;
+        box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4);
         transition: all 0.3s ease;
+        border-radius: 10px;
     }
 
     .over-limit-banner .btn-warning:hover {
-        background: linear-gradient(135deg, #F57C00, #FFB300);
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(255, 152, 0, 0.4);
+        background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(245, 158, 11, 0.5);
     }
 
     /* Why Section Styles */
@@ -1141,25 +1651,28 @@
 </div>
 
 <div class="container mt-4">
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <h1>Welcome back, {{ current_user.email }}! <span aria-hidden="true">👋</span></h1>
-            <p class="text-muted">
-                Track your habits and build consistency
-                {% if current_user.subscription_tier == 'premium' %}
-                    <span class="badge bg-success ms-2">💎 Premium Member</span>
-                {% else %}
-                    <span class="badge bg-secondary ms-2">Free Tier (3 habits max)</span>
-                {% endif %}
-            </p>
-
-            <!-- Inline Help Banner (Mobile) -->
-            {% if habits %}
-            <div class="alert alert-info d-md-none mt-3" role="alert" style="border-left: 4px solid #7c3aed; background: rgba(124, 58, 237, 0.1); border-radius: 8px;">
-                <strong>💡 Quick Tip:</strong> Swipe right on any habit card to complete it instantly! Swipe left to undo.
-            </div>
+    <!-- Enhanced Dashboard Header -->
+    <div class="dashboard-header">
+        <h1 class="dashboard-title">
+            Welcome back, {{ current_user.email.split('@')[0] }}! <span aria-hidden="true">👋</span>
+        </h1>
+        <p class="dashboard-subtitle">
+            Track your habits and build consistency. Your journey to better habits starts here.
+        </p>
+        <div>
+            {% if current_user.subscription_tier == 'premium' %}
+                <span class="dashboard-badge premium">💎 Premium Member</span>
+            {% else %}
+                <span class="dashboard-badge free">Free Tier (3 habits max)</span>
             {% endif %}
         </div>
+
+        <!-- Inline Help Banner (Mobile) -->
+        {% if habits %}
+        <div class="alert d-md-none ios-alert-banner" role="alert">
+            <strong>💡 Quick Tip:</strong> Swipe right on any habit card to complete it instantly! Swipe left to undo.
+        </div>
+        {% endif %}
     </div>
 
     <!-- Over Limit Warning Banner -->
@@ -1272,17 +1785,17 @@
     {% if active_challenges %}
     <div class="row mb-4">
         <div class="col-md-12">
-            <div class="card" style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 15px; box-shadow: 0 4px 15px var(--shadow-color);">
-                <div class="card-header" style="background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%); color: white; padding: 20px; border-radius: 15px 15px 0 0;">
+            <div class="challenges-widget">
+                <div class="challenges-widget-header">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h3 class="mb-0" style="font-size: 1.3rem; font-weight: 700;">🎯 Your Active Challenges</h3>
-                        <a href="{{ url_for('challenges.my_challenges') }}" class="btn btn-sm" style="background: rgba(255,255,255,0.2); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600;">View All</a>
+                        <h3>🎯 Your Active Challenges</h3>
+                        <a href="{{ url_for('challenges.my_challenges') }}" class="btn btn-sm btn-view-all">View All</a>
                     </div>
                 </div>
-                <div class="card-body" style="padding: 0;">
+                <div class="challenges-widget-body">
                     {% for item in active_challenges %}
-                    <a href="{{ url_for('challenges.detail', challenge_id=item.challenge.id) }}" style="text-decoration: none; color: inherit; display: block; padding: 20px; border-bottom: 1px solid var(--border-color); transition: background 0.2s;">
-                        <div class="d-flex align-items-center gap-3" onmouseover="this.parentElement.style.background='rgba(124, 58, 237, 0.05)'" onmouseout="this.parentElement.style.background='transparent'">
+                    <a href="{{ url_for('challenges.detail', challenge_id=item.challenge.id) }}" class="challenge-item">
+                        <div class="d-flex align-items-center gap-3">
                             <div style="font-size: 2.5rem;">{{ item.challenge.icon }}</div>
                             <div style="flex: 1;">
                                 <div style="font-weight: 600; font-size: 1.1rem; color: var(--text-primary); margin-bottom: 5px;">{{ item.challenge.name }}</div>

@@ -1,0 +1,283 @@
+{% extends "base.html" %}
+
+{% block title %}Add Period - HabitFlow{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* iOS-Oriented Form Styling */
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+        background: linear-gradient(180deg, #fce7f3 0%, #f9fafb 50%, #ffffff 100%);
+        min-height: 100vh;
+    }
+
+    body.dark-mode {
+        background: linear-gradient(180deg, #1a1a1f 0%, #111115 50%, #0a0a0c 100%);
+    }
+
+    .form-container {
+        max-width: 600px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+
+    .form-card {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(24px) saturate(180%);
+        -webkit-backdrop-filter: blur(24px) saturate(180%);
+        border: 1px solid rgba(236, 72, 153, 0.08);
+        border-radius: 24px;
+        padding: 40px;
+        box-shadow:
+            0 1px 2px rgba(0, 0, 0, 0.03),
+            0 4px 8px rgba(236, 72, 153, 0.04),
+            0 12px 24px rgba(236, 72, 153, 0.03);
+        position: relative;
+        overflow: hidden;
+        animation: scaleIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    body.dark-mode .form-card {
+        background: rgba(30, 30, 35, 0.75);
+        backdrop-filter: blur(24px) saturate(180%);
+        -webkit-backdrop-filter: blur(24px) saturate(180%);
+        border: 1px solid rgba(236, 72, 153, 0.2);
+    }
+
+    @keyframes scaleIn {
+        0% {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    .form-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg,
+            #ec4899 0%,
+            #f472b6 25%,
+            #fbcfe8 50%,
+            #f472b6 75%,
+            #ec4899 100%);
+        background-size: 200% 100%;
+        animation: shimmer 3s linear infinite;
+        border-radius: 24px 24px 0 0;
+    }
+
+    @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+    }
+
+    .form-header {
+        text-align: center;
+        margin-bottom: 32px;
+    }
+
+    .form-icon {
+        font-size: 3.5rem;
+        margin-bottom: 16px;
+        filter: drop-shadow(0 2px 8px rgba(236, 72, 153, 0.3));
+    }
+
+    .form-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 0 0 8px 0;
+        letter-spacing: -0.5px;
+    }
+
+    .form-subtitle {
+        font-size: 1rem;
+        color: var(--text-secondary);
+        margin: 0;
+    }
+
+    /* Form Elements */
+    .form-group {
+        margin-bottom: 24px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+        font-size: 0.9375rem;
+        display: block;
+    }
+
+    .form-control {
+        background: rgba(236, 72, 153, 0.05);
+        border: 1px solid rgba(236, 72, 153, 0.15);
+        color: var(--text-primary);
+        border-radius: 16px;
+        padding: 14px 18px;
+        font-size: 1rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        width: 100%;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    }
+
+    body.dark-mode .form-control {
+        background: rgba(236, 72, 153, 0.1);
+        border-color: rgba(236, 72, 153, 0.25);
+        color: #e5e7eb;
+    }
+
+    .form-control:focus {
+        background: rgba(236, 72, 153, 0.08);
+        border-color: #ec4899;
+        box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.1);
+        outline: none;
+    }
+
+    body.dark-mode .form-control:focus {
+        background: rgba(236, 72, 153, 0.15);
+    }
+
+    .form-text {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+        margin-top: 8px;
+        display: block;
+    }
+
+    /* Buttons */
+    .btn-primary {
+        background: linear-gradient(135deg, #ec4899 0%, #f472b6 100%);
+        color: white;
+        border: none;
+        padding: 16px 32px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 1rem;
+        box-shadow:
+            0 2px 8px rgba(236, 72, 153, 0.3),
+            0 1px 2px rgba(0, 0, 0, 0.04);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        width: 100%;
+        cursor: pointer;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px) scale(1.02);
+        box-shadow:
+            0 4px 12px rgba(236, 72, 153, 0.4),
+            0 2px 4px rgba(0, 0, 0, 0.06);
+    }
+
+    .btn-primary:active {
+        transform: translateY(0) scale(1);
+    }
+
+    .btn-secondary {
+        background: transparent;
+        color: var(--text-secondary);
+        border: none;
+        padding: 12px 24px;
+        border-radius: 16px;
+        font-weight: 600;
+        font-size: 0.9375rem;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+        width: 100%;
+        margin-top: 12px;
+    }
+
+    .btn-secondary:hover {
+        background: rgba(236, 72, 153, 0.05);
+        color: var(--text-primary);
+    }
+
+    /* Alert Messages */
+    .alert {
+        border-radius: 16px;
+        padding: 14px 18px;
+        margin-bottom: 24px;
+        border: none;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    }
+
+    .alert-danger {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+    }
+
+    body.dark-mode .alert-danger {
+        background: rgba(239, 68, 68, 0.15);
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+        .form-card {
+            padding: 28px 24px;
+        }
+
+        .form-title {
+            font-size: 1.75rem;
+        }
+
+        .form-icon {
+            font-size: 3rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-card">
+        <div class="form-header">
+            <div class="form-icon">🌸</div>
+            <h1 class="form-title">Add Period</h1>
+            <p class="form-subtitle">Track when your period started and ended</p>
+        </div>
+
+        <form method="POST">
+            {{ form.hidden_tag() }}
+
+            <div class="form-group">
+                {{ form.start_date.label(class="form-label") }}
+                {{ form.start_date(class="form-control") }}
+                {% if form.start_date.errors %}
+                    <div class="alert alert-danger mt-2">
+                        {% for error in form.start_date.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <small class="form-text">When did your period start?</small>
+            </div>
+
+            <div class="form-group">
+                {{ form.end_date.label(class="form-label") }}
+                {{ form.end_date(class="form-control") }}
+                {% if form.end_date.errors %}
+                    <div class="alert alert-danger mt-2">
+                        {% for error in form.end_date.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <small class="form-text">When did it end? (Leave blank if still ongoing)</small>
+            </div>
+
+            {{ form.submit(class="btn btn-primary") }}
+        </form>
+
+        <a href="{{ url_for('periods.dashboard') }}" class="btn-secondary">Cancel</a>
+    </div>
+</div>
+{% endblock %}

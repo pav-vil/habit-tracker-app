@@ -1895,55 +1895,268 @@
     </div>
     {% endif %}
 
-    <!-- Period Tracking Widget (conditional) -->
+    <!-- iOS-Style Cycle Tracker Widget -->
     {% if current_user.period_settings and current_user.period_settings.period_tracking_enabled and current_user.period_settings.show_on_dashboard %}
+    <style>
+        /* iOS Health App Cycle Tracker Styling */
+        .ios-cycle-widget {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border: 1px solid rgba(236, 72, 153, 0.08);
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow:
+                0 1px 2px rgba(0, 0, 0, 0.03),
+                0 4px 8px rgba(236, 72, 153, 0.04),
+                0 12px 24px rgba(236, 72, 153, 0.03);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            animation: scaleIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s backwards;
+        }
+
+        body.dark-mode .ios-cycle-widget {
+            background: rgba(30, 30, 35, 0.75);
+            border: 1px solid rgba(236, 72, 153, 0.2);
+        }
+
+        .ios-cycle-widget::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg,
+                #ec4899 0%,
+                #f472b6 25%,
+                #fbcfe8 50%,
+                #f472b6 75%,
+                #ec4899 100%);
+            background-size: 200% 100%;
+            animation: shimmer 3s linear infinite;
+            border-radius: 24px 24px 0 0;
+        }
+
+        .cycle-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .cycle-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.375rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0;
+            letter-spacing: -0.5px;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+        }
+
+        .cycle-icon {
+            font-size: 1.75rem;
+            filter: drop-shadow(0 2px 6px rgba(236, 72, 153, 0.3));
+        }
+
+        .cycle-manage-btn {
+            background: linear-gradient(135deg, #ec4899 0%, #f472b6 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            box-shadow: 0 2px 8px rgba(236, 72, 153, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .cycle-manage-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(236, 72, 153, 0.4);
+            color: white;
+        }
+
+        .cycle-phase-display {
+            background: rgba(236, 72, 153, 0.05);
+            border: 1px solid rgba(236, 72, 153, 0.1);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        body.dark-mode .cycle-phase-display {
+            background: rgba(236, 72, 153, 0.1);
+            border-color: rgba(236, 72, 153, 0.2);
+        }
+
+        .phase-emoji {
+            font-size: 3.5rem;
+            margin-bottom: 12px;
+            display: block;
+            filter: drop-shadow(0 2px 8px rgba(236, 72, 153, 0.3));
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .phase-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #ec4899;
+            margin-bottom: 4px;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+            letter-spacing: -0.3px;
+        }
+
+        .phase-subtitle {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .cycle-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .stat-card-ios {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(236, 72, 153, 0.08);
+            border-radius: 16px;
+            padding: 20px 16px;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body.dark-mode .stat-card-ios {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(236, 72, 153, 0.15);
+        }
+
+        .stat-card-ios:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(236, 72, 153, 0.12);
+        }
+
+        .stat-value-ios {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #ec4899;
+            margin-bottom: 6px;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+            letter-spacing: -1px;
+        }
+
+        .stat-label-ios {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+        }
+
+        .cycle-loading {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+
+        .cycle-empty-state {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .empty-message {
+            color: #ec4899;
+            font-size: 1rem;
+            margin-bottom: 16px;
+        }
+
+        .start-tracking-link {
+            color: #ec4899;
+            text-decoration: none;
+            font-weight: 600;
+            border-bottom: 2px solid #ec4899;
+            transition: all 0.2s ease;
+        }
+
+        .start-tracking-link:hover {
+            color: #be185d;
+            border-bottom-color: #be185d;
+        }
+
+        @media (max-width: 768px) {
+            .ios-cycle-widget {
+                padding: 20px;
+            }
+
+            .cycle-stats-grid {
+                gap: 8px;
+            }
+
+            .stat-card-ios {
+                padding: 16px 12px;
+            }
+
+            .stat-value-ios {
+                font-size: 1.75rem;
+            }
+
+            .stat-label-ios {
+                font-size: 0.6875rem;
+            }
+        }
+    </style>
+
     <div class="row mb-4">
         <div class="col-12">
-            <div class="period-widget" style="
-                background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
-                border: 2px solid #f9a8d4;
-                border-radius: 20px;
-                padding: 25px;
-                box-shadow: 0 4px 20px rgba(249, 168, 212, 0.2);
-                position: relative;
-                overflow: hidden;
-            ">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h4 style="color: #be185d; font-weight: 700; margin: 0;">
-                        🌸 Cycle Tracker
+            <div class="ios-cycle-widget period-widget">
+                <div class="cycle-header">
+                    <h4 class="cycle-title">
+                        <span class="cycle-icon">🌸</span>
+                        Cycle Tracker
                     </h4>
-                    <a href="{{ url_for('periods.settings') }}" class="btn btn-sm"
-                       style="background: linear-gradient(135deg, #ec4899 0%, #f472b6 100%); color: white; border-radius: 8px; padding: 8px 16px; font-weight: 600;">
-                        Manage
+                    <a href="{{ url_for('periods.dashboard') }}" class="cycle-manage-btn">
+                        View Details
                     </a>
                 </div>
 
                 <!-- Current Phase Display -->
-                <div id="currentPhase" class="mb-3" style="min-height: 50px;">
-                    <div class="text-center" style="color: var(--text-muted);">
-                        <span>Loading...</span>
+                <div id="currentPhase">
+                    <div class="cycle-loading">
+                        <span>Loading cycle data...</span>
                     </div>
                 </div>
 
                 <!-- Quick Stats -->
-                <div class="row text-center g-3">
-                    <div class="col-4">
-                        <div style="background: rgba(255, 255, 255, 0.7); padding: 15px; border-radius: 12px;">
-                            <div id="cycleDay" style="font-size: 1.8rem; font-weight: 700; color: #be185d;">--</div>
-                            <div style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 500;">Cycle Day</div>
-                        </div>
+                <div class="cycle-stats-grid">
+                    <div class="stat-card-ios">
+                        <div id="cycleDay" class="stat-value-ios">--</div>
+                        <div class="stat-label-ios">Cycle Day</div>
                     </div>
-                    <div class="col-4">
-                        <div style="background: rgba(255, 255, 255, 0.7); padding: 15px; border-radius: 12px;">
-                            <div id="daysUntil" style="font-size: 1.8rem; font-weight: 700; color: #be185d;">--</div>
-                            <div style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 500;">Days Until</div>
-                        </div>
+                    <div class="stat-card-ios">
+                        <div id="daysUntil" class="stat-value-ios">--</div>
+                        <div class="stat-label-ios">Days Until</div>
                     </div>
-                    <div class="col-4">
-                        <div style="background: rgba(255, 255, 255, 0.7); padding: 15px; border-radius: 12px;">
-                            <div id="avgCycle" style="font-size: 1.8rem; font-weight: 700; color: #be185d;">--</div>
-                            <div style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 500;">Avg Cycle</div>
-                        </div>
+                    <div class="stat-card-ios">
+                        <div id="avgCycle" class="stat-value-ios">--</div>
+                        <div class="stat-label-ios">Avg Cycle</div>
                     </div>
                 </div>
             </div>
@@ -2412,7 +2625,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 {% endif %}
 
-// Load period cycle phase data if widget exists
+// Load period cycle phase data if widget exists (iOS Health App Style)
 document.addEventListener('DOMContentLoaded', function() {
     const periodWidget = document.querySelector('.period-widget');
     if (periodWidget) {
@@ -2420,33 +2633,47 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Update current phase display
+                    // Update current phase display with iOS Health app style
                     const phaseDiv = document.getElementById('currentPhase');
+                    const phaseName = data.phase.charAt(0).toUpperCase() + data.phase.slice(1);
+
                     phaseDiv.innerHTML = `
-                        <div class="text-center p-3" style="background: ${data.color}20; border-radius: 15px; border: 2px solid ${data.color};">
-                            <div style="font-size: 2.5rem; margin-bottom: 8px;">${data.emoji}</div>
-                            <div style="font-weight: 700; color: ${data.color}; font-size: 1.2rem;">${data.phase_name}</div>
+                        <div class="cycle-phase-display">
+                            <span class="phase-emoji">${data.phase_emoji}</span>
+                            <div class="phase-name">${phaseName} Phase</div>
+                            <div class="phase-subtitle">Day ${data.cycle_day} of cycle</div>
                         </div>
                     `;
 
-                    // Update stats
-                    document.getElementById('cycleDay').innerHTML = `<div style="font-size: 1.8rem; font-weight: 700; color: #be185d;">${data.cycle_day || '--'}</div>`;
-                    document.getElementById('daysUntil').innerHTML = `<div style="font-size: 1.8rem; font-weight: 700; color: #be185d;">${data.days_until_period || '--'}</div>`;
-                    document.getElementById('avgCycle').innerHTML = `<div style="font-size: 1.8rem; font-weight: 700; color: #be185d;">${data.average_cycle || '--'} days</div>`;
+                    // Update stats with clean iOS styling
+                    document.getElementById('cycleDay').textContent = data.cycle_day || '--';
+                    document.getElementById('daysUntil').textContent = data.days_until_period || '--';
+                    document.getElementById('avgCycle').textContent = (data.average_cycle || '--') + (data.average_cycle ? ' days' : '');
                 } else {
-                    // Show error or no data state
+                    // Show iOS-style empty state
                     const phaseDiv = document.getElementById('currentPhase');
                     phaseDiv.innerHTML = `
-                        <div class="text-center p-3" style="background: rgba(236, 72, 153, 0.1); border-radius: 15px;">
-                            <div style="color: #be185d;">No cycle data yet. <a href="{{ url_for('periods.settings') }}" style="color: #ec4899; text-decoration: underline;">Start tracking</a></div>
+                        <div class="cycle-empty-state">
+                            <div class="empty-message">No cycle data yet.</div>
+                            <a href="{{ url_for('periods.add_cycle') }}" class="start-tracking-link">Start tracking</a>
                         </div>
                     `;
+
+                    // Reset stats
+                    document.getElementById('cycleDay').textContent = '--';
+                    document.getElementById('daysUntil').textContent = '--';
+                    document.getElementById('avgCycle').textContent = '--';
                 }
             })
             .catch(error => {
                 console.error('Error loading period phase data:', error);
                 const phaseDiv = document.getElementById('currentPhase');
-                phaseDiv.innerHTML = `<div class="text-center"><span style="color: #be185d;">Unable to load cycle data</span></div>`;
+                phaseDiv.innerHTML = `
+                    <div class="cycle-empty-state">
+                        <div class="empty-message">Unable to load cycle data</div>
+                        <a href="{{ url_for('periods.dashboard') }}" class="start-tracking-link">Try again</a>
+                    </div>
+                `;
             });
     }
 });

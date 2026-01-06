@@ -24,6 +24,7 @@ class User(UserMixin, db.Model):
     newsletter_subscribed = db.Column(db.Boolean, default=False, nullable=False)  # Newsletter subscription status
     dark_mode = db.Column(db.Boolean, default=False, nullable=False)  # Dark mode preference
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    is_admin = db.Column(db.Boolean, default=False, nullable=False, index=True)  # Admin privileges for payment management
 
     # Subscription fields (merged from both versions)
     subscription_tier = db.Column(db.String(20), default='free', nullable=False)  # 'free', 'monthly', 'annual', 'lifetime'
@@ -374,6 +375,49 @@ class Payment(db.Model):
 
     def __repr__(self):
         return f'<Payment user_id={self.user_id} provider={self.payment_provider} amount={self.amount} status={self.status}>'
+
+
+class PaymentRequest(db.Model):
+    """
+    Tracks manual payment requests (SINPE Móvil, bank transfers, etc.)
+    for admin approval and activation.
+    """
+    __tablename__ = "payment_request"
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+
+    # Request details
+    subscription_tier = db.Column(db.String(20), nullable=False)  # 'monthly', 'annual', 'lifetime'
+    amount = db.Column(db.Float, nullable=False)
+    currency = db.Column(db.String(3), default='CRC', nullable=False)  # Costa Rican Colón
+
+    # Payment method
+    payment_method = db.Column(db.String(50), nullable=False)  # 'sinpe_movil', 'bank_transfer', 'cash'
+
+    # Proof of payment
+    transaction_reference = db.Column(db.String(255), nullable=True)  # User-provided reference/receipt number
+    payment_proof_notes = db.Column(db.Text, nullable=True)  # User notes about the payment
+    phone_number = db.Column(db.String(20), nullable=True)  # SINPE Móvil phone number used
+
+    # Status tracking
+    status = db.Column(db.String(20), default='pending', nullable=False, index=True)  # 'pending', 'approved', 'rejected'
+
+    # Admin actions
+    reviewed_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)  # Admin who reviewed
+    reviewed_at = db.Column(db.DateTime, nullable=True)
+    admin_notes = db.Column(db.Text, nullable=True)  # Admin notes for rejection/approval
+
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    # Relationships
+    user = db.relationship('User', foreign_keys=[user_id], backref=db.backref('payment_requests', lazy='dynamic'))
+    reviewer = db.relationship('User', foreign_keys=[reviewed_by])
+
+    def __repr__(self):
+        return f'<PaymentRequest id={self.id} user_id={self.user_id} tier={self.subscription_tier} status={self.status}>'
 
 
 class AuditLog(db.Model):

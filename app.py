@@ -103,6 +103,10 @@ app.register_blueprint(subscription_bp, url_prefix='/subscription')
 from payments import payments_bp
 app.register_blueprint(payments_bp)
 
+# Import and register manual payment blueprint (SINPE Móvil)
+from manual_payment import manual_payment_bp
+app.register_blueprint(manual_payment_bp)
+
 # Import and register webhooks blueprint
 from webhooks import webhooks_bp
 app.register_blueprint(webhooks_bp, url_prefix='/webhooks')

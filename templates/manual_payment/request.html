@@ -1,0 +1,314 @@
+{% extends "base.html" %}
+
+{% block title %}Submit Payment - HabitFlow{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+        background: linear-gradient(180deg, #f3e8ff 0%, #f9fafb 50%, #ffffff 100%);
+        min-height: 100vh;
+    }
+
+    body.dark-mode {
+        background: linear-gradient(180deg, #1a1a1f 0%, #111115 50%, #0a0a0c 100%);
+    }
+
+    .form-container {
+        max-width: 700px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+
+    .form-card {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(24px) saturate(180%);
+        -webkit-backdrop-filter: blur(24px) saturate(180%);
+        border: 1px solid rgba(124, 58, 237, 0.08);
+        border-radius: 24px;
+        padding: 40px;
+        box-shadow:
+            0 4px 12px rgba(124, 58, 237, 0.08),
+            0 12px 32px rgba(124, 58, 237, 0.06);
+        animation: scaleIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    body.dark-mode .form-card {
+        background: rgba(30, 30, 35, 0.75);
+        border: 1px solid rgba(124, 58, 237, 0.2);
+    }
+
+    @keyframes scaleIn {
+        0% {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    .form-header {
+        text-align: center;
+        margin-bottom: 32px;
+    }
+
+    .form-icon {
+        font-size: 4rem;
+        margin-bottom: 16px;
+        filter: drop-shadow(0 2px 8px rgba(124, 58, 237, 0.3));
+    }
+
+    .form-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 0 0 12px 0;
+        letter-spacing: -0.5px;
+    }
+
+    .form-subtitle {
+        font-size: 1rem;
+        color: var(--text-secondary);
+    }
+
+    .payment-info {
+        background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 32px;
+        color: white;
+    }
+
+    .payment-info h3 {
+        font-size: 1.5rem;
+        margin-bottom: 16px;
+        font-weight: 700;
+    }
+
+    .payment-detail {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        font-size: 1.125rem;
+    }
+
+    .payment-detail:last-child {
+        margin-bottom: 0;
+        padding-top: 12px;
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+        font-weight: 700;
+        font-size: 1.5rem;
+    }
+
+    .sinpe-instructions {
+        background: rgba(16, 185, 129, 0.1);
+        border: 2px solid #10b981;
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 32px;
+    }
+
+    body.dark-mode .sinpe-instructions {
+        background: rgba(16, 185, 129, 0.15);
+    }
+
+    .sinpe-instructions h4 {
+        color: #10b981;
+        font-weight: 700;
+        margin-bottom: 16px;
+        font-size: 1.25rem;
+    }
+
+    .sinpe-instructions ol {
+        margin: 0;
+        padding-left: 20px;
+        color: var(--text-primary);
+        line-height: 1.8;
+    }
+
+    .form-group {
+        margin-bottom: 24px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+        font-size: 0.9375rem;
+        display: block;
+    }
+
+    .form-label.required::after {
+        content: ' *';
+        color: #ef4444;
+    }
+
+    .form-control {
+        background: rgba(124, 58, 237, 0.05);
+        border: 1px solid rgba(124, 58, 237, 0.15);
+        color: var(--text-primary);
+        border-radius: 16px;
+        padding: 14px 18px;
+        font-size: 1rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        width: 100%;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    }
+
+    body.dark-mode .form-control {
+        background: rgba(124, 58, 237, 0.1);
+        border-color: rgba(124, 58, 237, 0.25);
+        color: #e5e7eb;
+    }
+
+    .form-control:focus {
+        background: rgba(124, 58, 237, 0.08);
+        border-color: #7c3aed;
+        box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+        outline: none;
+    }
+
+    .form-text {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+        margin-top: 8px;
+    }
+
+    .btn-submit {
+        background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+        color: white;
+        border: none;
+        padding: 16px 32px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 1rem;
+        box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        width: 100%;
+        cursor: pointer;
+    }
+
+    .btn-submit:hover {
+        transform: scale(1.02);
+        box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);
+    }
+
+    .btn-cancel {
+        background: transparent;
+        color: var(--text-secondary);
+        border: none;
+        padding: 12px 24px;
+        border-radius: 16px;
+        font-weight: 600;
+        font-size: 0.9375rem;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+        width: 100%;
+        margin-top: 12px;
+    }
+
+    .btn-cancel:hover {
+        background: rgba(124, 58, 237, 0.05);
+        color: var(--text-primary);
+    }
+
+    @media (max-width: 768px) {
+        .form-card {
+            padding: 28px 24px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-card">
+        <div class="form-header">
+            <div class="form-icon">💳</div>
+            <h1 class="form-title">Submit Payment Confirmation</h1>
+            <p class="form-subtitle">{{ tier|title }} Subscription</p>
+        </div>
+
+        <!-- Payment Amount -->
+        <div class="payment-info">
+            <h3>Payment Amount</h3>
+            <div class="payment-detail">
+                <span>Plan:</span>
+                <span>{{ tier|title }}</span>
+            </div>
+            <div class="payment-detail">
+                <span>Amount:</span>
+                <span>₡{{ "{:,.0f}".format(pricing.crc) }} CRC</span>
+            </div>
+        </div>
+
+        <!-- SINPE Móvil Instructions -->
+        <div class="sinpe-instructions">
+            <h4>📱 How to Pay with SINPE Móvil</h4>
+            <ol>
+                <li>Open your banking app</li>
+                <li>Go to SINPE Móvil</li>
+                <li>Send <strong>₡{{ "{:,.0f}".format(pricing.crc) }}</strong> to: <strong>8888-8888</strong></li>
+                <li>Use reference: <strong>{{ current_user.email }}</strong></li>
+                <li>After payment, fill out the form below with your confirmation details</li>
+            </ol>
+        </div>
+
+        <!-- Payment Confirmation Form -->
+        <form method="POST">
+            <div class="form-group">
+                <label class="form-label required" for="payment_method">Payment Method</label>
+                <select name="payment_method" id="payment_method" class="form-control" required>
+                    <option value="sinpe_movil">SINPE Móvil</option>
+                    <option value="bank_transfer">Bank Transfer</option>
+                    <option value="cash">Cash Deposit</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="phone_group">
+                <label class="form-label required" for="phone_number">Your SINPE Móvil Phone Number</label>
+                <input type="tel" name="phone_number" id="phone_number" class="form-control"
+                       placeholder="8888-8888" pattern="[0-9]{4}-[0-9]{4}" required>
+                <small class="form-text">Format: 8888-8888</small>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label required" for="transaction_reference">Transaction Reference / Confirmation Number</label>
+                <input type="text" name="transaction_reference" id="transaction_reference" class="form-control"
+                       placeholder="e.g., 123456789" required>
+                <small class="form-text">You can find this in your payment confirmation</small>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="payment_proof_notes">Additional Notes (Optional)</label>
+                <textarea name="payment_proof_notes" id="payment_proof_notes" class="form-control"
+                          rows="3" placeholder="Any additional information about your payment..."></textarea>
+            </div>
+
+            <button type="submit" class="btn-submit">Submit Payment Confirmation</button>
+        </form>
+
+        <a href="{{ url_for('manual_payment.view_plans') }}" class="btn-cancel">Cancel</a>
+    </div>
+</div>
+
+<script>
+// Toggle phone number field based on payment method
+document.getElementById('payment_method').addEventListener('change', function() {
+    const phoneGroup = document.getElementById('phone_group');
+    const phoneInput = document.getElementById('phone_number');
+
+    if (this.value === 'sinpe_movil') {
+        phoneGroup.style.display = 'block';
+        phoneInput.required = true;
+    } else {
+        phoneGroup.style.display = 'none';
+        phoneInput.required = false;
+    }
+});
+</script>
+{% endblock %}

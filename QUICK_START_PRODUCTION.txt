@@ -1,0 +1,33 @@
+================================================================================
+QUICK START: Create Production User Account
+================================================================================
+
+ACCOUNT TO CREATE:
+  Email:    habitprueba@aol.co
+  Password: Prueba123
+
+================================================================================
+STEPS TO CREATE IN PRODUCTION (Render):
+================================================================================
+
+1. Go to: https://dashboard.render.com/
+
+2. Login and find your "habit-tracker-app" service
+
+3. Click "Shell" or "Console" in the left sidebar
+
+4. Copy and paste this command:
+
+   python create_production_user.py
+
+5. Wait for success message showing account details
+
+6. Test login at your production URL with:
+   - Email: habitprueba@aol.co
+   - Password: Prueba123
+
+================================================================================
+DONE!
+================================================================================
+
+For detailed instructions, see: PRODUCTION_USER_SETUP.md

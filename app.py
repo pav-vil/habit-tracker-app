@@ -126,6 +126,10 @@ app.register_blueprint(challenges_bp, url_prefix='/challenges')
 from gamification import gamification_bp
 app.register_blueprint(gamification_bp, url_prefix='/gamification')
 
+# Import and register admin blueprint
+from admin import admin_bp
+app.register_blueprint(admin_bp)
+
 @app.route('/')
 def home():
     """Home page"""

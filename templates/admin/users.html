@@ -1,0 +1,329 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - User Management | HabitFlow{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <!-- Admin Header -->
+    <div class="admin-header mb-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h1 class="admin-title">User Management</h1>
+                <p class="admin-subtitle">Manage users and premium subscriptions</p>
+            </div>
+            <div class="admin-badge">
+                <span class="badge bg-purple">Admin Panel</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="admin-card mb-4">
+        <form method="GET" action="{{ url_for('admin.users') }}" class="row g-3">
+            <div class="col-md-6">
+                <label for="search" class="form-label">Search by Email</label>
+                <input type="text"
+                       class="form-control"
+                       id="search"
+                       name="search"
+                       value="{{ search }}"
+                       placeholder="Enter email address...">
+            </div>
+            <div class="col-md-4">
+                <label for="tier" class="form-label">Filter by Tier</label>
+                <select class="form-select" id="tier" name="tier">
+                    <option value="">All Tiers</option>
+                    <option value="free" {% if tier_filter == 'free' %}selected{% endif %}>Free</option>
+                    <option value="monthly" {% if tier_filter == 'monthly' %}selected{% endif %}>Monthly</option>
+                    <option value="annual" {% if tier_filter == 'annual' %}selected{% endif %}>Annual</option>
+                    <option value="lifetime" {% if tier_filter == 'lifetime' %}selected{% endif %}>Lifetime</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">
+                    Search
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Users Table -->
+    <div class="admin-card">
+        <div class="table-responsive">
+            <table class="table admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Email</th>
+                        <th>Tier</th>
+                        <th>Status</th>
+                        <th>Admin</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td class="text-muted">#{{ user.id }}</td>
+                        <td>
+                            <a href="{{ url_for('admin.user_detail', user_id=user.id) }}" class="user-email-link">
+                                {{ user.email }}
+                            </a>
+                        </td>
+                        <td>
+                            {% if user.subscription_tier == 'lifetime' %}
+                                <span class="badge tier-lifetime">Lifetime</span>
+                            {% elif user.subscription_tier == 'annual' %}
+                                <span class="badge tier-annual">Annual</span>
+                            {% elif user.subscription_tier == 'monthly' %}
+                                <span class="badge tier-monthly">Monthly</span>
+                            {% else %}
+                                <span class="badge tier-free">Free</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.subscription_status == 'active' %}
+                                <span class="status-dot status-active"></span> Active
+                            {% elif user.subscription_status == 'cancelled' %}
+                                <span class="status-dot status-cancelled"></span> Cancelled
+                            {% elif user.subscription_status == 'expired' %}
+                                <span class="status-dot status-expired"></span> Expired
+                            {% else %}
+                                <span class="status-dot status-trial"></span> {{ user.subscription_status }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.is_admin %}
+                                <span class="badge bg-danger">Admin</span>
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-muted">
+                            {{ user.created_at.strftime('%Y-%m-%d') }}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('admin.user_detail', user_id=user.id) }}"
+                               class="btn btn-sm btn-outline-primary">
+                                View
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-4">
+                            No users found matching your criteria.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if pagination.pages > 1 %}
+        <nav aria-label="User pagination" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if pagination.has_prev %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('admin.users', page=pagination.prev_num, search=search, tier=tier_filter) }}">
+                        Previous
+                    </a>
+                </li>
+                {% endif %}
+
+                {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                    {% if page_num %}
+                        {% if page_num == pagination.page %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ page_num }}</span>
+                        </li>
+                        {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('admin.users', page=page_num, search=search, tier=tier_filter) }}">
+                                {{ page_num }}
+                            </a>
+                        </li>
+                        {% endif %}
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if pagination.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('admin.users', page=pagination.next_num, search=search, tier=tier_filter) }}">
+                        Next
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+
+        <div class="text-center text-muted mt-3">
+            Showing {{ users|length }} of {{ pagination.total }} users
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .admin-header {
+        padding: 20px 0;
+    }
+
+    .admin-title {
+        font-size: 2rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 5px;
+    }
+
+    .admin-subtitle {
+        color: var(--text-muted);
+        margin-bottom: 0;
+    }
+
+    .bg-purple {
+        background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+    }
+
+    .admin-card {
+        background: var(--card-bg);
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 4px 15px var(--shadow-color);
+    }
+
+    .admin-table {
+        color: var(--text-primary);
+        margin-bottom: 0;
+    }
+
+    .admin-table thead th {
+        border-bottom: 2px solid var(--border-color);
+        color: var(--text-secondary);
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        padding: 15px 12px;
+    }
+
+    .admin-table tbody td {
+        border-bottom: 1px solid var(--border-color);
+        padding: 15px 12px;
+        vertical-align: middle;
+    }
+
+    .admin-table tbody tr:hover {
+        background: rgba(124, 58, 237, 0.05);
+    }
+
+    .user-email-link {
+        color: var(--text-primary);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s;
+    }
+
+    .user-email-link:hover {
+        color: #7c3aed;
+    }
+
+    /* Tier badges */
+    .tier-lifetime {
+        background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+        color: #000;
+    }
+
+    .tier-annual {
+        background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+        color: #fff;
+    }
+
+    .tier-monthly {
+        background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+        color: #fff;
+    }
+
+    .tier-free {
+        background: var(--text-muted);
+        color: #fff;
+    }
+
+    /* Status dots */
+    .status-dot {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-right: 6px;
+    }
+
+    .status-active {
+        background: #10b981;
+        box-shadow: 0 0 6px rgba(16, 185, 129, 0.5);
+    }
+
+    .status-cancelled {
+        background: #ef4444;
+    }
+
+    .status-expired {
+        background: #6b7280;
+    }
+
+    .status-trial {
+        background: #f59e0b;
+    }
+
+    /* Pagination */
+    .pagination .page-link {
+        background: var(--card-bg);
+        border-color: var(--border-color);
+        color: var(--text-primary);
+    }
+
+    .pagination .page-link:hover {
+        background: rgba(124, 58, 237, 0.1);
+        border-color: #7c3aed;
+        color: #7c3aed;
+    }
+
+    .pagination .page-item.active .page-link {
+        background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+        border-color: #7c3aed;
+        color: #fff;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .admin-card {
+            padding: 15px;
+        }
+
+        .admin-table {
+            font-size: 0.875rem;
+        }
+
+        .admin-table thead th,
+        .admin-table tbody td {
+            padding: 10px 8px;
+        }
+    }
+</style>
+{% endblock %}

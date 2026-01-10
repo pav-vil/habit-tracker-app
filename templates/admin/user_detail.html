@@ -1,0 +1,403 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - {{ user.email }} | HabitFlow{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <!-- Back Button -->
+    <div class="mb-4">
+        <a href="{{ url_for('admin.users') }}" class="btn btn-outline-secondary">
+            &larr; Back to Users
+        </a>
+    </div>
+
+    <!-- User Header -->
+    <div class="admin-card mb-4">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+            <div>
+                <h1 class="user-email">{{ user.email }}</h1>
+                <p class="text-muted mb-0">User ID: #{{ user.id }} | Created: {{ user.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+                {% if user.subscription_tier == 'lifetime' %}
+                    <span class="badge tier-lifetime fs-6">Lifetime</span>
+                {% elif user.subscription_tier == 'annual' %}
+                    <span class="badge tier-annual fs-6">Annual</span>
+                {% elif user.subscription_tier == 'monthly' %}
+                    <span class="badge tier-monthly fs-6">Monthly</span>
+                {% else %}
+                    <span class="badge tier-free fs-6">Free</span>
+                {% endif %}
+
+                {% if user.is_admin %}
+                    <span class="badge bg-danger fs-6">Admin</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- User Details -->
+        <div class="col-lg-6 mb-4">
+            <div class="admin-card h-100">
+                <h2 class="section-title">User Details</h2>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <span class="detail-label">Email</span>
+                        <span class="detail-value">{{ user.email }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Timezone</span>
+                        <span class="detail-value">{{ user.timezone }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Language</span>
+                        <span class="detail-value">{{ user.language | upper }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Dark Mode</span>
+                        <span class="detail-value">{{ 'Enabled' if user.dark_mode else 'Disabled' }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Email Notifications</span>
+                        <span class="detail-value">{{ 'Enabled' if user.email_notifications_enabled else 'Disabled' }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Newsletter</span>
+                        <span class="detail-value">{{ 'Subscribed' if user.newsletter_subscribed else 'Not subscribed' }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Subscription Details -->
+        <div class="col-lg-6 mb-4">
+            <div class="admin-card h-100">
+                <h2 class="section-title">Subscription Details</h2>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <span class="detail-label">Tier</span>
+                        <span class="detail-value">{{ user.subscription_tier | title }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Status</span>
+                        <span class="detail-value">
+                            {% if user.subscription_status == 'active' %}
+                                <span class="status-dot status-active"></span> Active
+                            {% elif user.subscription_status == 'cancelled' %}
+                                <span class="status-dot status-cancelled"></span> Cancelled
+                            {% elif user.subscription_status == 'expired' %}
+                                <span class="status-dot status-expired"></span> Expired
+                            {% else %}
+                                {{ user.subscription_status | title }}
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Start Date</span>
+                        <span class="detail-value">{{ user.subscription_start_date.strftime('%Y-%m-%d') if user.subscription_start_date else 'N/A' }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">End Date</span>
+                        <span class="detail-value">{{ user.subscription_end_date.strftime('%Y-%m-%d') if user.subscription_end_date else 'N/A (Lifetime)' }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Habit Limit</span>
+                        <span class="detail-value">{{ user.habit_limit if user.habit_limit < 100 else 'Unlimited' }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Last Payment</span>
+                        <span class="detail-value">{{ user.last_payment_date.strftime('%Y-%m-%d') if user.last_payment_date else 'Never' }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Actions -->
+    <div class="admin-card mb-4">
+        <h2 class="section-title">Admin Actions</h2>
+        <div class="action-buttons">
+            <!-- Grant Premium -->
+            {% if user.subscription_tier == 'free' or user.subscription_status != 'active' %}
+            <form action="{{ url_for('admin.grant_premium', user_id=user.id) }}" method="POST" class="d-inline-block">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="input-group">
+                    <select name="tier" class="form-select" style="max-width: 150px;">
+                        <option value="lifetime" selected>Lifetime</option>
+                        <option value="annual">Annual</option>
+                        <option value="monthly">Monthly</option>
+                    </select>
+                    <button type="submit" class="btn btn-success" onclick="return confirm('Grant premium access to this user?')">
+                        Grant Premium
+                    </button>
+                </div>
+            </form>
+            {% endif %}
+
+            <!-- Revoke Premium -->
+            {% if user.subscription_tier != 'free' and user.subscription_status == 'active' %}
+            <form action="{{ url_for('admin.revoke_premium', user_id=user.id) }}" method="POST" class="d-inline-block">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-warning" onclick="return confirm('Revoke premium access from this user? They will be downgraded to free tier.')">
+                    Revoke Premium
+                </button>
+            </form>
+            {% endif %}
+
+            <!-- Toggle Admin -->
+            <form action="{{ url_for('admin.toggle_admin', user_id=user.id) }}" method="POST" class="d-inline-block">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                {% if user.is_admin %}
+                    <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Remove admin privileges from this user?')">
+                        Remove Admin
+                    </button>
+                {% else %}
+                    <button type="submit" class="btn btn-outline-primary" onclick="return confirm('Grant admin privileges to this user?')">
+                        Make Admin
+                    </button>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <!-- Subscription History -->
+    <div class="admin-card mb-4">
+        <h2 class="section-title">Subscription History</h2>
+        {% if subscription_history %}
+        <div class="table-responsive">
+            <table class="table admin-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Amount</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in subscription_history %}
+                    <tr>
+                        <td>{{ record.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>{{ record.subscription_type | title }}</td>
+                        <td>{{ record.status | title }}</td>
+                        <td>{{ record.currency }} {{ record.amount if record.amount else '0.00' }}</td>
+                        <td class="text-muted">{{ record.notes[:50] if record.notes else '-' }}{{ '...' if record.notes and record.notes|length > 50 else '' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted text-center py-3">No subscription history found.</p>
+        {% endif %}
+    </div>
+
+    <!-- Recent Activity (Audit Logs) -->
+    <div class="admin-card">
+        <h2 class="section-title">Recent Activity</h2>
+        {% if audit_logs %}
+        <div class="table-responsive">
+            <table class="table admin-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Event</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in audit_logs %}
+                    <tr>
+                        <td class="text-muted">{{ log.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>
+                            <span class="badge bg-secondary">{{ log.event_type }}</span>
+                        </td>
+                        <td>{{ log.event_description[:60] }}{{ '...' if log.event_description|length > 60 else '' }}</td>
+                        <td>
+                            {% if log.success %}
+                                <span class="text-success">Success</span>
+                            {% else %}
+                                <span class="text-danger">Failed</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted text-center py-3">No activity logs found.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .user-email {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        word-break: break-all;
+    }
+
+    .admin-card {
+        background: var(--card-bg);
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 4px 15px var(--shadow-color);
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid var(--border-color);
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+    }
+
+    .detail-item {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .detail-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-muted);
+        font-weight: 600;
+    }
+
+    .detail-value {
+        font-size: 1rem;
+        color: var(--text-primary);
+        font-weight: 500;
+    }
+
+    .action-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    /* Tier badges */
+    .tier-lifetime {
+        background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+        color: #000;
+    }
+
+    .tier-annual {
+        background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+        color: #fff;
+    }
+
+    .tier-monthly {
+        background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+        color: #fff;
+    }
+
+    .tier-free {
+        background: var(--text-muted);
+        color: #fff;
+    }
+
+    /* Status dots */
+    .status-dot {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-right: 6px;
+    }
+
+    .status-active {
+        background: #10b981;
+        box-shadow: 0 0 6px rgba(16, 185, 129, 0.5);
+    }
+
+    .status-cancelled {
+        background: #ef4444;
+    }
+
+    .status-expired {
+        background: #6b7280;
+    }
+
+    /* Table */
+    .admin-table {
+        color: var(--text-primary);
+        margin-bottom: 0;
+    }
+
+    .admin-table thead th {
+        border-bottom: 2px solid var(--border-color);
+        color: var(--text-secondary);
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        padding: 12px 10px;
+    }
+
+    .admin-table tbody td {
+        border-bottom: 1px solid var(--border-color);
+        padding: 12px 10px;
+        vertical-align: middle;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .admin-card {
+            padding: 15px;
+        }
+
+        .user-email {
+            font-size: 1.25rem;
+        }
+
+        .detail-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .action-buttons form,
+        .action-buttons .btn {
+            width: 100%;
+        }
+
+        .action-buttons .input-group {
+            flex-direction: column;
+        }
+
+        .action-buttons .input-group .form-select {
+            max-width: 100% !important;
+            border-radius: 6px !important;
+            margin-bottom: 10px;
+        }
+
+        .action-buttons .input-group .btn {
+            border-radius: 6px !important;
+        }
+    }
+</style>
+{% endblock %}

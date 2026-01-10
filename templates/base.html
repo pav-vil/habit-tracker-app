@@ -451,6 +451,21 @@
             color: white !important;
         }
 
+        /* Admin button */
+        .nav-admin {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%) !important;
+            color: white !important;
+            box-shadow: 0 2px 8px rgba(5, 150, 105, 0.3);
+            font-weight: 600;
+        }
+
+        .nav-admin:hover {
+            background: linear-gradient(135deg, #047857 0%, #059669 100%) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.5) !important;
+            color: white !important;
+        }
+
         /* Icon styling in nav */
         .nav-icon {
             font-size: 1.1rem;
@@ -1016,6 +1031,14 @@
                                 <span>Period Tracker</span>
                             </a>
                         </li>
+                        {% if current_user.is_admin %}
+                        <li class="nav-item">
+                            <a class="nav-link nav-admin" href="{{ url_for('admin.users') }}">
+                                <span style="font-size: 1.1rem;">🛡️</span>
+                                <span>Admin</span>
+                            </a>
+                        </li>
+                        {% endif %}
                         <li class="nav-item d-none d-lg-block">
                             <span class="nav-link nav-email" aria-label="Logged in as {{ current_user.email }}">
                                 {{ current_user.email }}
